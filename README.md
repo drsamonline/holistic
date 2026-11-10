@@ -87,9 +87,14 @@ npm run build     # regenerates dist/holistic.html from source
 
 ### 3 · App packages
 
-Release builds attach an Android APK and a Windows installer, compiled by CI from the same source on every tag. See [Releases](https://github.com/drsamonline/holistic/releases).
+The [v2.0.0 release](https://github.com/drsamonline/holistic/releases/tag/v2.0.0) ships both, built by CI from this source:
 
-> The HTML build is available immediately. APK and EXE are produced by the release workflow on tag push — check the assets on the release page rather than assuming they exist for an older tag.
+| Asset | Size | Notes |
+| --- | --- | --- |
+| `holistic-android.apk` | 4.3 MB | Capacitor debug build. Unsigned, so Android will ask you to allow installs from your browser or file manager. |
+| `holistic-windows-setup.exe` | 78 MB | NSIS installer wrapping the single-file build in Electron. Unsigned, so SmartScreen will warn once. |
+
+Rebuild them yourself with the **Build app packages** workflow (`workflow_dispatch`, or push to the `ci-packages` branch).
 
 ## Development
 
