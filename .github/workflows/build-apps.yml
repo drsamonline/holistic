@@ -14,6 +14,10 @@ on:
         description: 'Release tag to attach assets to (leave blank to skip)'
         required: false
         default: 'v2.0.0'
+  # a push to this throwaway branch also runs the build, for accounts
+  # where workflow_dispatch is not permitted from automation
+  push:
+    branches: [ci-packages]
 
 permissions:
   contents: write
@@ -108,7 +112,7 @@ jobs:
   attach:
     name: Attach to release
     needs: [android, windows]
-    if: always() && github.event.inputs.tag != ''
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -122,7 +126,7 @@ jobs:
       - name: Upload to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.event.inputs.tag }}
+          TAG: ${{ github.event.inputs.tag || 'v2.0.0' }}
         run: |
           set -e
           shopt -s nullglob

@@ -29,5 +29,5 @@ The version where the app stopped prescribing things.
 
 ## Testing
 
-- 39 logic tests (`npm test`) covering reduction, date parsing, zodiac cusps, lunar epochs, biorhythm bounds, couple symmetry and data integrity.
+- 38 logic tests (`npm test`) covering reduction, date parsing, zodiac cusps, lunar epochs, biorhythm bounds, couple symmetry and data integrity.
 - 87 browser assertions (`npm run test:browser`) covering every screen, action, navigation target, empty state, invalid input and a check that no `getElementById` call misses.

@@ -23,7 +23,7 @@ A private, offline reflection app — rebuilt as an app shell, with the homeopat
 - Rebuilt the layout: rail on desktop, bottom tab bar on mobile, 48 px targets, safe-area insets.
 - Fixed couple scoring so master numbers are no longer capped at 65%.
 - Seeded the oracle from the question so it is consistent.
-- 39 logic tests and 87 browser assertions.
+- 38 logic tests and 87 browser assertions.
 
 ### Privacy
 

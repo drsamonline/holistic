@@ -9,7 +9,7 @@
 [![Live app](https://img.shields.io/badge/live_app-open-8b5cf6?style=flat-square)](https://drsamonline.github.io/holistic/)
 [![Release](https://img.shields.io/github/v/release/drsamonline/holistic?style=flat-square&color=14b8a6)](https://github.com/drsamonline/holistic/releases)
 [![Licence](https://img.shields.io/badge/licence-PolyForm_Noncommercial_1.0.0-f59e0b?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-39_passing-4d6b1f?style=flat-square)](#testing)
+[![Tests](https://img.shields.io/badge/tests-38_passing-4d6b1f?style=flat-square)](#testing)
 [![Size](https://img.shields.io/badge/single_file-92_KB-0ea5e9?style=flat-square)](dist/holistic.html)
 [![Network](https://img.shields.io/badge/network_requests-0-e11d48?style=flat-square)](#privacy)
 
@@ -112,7 +112,7 @@ assets/js/ui.js             rendering — no event handling
 assets/js/app.js            state, routing, events, storage
 landing/                    marketing page
 scripts/                    build, screenshot and test harnesses
-tests/core.test.mjs         39 logic tests
+tests/core.test.mjs         38 logic tests
 tests/harness/browser.js    87 in-browser assertions
 sw.js · manifest.webmanifest
 ```
@@ -120,7 +120,7 @@ sw.js · manifest.webmanifest
 ### Testing
 
 ```bash
-npm test              # 39 logic tests, Node's built-in runner
+npm test              # 38 logic tests, Node's built-in runner
 npm run test:browser  # 87 DOM assertions in headless chromium
 npm run build         # single-file bundle
 ```
