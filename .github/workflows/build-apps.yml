@@ -37,7 +37,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       # ubuntu-latest ships the Android SDK preinstalled; installing it
       # again with setup-android fails on the removed legacy 'tools' package.
