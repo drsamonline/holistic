@@ -19,8 +19,7 @@
     "productName": "Holistic",
     "files": [
       "main.cjs",
-      "package.json",
-      "../dist/holistic.html"
+      "package.json"
     ],
     "extraResources": [
       {
@@ -32,11 +31,13 @@
       "target": [
         "nsis"
       ],
-      "icon": "../assets/icon-512.png"
+      "icon": "../assets/icon.ico"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Holistic"
     },
     "directories": {
       "output": "release"

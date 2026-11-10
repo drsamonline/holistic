@@ -1,14 +1,22 @@
 name: Build app packages
 
-# Manual only. Produces an Android debug APK and a Windows installer as
-# workflow artifacts. Kept out of the release job so a toolchain failure
-# can never block the HTML build from shipping.
+# Manual dispatch. Produces an Android debug APK and a Windows NSIS
+# installer as workflow artifacts, then attaches them to the release for
+# the current tag if one exists.
+#
+# Kept separate from release.yml so a toolchain failure can never block
+# the HTML build from shipping.
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to attach assets to (leave blank to skip)'
+        required: false
+        default: 'v2.0.0'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   android:
@@ -31,28 +39,35 @@ jobs:
 
       - name: Stage the web app
         run: |
+          set -e
           mkdir -p www
           cp index.html manifest.webmanifest sw.js www/
           cp -r assets www/assets
 
       - name: Add Capacitor
         run: |
-          npm init -y >/dev/null
-          npm i -D @capacitor/cli @capacitor/core @capacitor/android
+          set -e
+          npm i -D --no-audit --no-fund @capacitor/cli @capacitor/core @capacitor/android
           npx cap add android
           npx cap sync android
 
       - name: Assemble debug APK
+        working-directory: android
         run: |
-          cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Rename artifact
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/debug/app-debug.apk out/holistic-android.apk
+          ls -lh out
 
       - uses: actions/upload-artifact@v4
         with:
-          name: holistic-android-debug
-          path: android/app/build/outputs/apk/debug/*.apk
-          if-no-files-found: warn
+          name: holistic-android
+          path: out/holistic-android.apk
+          if-no-files-found: error
 
   windows:
     name: Windows installer
@@ -65,16 +80,55 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Electron
+      - name: Build the single-file bundle
+        run: node scripts/build-single-file.mjs
+
+      - name: Install Electron toolchain
         working-directory: desktop
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Build installer
         working-directory: desktop
         run: npx electron-builder --win nsis --publish never
 
+      - name: Rename artifact
+        shell: bash
+        run: |
+          mkdir -p out
+          ls -R desktop/release | head -40
+          cp desktop/release/*.exe out/holistic-windows-setup.exe
+          ls -lh out
+
       - uses: actions/upload-artifact@v4
         with:
           name: holistic-windows
-          path: desktop/release/*.exe
-          if-no-files-found: warn
+          path: out/holistic-windows-setup.exe
+          if-no-files-found: error
+
+  attach:
+    name: Attach to release
+    needs: [android, windows]
+    if: always() && github.event.inputs.tag != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List what we got
+        run: ls -lhR artifacts || true
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.inputs.tag }}
+        run: |
+          set -e
+          shopt -s nullglob
+          files=(artifacts/*.apk artifacts/*.exe)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::warning title=Nothing to attach::Both package jobs failed; the HTML build remains available."
+            exit 0
+          fi
+          gh release upload "$TAG" "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
