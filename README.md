@@ -75,6 +75,8 @@ There is no homeopathy content in this project. An earlier prototype carried a r
 
 Open **[drsamonline.github.io/holistic](https://drsamonline.github.io/holistic/app/)** and use your browser's **Install** or **Add to Home Screen**. It caches itself and works offline afterwards.
 
+> **First deploy:** Pages has to be switched on once — *Settings → Pages → Build and deployment → Source: **GitHub Actions***. The Deploy workflow then publishes the landing page at `/` and the app at `/app/`. Until the toggle is flipped the workflow runs green and skips the deploy with a notice.
+
 ### 2 · Single HTML file
 
 Download `holistic.html` from the [latest release](https://github.com/drsamonline/holistic/releases/latest) and double-click it. Everything is inlined — it runs from a USB stick, an email attachment, or `file://` with no server.
