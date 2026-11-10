@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<!--
+  Holistic v2.0.0 — single-file build
+  Personal reflection, offline. No accounts, no tracking, nothing leaves the device.
+  Author: Dr Sohil Momin · Licence: PolyForm Noncommercial 1.0.0
+  Source: https://github.com/drsamonline/holistic
+  Built: 2026-11-10T19:28:33.742Z
+-->
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="description" content="Holistic — a private, offline reflection app built on numerology, sun-sign astrology, lunar phase and biorhythm. No accounts, no tracking, nothing leaves your device.">
+<meta name="color-scheme" content="dark">
+<title>Holistic — personal reflection, offline</title>
+<style>
+/* ============================================================
+   Holistic — app stylesheet
+   Dark, aurora-accented, app-shell layout.
+   Mobile: top bar + bottom tab bar.  Desktop: fixed left rail.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0e1a;
+  --bg-2: #0d1322;
+  --surface: #131a2c;
+  --surface-2: #182137;
+  --surface-3: #1e2942;
+  --line: rgba(255, 255, 255, .09);
+  --line-2: rgba(255, 255, 255, .055);
+
+  --ink: #f2f5fb;
+  --ink-2: #b8c2d9;
+  --ink-3: #7f8aa6;
+  --ink-4: #5a6478;
+
+  --violet: #8b5cf6;
+  --violet-2: #a78bfa;
+  --teal: #14b8a6;
+  --rose: #f43f5e;
+  --amber: #f59e0b;
+  --sky: #38bdf8;
+  --lime: #a3e635;
+
+  --r-sm: 10px;
+  --r: 16px;
+  --r-lg: 22px;
+
+  --rail: 232px;
+  --bar: 62px;
+
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'SFMono-Regular', ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace;
+
+  --tap: 48px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  font-size: 15px;
+}
+
+/* Static aurora — one paint, no animation loop, cheap on mobile GPUs */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(900px 520px at 12% -8%, rgba(139, 92, 246, .30), transparent 62%),
+    radial-gradient(760px 480px at 92% 4%, rgba(20, 184, 166, .20), transparent 60%),
+    radial-gradient(700px 620px at 60% 104%, rgba(244, 63, 94, .14), transparent 62%),
+    var(--bg);
+}
+
+::selection { background: rgba(139, 92, 246, .38); color: #fff; }
+
+:focus-visible {
+  outline: 2px solid var(--violet-2);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---------------- app shell ---------------- */
+
+.app { display: flex; min-height: 100dvh; }
+
+/* ---- left rail (desktop) ---- */
+.rail {
+  position: fixed; inset: 0 auto 0 0; width: var(--rail);
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 20px 14px;
+  background: rgba(9, 13, 24, .82);
+  border-right: 1px solid var(--line);
+  z-index: 40;
+}
+
+.brand { display: flex; align-items: center; gap: 11px; padding: 6px 8px 18px; }
+.brand-mark {
+  width: 38px; height: 38px; border-radius: 11px; flex: none;
+  display: grid; place-items: center; font-size: 17px;
+  background: linear-gradient(140deg, var(--violet), var(--rose) 55%, var(--amber));
+  box-shadow: 0 6px 18px rgba(139, 92, 246, .38);
+}
+.brand-name { font-size: 15px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+.brand-sub { font-size: 10.5px; color: var(--ink-4); letter-spacing: .09em; text-transform: uppercase; margin-top: 2px; }
+
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  height: 44px; padding: 0 12px;
+  border: 0; border-radius: 11px; background: none;
+  color: var(--ink-3); font: inherit; font-size: 14px; font-weight: 500;
+  cursor: pointer; text-align: left; width: 100%;
+  transition: background .16s, color .16s;
+}
+.nav-item .ico { font-size: 16px; width: 20px; text-align: center; flex: none; opacity: .85; }
+.nav-item:hover { background: rgba(255, 255, 255, .05); color: var(--ink-2); }
+.nav-item[aria-current="page"] {
+  background: linear-gradient(90deg, rgba(139, 92, 246, .22), rgba(139, 92, 246, .06));
+  color: #fff;
+  box-shadow: inset 2px 0 0 var(--violet-2);
+}
+.nav-item[aria-current="page"] .ico { opacity: 1; }
+
+.rail-foot { margin-top: auto; padding: 12px 8px 0; border-top: 1px solid var(--line-2); }
+.rail-foot p { font-size: 11px; color: var(--ink-4); line-height: 1.5; }
+.rail-foot a { color: var(--ink-3); text-decoration: none; }
+.rail-foot a:hover { color: var(--violet-2); }
+
+/* ---- top bar (mobile) ---- */
+.topbar {
+  display: none;
+  position: sticky; top: 0; z-index: 30;
+  height: var(--bar);
+  align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  background: rgba(10, 14, 26, .88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.topbar .brand { padding: 0; gap: 9px; }
+.topbar .brand-mark { width: 32px; height: 32px; border-radius: 9px; font-size: 14px; }
+.topbar .brand-name { font-size: 14px; }
+
+.icon-btn {
+  width: 40px; height: 40px; flex: none;
+  display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: 11px;
+  background: var(--surface); color: var(--ink-2);
+  font-size: 16px; cursor: pointer;
+  transition: background .16s, transform .1s;
+}
+.icon-btn:hover { background: var(--surface-2); }
+.icon-btn:active { transform: scale(.94); }
+
+/* ---- bottom tab bar (mobile) ---- */
+.tabbar {
+  display: none;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  padding: 6px 6px calc(6px + var(--safe-b));
+  background: rgba(13, 19, 34, .95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--line);
+}
+.tabbar-inner { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
+.tab {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-height: 52px; padding: 4px 2px;
+  border: 0; border-radius: 12px; background: none;
+  color: var(--ink-4); font: inherit; font-size: 10.5px; font-weight: 500;
+  cursor: pointer; transition: color .16s, background .16s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab .ico { font-size: 19px; line-height: 1; }
+.tab[aria-current="page"] { color: var(--violet-2); background: rgba(139, 92, 246, .13); }
+.tab:active { transform: scale(.96); }
+
+/* ---- main ---- */
+.main {
+  flex: 1;
+  min-width: 0;
+  margin-left: var(--rail);
+  padding: 30px 34px 60px;
+}
+.screen { display: none; max-width: 1080px; margin: 0 auto; }
+.screen.is-active { display: block; animation: rise .26s ease both; }
+@keyframes rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+
+/* ---------------- typography ---------------- */
+
+.page-head { margin-bottom: 22px; }
+.eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--violet-2); margin-bottom: 7px;
+}
+h1 { font-size: 26px; font-weight: 700; letter-spacing: -.025em; line-height: 1.2; }
+h2 { font-size: 17px; font-weight: 650; letter-spacing: -.015em; margin-bottom: 12px; }
+h3 { font-size: 14px; font-weight: 600; letter-spacing: -.01em; margin-bottom: 8px; }
+.lede { color: var(--ink-3); font-size: 14px; margin-top: 7px; max-width: 62ch; }
+.sub { font-size: 12.5px; color: var(--ink-3); }
+
+/* ---------------- cards & grids ---------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px;
+}
+.card--flush { padding: 0; overflow: hidden; }
+.card--accent {
+  background: linear-gradient(150deg, rgba(139, 92, 246, .18), rgba(139, 92, 246, .04) 55%, transparent);
+  border-color: rgba(139, 92, 246, .28);
+}
+
+.grid { display: grid; gap: 14px; }
+.g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.g-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.span-2 { grid-column: span 2; }
+
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; align-items: center; gap: 10px; }
+.row--between { justify-content: space-between; }
+.wrap { flex-wrap: wrap; }
+
+/* ---------------- stat tiles ---------------- */
+
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 6px;
+  min-width: 0;
+}
+.tile-label {
+  font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-4); font-weight: 600;
+}
+.tile-value { font-size: 24px; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; }
+.tile-note { font-size: 12px; color: var(--ink-3); line-height: 1.4; }
+.tile--hero { grid-column: span 2; padding: 20px; }
+.tile--hero .tile-value { font-size: 34px; }
+
+/* ---------------- big number / gauge ---------------- */
+
+.gauge-wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.gauge { position: relative; width: 132px; height: 132px; flex: none; }
+.gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.gauge .track { fill: none; stroke: rgba(255, 255, 255, .07); stroke-width: 9; }
+.gauge .fill {
+  fill: none; stroke-width: 9; stroke-linecap: round;
+  transition: stroke-dashoffset .8s cubic-bezier(.22, 1, .36, 1);
+}
+.gauge-center {
+  position: absolute; inset: 0;
+  display: grid; place-items: center; text-align: center;
+}
+.gauge-num { font-size: 34px; font-weight: 700; letter-spacing: -.04em; line-height: 1; }
+.gauge-cap { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-4); margin-top: 3px; }
+
+/* ---------------- moon disc ---------------- */
+
+.moon-disc { width: 96px; height: 96px; flex: none; position: relative; }
+.moon-disc svg { width: 100%; height: 100%; display: block; }
+.moon-meta { min-width: 0; }
+.moon-name { font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
+.moon-note { font-size: 13px; color: var(--ink-3); margin-top: 4px; line-height: 1.45; }
+
+/* ---------------- chart ---------------- */
+
+.chart { width: 100%; height: 210px; display: block; overflow: visible; }
+.chart-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+.legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-3); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+
+/* ---------------- segmented control ---------------- */
+
+.seg {
+  display: inline-flex; padding: 3px; gap: 2px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 11px;
+}
+.seg button {
+  border: 0; background: none; color: var(--ink-3);
+  font: inherit; font-size: 12.5px; font-weight: 550;
+  padding: 0 14px; height: 32px; border-radius: 8px;
+  cursor: pointer; transition: background .16s, color .16s;
+  white-space: nowrap;
+}
+.seg button[aria-pressed="true"] { background: var(--violet); color: #fff; box-shadow: 0 2px 10px rgba(139, 92, 246, .34); }
+.seg button:hover:not([aria-pressed="true"]) { color: var(--ink); }
+
+/* ---------------- bars ---------------- */
+
+.meter { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.meter > i { display: block; height: 100%; border-radius: 3px; transition: width .7s cubic-bezier(.22, 1, .36, 1); }
+
+.bio-row { display: grid; grid-template-columns: 96px 1fr 54px; align-items: center; gap: 12px; }
+.bio-row .nm { font-size: 13px; color: var(--ink-2); font-weight: 500; }
+.bio-row .val { font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; color: var(--ink-2); }
+
+/* ---------------- forms ---------------- */
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 12px; font-weight: 550; color: var(--ink-3); letter-spacing: .01em; }
+.field label .req { color: var(--rose); }
+input[type="text"], input[type="date"], input[type="time"], input[type="number"], select, textarea {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  font: inherit; font-size: 15px;
+  transition: border-color .16s, background .16s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+textarea { padding: 13px 14px; min-height: 84px; resize: vertical; line-height: 1.5; }
+select {
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%), linear-gradient(135deg, var(--ink-3) 50%, transparent 50%);
+  background-position: calc(100% - 19px) 21px, calc(100% - 14px) 21px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 38px;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--violet);
+  background: var(--surface-3);
+}
+input::placeholder, textarea::placeholder { color: var(--ink-4); }
+input[type="date"], input[type="time"] { color-scheme: dark; }
+
+/* ---------------- buttons ---------------- */
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: var(--tap);
+  padding: 0 20px;
+  border: 1px solid transparent; border-radius: 12px;
+  font: inherit; font-size: 14.5px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: transform .1s, filter .16s, background .16s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.btn:active { transform: scale(.975); }
+.btn--primary {
+  background: linear-gradient(135deg, var(--violet), #6d3ff0);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(139, 92, 246, .34);
+}
+.btn--primary:hover { filter: brightness(1.08); }
+.btn--ghost { background: var(--surface-2); border-color: var(--line); color: var(--ink-2); }
+.btn--ghost:hover { background: var(--surface-3); color: var(--ink); }
+.btn--danger { background: rgba(244, 63, 94, .12); border-color: rgba(244, 63, 94, .3); color: #fb7185; }
+.btn--danger:hover { background: rgba(244, 63, 94, .2); }
+.btn--block { width: 100%; }
+.btn--sm { min-height: 38px; padding: 0 14px; font-size: 13px; border-radius: 10px; }
+
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ---------------- chips ---------------- */
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  font-size: 12px; color: var(--ink-2); font-weight: 500;
+  white-space: nowrap;
+}
+.chip--violet { background: rgba(139, 92, 246, .16); border-color: rgba(139, 92, 246, .32); color: var(--violet-2); }
+.chip--teal { background: rgba(20, 184, 166, .14); border-color: rgba(20, 184, 166, .3); color: #5eead4; }
+.chip--amber { background: rgba(245, 158, 11, .14); border-color: rgba(245, 158, 11, .3); color: #fbbf24; }
+.chip--rose { background: rgba(244, 63, 94, .14); border-color: rgba(244, 63, 94, .3); color: #fb7185; }
+
+/* ---------------- key/value rows ---------------- */
+
+.kv { display: flex; flex-direction: column; }
+.kv-row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  padding: 11px 0; border-bottom: 1px solid var(--line-2);
+  font-size: 13.5px;
+}
+.kv-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.kv-row:first-child { padding-top: 0; }
+.kv-key { color: var(--ink-3); flex: none; }
+.kv-val { color: var(--ink); font-weight: 500; text-align: right; min-width: 0; }
+
+/* ---------------- notices ---------------- */
+
+.notice {
+  display: flex; gap: 11px;
+  padding: 13px 15px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 13px; color: var(--ink-2); line-height: 1.5;
+}
+.notice .ico { flex: none; font-size: 15px; line-height: 1.35; }
+.notice--warn { background: rgba(245, 158, 11, .09); border-color: rgba(245, 158, 11, .25); color: #fcd34d; }
+.notice--info { background: rgba(56, 189, 248, .09); border-color: rgba(56, 189, 248, .22); color: #7dd3fc; }
+.notice strong { color: inherit; }
+
+/* ---------------- empty state ---------------- */
+
+.empty {
+  text-align: center; padding: 44px 20px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r);
+  color: var(--ink-3); font-size: 14px;
+}
+.empty .ico { font-size: 28px; display: block; margin-bottom: 10px; opacity: .6; }
+
+/* ---------------- toast ---------------- */
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(84px + var(--safe-b));
+  transform: translate(-50%, 14px);
+  z-index: 90;
+  max-width: min(92vw, 400px);
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: var(--surface-3);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 13.5px; font-weight: 500;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .5);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s, transform .2s;
+}
+.toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+.toast.is-error { border-color: rgba(244, 63, 94, .45); color: #fda4af; }
+.toast.is-ok { border-color: rgba(20, 184, 166, .45); color: #5eead4; }
+
+/* ---------------- oracle ---------------- */
+
+.oracle-out {
+  border-radius: var(--r);
+  padding: 22px;
+  background: linear-gradient(160deg, rgba(139, 92, 246, .16), rgba(20, 184, 166, .07));
+  border: 1px solid rgba(139, 92, 246, .26);
+  animation: rise .3s ease both;
+}
+.oracle-type { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--violet-2); font-weight: 600; }
+.oracle-card { font-size: 21px; font-weight: 700; letter-spacing: -.025em; margin: 7px 0 9px; }
+.oracle-body { font-size: 14.5px; color: var(--ink-2); line-height: 1.55; }
+
+/* ---------------- footer meta ---------------- */
+
+.meta-foot {
+  margin-top: 34px; padding-top: 18px;
+  border-top: 1px solid var(--line-2);
+  font-size: 11.5px; color: var(--ink-4);
+  display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+}
+.meta-foot a { color: var(--ink-3); text-decoration: none; }
+.meta-foot a:hover { color: var(--violet-2); }
+
+/* ---------------- responsive ---------------- */
+
+@media (max-width: 1080px) {
+  .main { padding: 26px 24px 56px; }
+}
+
+@media (max-width: 860px) {
+  /* the shell stops being a flex row: top bar, content, tab bar stack */
+  .app { display: block; }
+  .rail { display: none; }
+  .topbar { display: flex; }
+  .tabbar { display: block; }
+  .main {
+    margin-left: 0;
+    padding: 18px 15px calc(96px + var(--safe-b));
+  }
+  h1 { font-size: 22px; }
+  .g-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile--hero { grid-column: span 2; }
+  .card { padding: 15px; border-radius: 14px; }
+  .chart { height: 168px; }
+  .gauge { width: 112px; height: 112px; }
+  .gauge-num { font-size: 29px; }
+}
+
+@media (max-width: 560px) {
+  .g-2, .g-3, .g-4 { grid-template-columns: minmax(0, 1fr); }
+  .span-2, .tile--hero { grid-column: span 1; }
+  .bio-row { grid-template-columns: 78px 1fr 46px; gap: 10px; }
+  .tile-value { font-size: 21px; }
+  .tile--hero .tile-value { font-size: 27px; }
+  .btn-row .btn { flex: 1 1 auto; }
+  .oracle-card { font-size: 18px; }
+  .moon-disc { width: 78px; height: 78px; }
+}
+
+/* very large screens: keep the content readable, don't stretch */
+@media (min-width: 1500px) {
+  .main { padding: 40px 56px 80px; }
+  .screen { max-width: 1180px; }
+}
+
+/* landscape phones — short viewport */
+@media (max-height: 520px) and (max-width: 900px) {
+  .topbar { height: 52px; }
+  .tabbar { padding-bottom: 4px; }
+  .tab { min-height: 44px; }
+  .tab .ico { font-size: 17px; }
+}
+
+/* ---------------- print ---------------- */
+
+@media print {
+  body { background: #fff; color: #111; font-size: 10.5pt; }
+  body::before { display: none; }
+  .rail, .topbar, .tabbar, .toast, .btn, .seg, .no-print { display: none !important; }
+  .main { margin: 0; padding: 0; }
+  .screen { display: block !important; }
+  .screen:not(#screen-report) { display: none !important; }
+  .card, .tile { background: #fff; border: 1px solid #ddd; color: #111; break-inside: avoid; }
+  .tile-value, h1, h2, h3, .kv-val, .moon-name { color: #111; }
+  .tile-label, .tile-note, .kv-key, .lede, .sub, .moon-note { color: #555; }
+  .chip { border: 1px solid #ccc; background: #f5f5f5; color: #333; }
+  .chart { height: 150px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ══════════ desktop rail ══════════ -->
+  <aside class="rail" aria-label="Primary">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">✦</div>
+      <div>
+        <div class="brand-name">Holistic</div>
+        <div class="brand-sub">Reflection</div>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Sections">
+      <button class="nav-item" data-go="today"    aria-current="page"><span class="ico" aria-hidden="true">◉</span>Today</button>
+      <button class="nav-item" data-go="numbers"><span class="ico" aria-hidden="true">#</span>Numbers</button>
+      <button class="nav-item" data-go="sky"><span class="ico" aria-hidden="true">☾</span>Sky</button>
+      <button class="nav-item" data-go="couple"><span class="ico" aria-hidden="true">∞</span>Couple</button>
+      <button class="nav-item" data-go="oracle"><span class="ico" aria-hidden="true">✧</span>Oracle</button>
+      <button class="nav-item" data-go="report"><span class="ico" aria-hidden="true">▤</span>Report</button>
+      <button class="nav-item" data-go="profile"><span class="ico" aria-hidden="true">⚙</span>Profile</button>
+    </nav>
+
+    <div class="rail-foot">
+      <p>Everything stays in this browser.<br>
+        <a href="https://github.com/drsamonline/holistic" target="_blank" rel="noopener">Source &amp; licence</a></p>
+    </div>
+  </aside>
+
+  <!-- ══════════ mobile top bar ══════════ -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">✦</div>
+      <div class="brand-name">Holistic</div>
+    </div>
+    <div class="row" style="gap:8px">
+      <button class="icon-btn" data-go="report" aria-label="Report">▤</button>
+      <button class="icon-btn" data-go="profile" aria-label="Profile and settings">⚙</button>
+    </div>
+  </header>
+
+  <!-- ══════════ main ══════════ -->
+  <main class="main">
+
+    <!-- ───── TODAY ───── -->
+    <section class="screen is-active" id="screen-today" aria-labelledby="h-today">
+      <div class="page-head">
+        <div class="eyebrow" id="todayDate">—</div>
+        <h1 id="h-today">Today</h1>
+        <p class="lede" id="todayLede">Set your birth date once and this screen fills in every day.</p>
+      </div>
+
+      <div id="todayEmpty" class="empty" hidden>
+        <span class="ico" aria-hidden="true">◉</span>
+        No profile yet. Add a name and birth date to begin.
+        <div style="margin-top:16px"><button class="btn btn--primary" data-go="profile">Set up profile</button></div>
+      </div>
+
+      <div id="todayBody" hidden>
+        <div class="grid g-3" style="margin-bottom:14px">
+          <div class="card span-2">
+            <div class="row" style="gap:18px;flex-wrap:wrap">
+              <div class="moon-disc" id="todayMoonDisc" aria-hidden="true"></div>
+              <div class="moon-meta">
+                <div class="moon-name" id="todayMoonName">—</div>
+                <div class="moon-note" id="todayMoonNote">—</div>
+              </div>
+            </div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">Universal day</div>
+            <div class="tile-value" id="todayDayNum">—</div>
+            <div class="tile-note" id="todayDayNote">—</div>
+          </div>
+        </div>
+
+        <div class="grid g-2" style="margin-bottom:14px">
+          <div class="card">
+            <h2>Biorhythm today</h2>
+            <div class="stack" style="gap:13px;margin-top:14px">
+              <div class="bio-row">
+                <span class="nm">Physical</span>
+                <div class="meter"><i id="bioPhysicalBar" style="width:0%;background:var(--rose)"></i></div>
+                <span class="val" id="bioPhysicalVal">—</span>
+              </div>
+              <div class="bio-row">
+                <span class="nm">Emotional</span>
+                <div class="meter"><i id="bioEmotionalBar" style="width:0%;background:var(--violet)"></i></div>
+                <span class="val" id="bioEmotionalVal">—</span>
+              </div>
+              <div class="bio-row">
+                <span class="nm">Intellectual</span>
+                <div class="meter"><i id="bioIntellectualBar" style="width:0%;background:var(--teal)"></i></div>
+                <span class="val" id="bioIntellectualVal">—</span>
+              </div>
+            </div>
+            <p class="sub" id="bioAdvice" style="margin-top:14px">—</p>
+          </div>
+
+          <div class="card">
+            <h2>Coming up</h2>
+            <div class="kv" id="todayPhases"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row row--between wrap" style="margin-bottom:4px">
+            <h2 style="margin:0">Your number today</h2>
+            <span class="chip chip--violet" id="todayPowerChip">—</span>
+          </div>
+          <p class="sub" id="todayPowerNote" style="margin:10px 0 16px">—</p>
+          <div class="btn-row">
+            <button class="btn btn--ghost btn--sm" data-go="numbers">Full reading</button>
+            <button class="btn btn--ghost btn--sm" data-go="sky">30-day chart</button>
+            <button class="btn btn--ghost btn--sm" data-go="oracle">Ask the oracle</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── NUMBERS ───── -->
+    <section class="screen" id="screen-numbers" aria-labelledby="h-numbers">
+      <div class="page-head">
+        <div class="eyebrow">Numerology</div>
+        <h1 id="h-numbers">Numbers</h1>
+        <p class="lede">Derived from your birth date and the spelling of your name. Master numbers 11 and 22 are kept unreduced.</p>
+      </div>
+
+      <div id="numbersEmpty" class="empty" hidden>
+        <span class="ico" aria-hidden="true">#</span>
+        Add your birth date to see your numbers.
+        <div style="margin-top:16px"><button class="btn btn--primary" data-go="profile">Set up profile</button></div>
+      </div>
+
+      <div id="numbersBody" hidden>
+        <div class="card card--accent" style="margin-bottom:14px">
+          <div class="gauge-wrap">
+            <div class="gauge">
+              <svg viewBox="0 0 120 120" role="img" aria-labelledby="gaugeTitle">
+                <title id="gaugeTitle">Power number gauge</title>
+                <circle class="track" cx="60" cy="60" r="50"></circle>
+                <circle class="fill" id="powerArc" cx="60" cy="60" r="50" stroke="#a78bfa"></circle>
+              </svg>
+              <div class="gauge-center">
+                <div>
+                  <div class="gauge-num" id="powerNum">—</div>
+                  <div class="gauge-cap">Power</div>
+                </div>
+              </div>
+            </div>
+            <div style="min-width:0;flex:1">
+              <div class="row wrap" style="gap:8px;margin-bottom:8px">
+                <h2 style="margin:0" id="powerName">—</h2>
+                <span class="chip" id="powerElement">—</span>
+              </div>
+              <p class="sub" id="powerTrait" style="font-size:13.5px">—</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g-2" style="margin-bottom:14px">
+          <div class="card">
+            <h3>Strengths</h3>
+            <p class="sub" id="powerStrengths" style="font-size:13.5px;color:var(--ink-2)">—</p>
+          </div>
+          <div class="card">
+            <h3>Watch for</h3>
+            <p class="sub" id="powerWatch" style="font-size:13.5px;color:var(--ink-2)">—</p>
+          </div>
+        </div>
+
+        <div class="grid g-3" style="margin-bottom:14px">
+          <div class="tile">
+            <div class="tile-label">Personal year</div>
+            <div class="tile-value" id="personalYear">—</div>
+            <div class="tile-note" id="personalYearNote">—</div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">Name number</div>
+            <div class="tile-value" id="nameNumber">—</div>
+            <div class="tile-note" id="nameNumberNote">—</div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">Soul urge</div>
+            <div class="tile-value" id="soulNumber">—</div>
+            <div class="tile-note" id="soulNumberNote">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row row--between wrap" style="margin-bottom:12px">
+            <h2 style="margin:0">Personal days this month</h2>
+            <span class="sub" id="luckyMonth">—</span>
+          </div>
+          <div class="row wrap" style="gap:8px" id="luckyDates"></div>
+          <p class="sub" style="margin-top:14px">Dates whose digit sum lands on your power digit. Use them for the things you keep postponing, not for decisions you have not thought through.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── SKY ───── -->
+    <section class="screen" id="screen-sky" aria-labelledby="h-sky">
+      <div class="page-head">
+        <div class="eyebrow">Astrology &amp; cycles</div>
+        <h1 id="h-sky">Sky</h1>
+        <p class="lede">Sun sign from your birth date, lunar phase for today, and the three biorhythm cycles over the month ahead.</p>
+      </div>
+
+      <div id="skyEmpty" class="empty" hidden>
+        <span class="ico" aria-hidden="true">☾</span>
+        Add your birth date to see your sign and cycles.
+        <div style="margin-top:16px"><button class="btn btn--primary" data-go="profile">Set up profile</button></div>
+      </div>
+
+      <div id="skyBody" hidden>
+        <div class="grid g-3" style="margin-bottom:14px">
+          <div class="card span-2">
+            <div class="row" style="gap:16px">
+              <div style="font-size:44px;line-height:1" id="zodiacGlyph" aria-hidden="true">♈</div>
+              <div style="min-width:0">
+                <div class="row wrap" style="gap:8px">
+                  <h2 style="margin:0" id="zodiacName">—</h2>
+                  <span class="chip chip--amber" id="zodiacElement">—</span>
+                  <span class="chip" id="zodiacModality">—</span>
+                </div>
+                <p class="sub" id="zodiacTrait" style="margin-top:6px">—</p>
+                <p class="sub" id="zodiacDates" style="margin-top:4px;color:var(--ink-4)">—</p>
+              </div>
+            </div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">Element reads as</div>
+            <div class="tile-value" style="font-size:16px;line-height:1.35" id="zodiacElementNote">—</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px">
+          <div class="row row--between wrap" style="margin-bottom:16px">
+            <h2 style="margin:0">Biorhythm chart</h2>
+            <div class="seg" role="group" aria-label="Chart range">
+              <button data-span="7" aria-pressed="false">7 days</button>
+              <button data-span="30" aria-pressed="true">30 days</button>
+              <button data-span="90" aria-pressed="false">90 days</button>
+            </div>
+          </div>
+          <svg class="chart" id="bioChart" viewBox="0 0 600 210" preserveAspectRatio="none" role="img" aria-labelledby="chartTitle">
+            <title id="chartTitle">Biorhythm cycles over time</title>
+          </svg>
+          <div class="chart-legend">
+            <span class="legend-item"><i class="legend-dot" style="background:#f43f5e"></i>Physical · 23d</span>
+            <span class="legend-item"><i class="legend-dot" style="background:#8b5cf6"></i>Emotional · 28d</span>
+            <span class="legend-item"><i class="legend-dot" style="background:#14b8a6"></i>Intellectual · 33d</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Lunar calendar</h2>
+          <div class="kv" id="skyPhases"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── COUPLE ───── -->
+    <section class="screen" id="screen-couple" aria-labelledby="h-couple">
+      <div class="page-head">
+        <div class="eyebrow">Compatibility</div>
+        <h1 id="h-couple">Couple</h1>
+        <p class="lede">Two birth dates, two sun signs, two numbers. Read it as a conversation starter, not a verdict on anyone.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="grid g-2">
+          <div class="field">
+            <label for="coupleA">Your birth date</label>
+            <input type="date" id="coupleA" min="1900-01-01" max="2200-12-31">
+          </div>
+          <div class="field">
+            <label for="coupleB">Partner's birth date</label>
+            <input type="date" id="coupleB" min="1900-01-01" max="2200-12-31">
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:16px">
+          <button class="btn btn--primary" data-action="couple">Compare</button>
+          <button class="btn btn--ghost" data-action="couple-clear">Clear</button>
+        </div>
+      </div>
+
+      <div id="coupleOut" hidden>
+        <div class="card card--accent" style="margin-bottom:14px">
+          <div class="gauge-wrap">
+            <div class="gauge">
+              <svg viewBox="0 0 120 120" role="img" aria-labelledby="coupleGaugeTitle">
+                <title id="coupleGaugeTitle">Compatibility score</title>
+                <circle class="track" cx="60" cy="60" r="50"></circle>
+                <circle class="fill" id="coupleArc" cx="60" cy="60" r="50" stroke="#14b8a6"></circle>
+              </svg>
+              <div class="gauge-center">
+                <div>
+                  <div class="gauge-num" id="coupleScore">—</div>
+                  <div class="gauge-cap">Score</div>
+                </div>
+              </div>
+            </div>
+            <div style="min-width:0;flex:1">
+              <h2 style="margin:0 0 6px" id="coupleVerdict">—</h2>
+              <p class="sub" id="coupleVerdictNote" style="font-size:13.5px">—</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g-2">
+          <div class="card">
+            <h3>Breakdown</h3>
+            <div class="kv" id="coupleBreakdown"></div>
+          </div>
+          <div class="card">
+            <h3>What it means</h3>
+            <p class="sub" id="coupleRelation" style="font-size:13.5px;color:var(--ink-2)">—</p>
+            <div class="row wrap" style="gap:8px;margin-top:14px" id="coupleChips"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── ORACLE ───── -->
+    <section class="screen" id="screen-oracle" aria-labelledby="h-oracle">
+      <div class="page-head">
+        <div class="eyebrow">Draw</div>
+        <h1 id="h-oracle">Oracle</h1>
+        <p class="lede">Write one question, then draw. Same question and same deck gives the same card — so rephrasing is part of the exercise.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="field">
+          <label for="oracleQ">Your question</label>
+          <textarea id="oracleQ" placeholder="What am I not seeing about…" maxlength="240"></textarea>
+        </div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn--primary" data-action="draw-tarot">Draw a card</button>
+          <button class="btn btn--ghost" data-action="draw-iching">Cast a trigram</button>
+          <button class="btn btn--ghost" data-action="draw-8ball">Ask straight</button>
+        </div>
+      </div>
+
+      <div id="oracleOut" hidden></div>
+    </section>
+
+    <!-- ───── REPORT ───── -->
+    <section class="screen" id="screen-report" aria-labelledby="h-report">
+      <div class="page-head">
+        <div class="eyebrow">Summary</div>
+        <h1 id="h-report">Report</h1>
+        <p class="lede">One page, printable. Use your browser's print dialog to save it as PDF.</p>
+      </div>
+
+      <div class="btn-row no-print" style="margin-bottom:16px">
+        <button class="btn btn--primary" data-action="print">Print / save as PDF</button>
+        <button class="btn btn--ghost" data-action="copy-report">Copy as text</button>
+      </div>
+
+      <div id="reportBody"></div>
+    </section>
+
+    <!-- ───── PROFILE ───── -->
+    <section class="screen" id="screen-profile" aria-labelledby="h-profile">
+      <div class="page-head">
+        <div class="eyebrow">Settings</div>
+        <h1 id="h-profile">Profile</h1>
+        <p class="lede">Name and birth date are enough for most of the app. Everything else is optional and only used where noted.</p>
+      </div>
+
+      <div class="notice notice--info" style="margin-bottom:16px">
+        <span class="ico" aria-hidden="true">🔒</span>
+        <div><strong>Nothing leaves this device.</strong> Your profile is stored in this browser's local storage only. No account, no server, no analytics. Clearing it is one button.</div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <h2>Required</h2>
+        <div class="grid g-2">
+          <div class="field">
+            <label for="fullName">Full name <span class="req">*</span></label>
+            <input type="text" id="fullName" placeholder="As you write it" autocomplete="name" maxlength="80">
+          </div>
+          <div class="field">
+            <label for="birthDate">Birth date <span class="req">*</span></label>
+            <input type="date" id="birthDate" min="1900-01-01" max="2200-12-31">
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <h2>Optional</h2>
+        <div class="grid g-2">
+          <div class="field">
+            <label for="birthTime">Birth time</label>
+            <input type="time" id="birthTime">
+          </div>
+          <div class="field">
+            <label for="birthLocation">Birth city</label>
+            <input type="text" id="birthLocation" placeholder="City" maxlength="60">
+          </div>
+        </div>
+        <div class="grid g-2" style="margin-top:14px">
+          <div class="field">
+            <label for="gender">Gender</label>
+            <select id="gender">
+              <option value="">Not specified</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="occupation">Occupation</label>
+            <input type="text" id="occupation" placeholder="Optional" maxlength="60">
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label for="userQuestion">What are you working on right now?</label>
+          <textarea id="userQuestion" placeholder="Career, a decision, a relationship, health — one or two lines" maxlength="400"></textarea>
+        </div>
+        <p class="sub" style="margin-top:10px">Please don't type identifying details here — it stays on your device, but it also appears on the printed report.</p>
+      </div>
+
+      <div class="btn-row" style="margin-bottom:20px">
+        <button class="btn btn--primary" data-action="save">Save profile</button>
+        <button class="btn btn--ghost" data-action="export">Export backup</button>
+        <button class="btn btn--ghost" data-action="import">Import backup</button>
+        <button class="btn btn--danger" data-action="reset">Erase everything</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+
+      <div class="card">
+        <h2>About</h2>
+        <div class="kv">
+          <div class="kv-row"><span class="kv-key">Version</span><span class="kv-val" id="appVersion">—</span></div>
+          <div class="kv-row"><span class="kv-key">Storage</span><span class="kv-val" id="storageState">—</span></div>
+          <div class="kv-row"><span class="kv-key">Offline</span><span class="kv-val" id="offlineState">—</span></div>
+          <div class="kv-row"><span class="kv-key">Licence</span><span class="kv-val">PolyForm Noncommercial 1.0.0</span></div>
+          <div class="kv-row"><span class="kv-key">Author</span><span class="kv-val">Dr Sohil Momin</span></div>
+        </div>
+        <p class="sub" style="margin-top:14px">Built as a reflective exercise. It is not a diagnostic tool, not a prescription, and not a forecast. If you are struggling with your mental health, please speak to a qualified professional.</p>
+      </div>
+    </section>
+
+    <div class="meta-foot">
+      <span>Holistic <span id="footVersion">v2.0.0</span></span>
+      <span>·</span>
+      <a href="https://github.com/drsamonline/holistic" target="_blank" rel="noopener">GitHub</a>
+      <span>·</span>
+      <a href="https://github.com/drsamonline/holistic/blob/main/ATTRIBUTION.md" target="_blank" rel="noopener">Attribution</a>
+      <span>·</span>
+      <a href="https://github.com/sponsors/drsamonline" target="_blank" rel="noopener">Sponsor</a>
+      <span>·</span>
+      <span>PolyForm Noncommercial 1.0.0</span>
+    </div>
+
+  </main>
+
+  <!-- ══════════ mobile tab bar ══════════ -->
+  <nav class="tabbar" aria-label="Primary">
+    <div class="tabbar-inner">
+      <button class="tab" data-go="today"    aria-current="page"><span class="ico" aria-hidden="true">◉</span>Today</button>
+      <button class="tab" data-go="numbers"><span class="ico" aria-hidden="true">#</span>Numbers</button>
+      <button class="tab" data-go="sky"><span class="ico" aria-hidden="true">☾</span>Sky</button>
+      <button class="tab" data-go="couple"><span class="ico" aria-hidden="true">∞</span>Couple</button>
+      <button class="tab" data-go="oracle"><span class="ico" aria-hidden="true">✧</span>Oracle</button>
+    </div>
+  </nav>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   Holistic — data tables
+   All static reference content. No logic here.
+   ============================================================ */
+(function (root) {
+  'use strict';
+
+  var NUMEROLOGY = {
+    1:  { name: 'The Initiator', trait: 'Leadership, initiative, independence', element: 'Fire',
+          strengths: 'Starts things, decides fast, leads from the front',
+          watch: 'Impatience, doing everything alone', colour: '#f59e0b' },
+    2:  { name: 'The Diplomat', trait: 'Cooperation, balance, partnership', element: 'Water',
+          strengths: 'Reads a room, mediates, holds relationships together',
+          watch: 'Over-accommodating, avoiding conflict', colour: '#14b8a6' },
+    3:  { name: 'The Expressor', trait: 'Creativity, communication, play', element: 'Air',
+          strengths: 'Explains, entertains, finds the words',
+          watch: 'Scatter, starting more than finishing', colour: '#f43f5e' },
+    4:  { name: 'The Builder', trait: 'Structure, systems, reliability', element: 'Earth',
+          strengths: 'Builds what lasts, keeps promises, plans',
+          watch: 'Rigidity, resistance to change', colour: '#84cc16' },
+    5:  { name: 'The Explorer', trait: 'Change, freedom, adaptability', element: 'Air',
+          strengths: 'Adapts fast, curious, comfortable with uncertainty',
+          watch: 'Restlessness, leaving before the payoff', colour: '#0ea5e9' },
+    6:  { name: 'The Caretaker', trait: 'Service, harmony, responsibility', element: 'Water',
+          strengths: 'Notices what people need, carries others well',
+          watch: 'Over-responsibility, self-neglect', colour: '#8b5cf6' },
+    7:  { name: 'The Analyst', trait: 'Depth, inquiry, solitude', element: 'Fire',
+          strengths: 'Goes deep, questions the obvious, researches',
+          watch: 'Withdrawal, analysis instead of action', colour: '#6366f1' },
+    8:  { name: 'The Executive', trait: 'Power, material result, scale', element: 'Earth',
+          strengths: 'Drives outcomes, negotiates, builds leverage',
+          watch: 'Overwork, measuring worth by output', colour: '#eab308' },
+    9:  { name: 'The Closer', trait: 'Completion, perspective, release', element: 'Water',
+          strengths: 'Sees the whole, finishes, teaches what was learned',
+          watch: 'Carrying old weight, hard to let go', colour: '#a78bfa' },
+    11: { name: 'The Intuitive', trait: 'Insight, signal, teaching', element: 'Fire + Water',
+          strengths: 'Reads what is unsaid, pattern-spots early',
+          watch: 'Overwhelm, sensitivity read as weakness', colour: '#f472b6' },
+    22: { name: 'The Architect', trait: 'Vision at scale, systems', element: 'All',
+          strengths: 'Turns a long view into a working structure',
+          watch: 'Pressure of the standard, paralysis by scope', colour: '#22d3ee' }
+  };
+
+  var ZODIAC = {
+    Aries:       { symbol: '\u2648', element: 'Fire',  dates: 'Mar 21 – Apr 19', modality: 'Cardinal', trait: 'Courageous, direct, fast to act' },
+    Taurus:      { symbol: '\u2649', element: 'Earth', dates: 'Apr 20 – May 20', modality: 'Fixed',    trait: 'Steady, sensory, hard to rush' },
+    Gemini:      { symbol: '\u264A', element: 'Air',   dates: 'May 21 – Jun 20', modality: 'Mutable',  trait: 'Curious, quick, many threads' },
+    Cancer:      { symbol: '\u264B', element: 'Water', dates: 'Jun 21 – Jul 22', modality: 'Cardinal', trait: 'Protective, intuitive, loyal' },
+    Leo:         { symbol: '\u264C', element: 'Fire',  dates: 'Jul 23 – Aug 22', modality: 'Fixed',    trait: 'Warm, visible, generous' },
+    Virgo:       { symbol: '\u264D', element: 'Earth', dates: 'Aug 23 – Sep 22', modality: 'Mutable',  trait: 'Precise, useful, improving' },
+    Libra:       { symbol: '\u264E', element: 'Air',   dates: 'Sep 23 – Oct 22', modality: 'Cardinal', trait: 'Fair, relational, aesthetic' },
+    Scorpio:     { symbol: '\u264F', element: 'Water', dates: 'Oct 23 – Nov 21', modality: 'Fixed',    trait: 'Intense, private, committed' },
+    Sagittarius: { symbol: '\u2650', element: 'Fire',  dates: 'Nov 22 – Dec 21', modality: 'Mutable',  trait: 'Restless, philosophical, blunt' },
+    Capricorn:   { symbol: '\u2651', element: 'Earth', dates: 'Dec 22 – Jan 19', modality: 'Cardinal', trait: 'Long game, disciplined, dry' },
+    Aquarius:    { symbol: '\u2652', element: 'Air',   dates: 'Jan 20 – Feb 18', modality: 'Fixed',    trait: 'Systems-minded, detached, original' },
+    Pisces:      { symbol: '\u2653', element: 'Water', dates: 'Feb 19 – Mar 20', modality: 'Mutable',  trait: 'Absorbent, imaginative, porous' }
+  };
+
+  var ELEMENT_NOTE = {
+    Fire:  'action, momentum and visibility',
+    Earth: 'structure, patience and tangible result',
+    Air:   'language, ideas and connection',
+    Water: 'feeling, memory and intuition'
+  };
+
+  var MOON_PHASES = [
+    { name: 'New Moon',        icon: '\uD83C\uDF11', energy: 'Low',        note: 'Start quietly. Set the intention, skip the launch.' },
+    { name: 'Waxing Crescent', icon: '\uD83C\uDF12', energy: 'Building',   note: 'First push. Momentum is cheap now.' },
+    { name: 'First Quarter',   icon: '\uD83C\uDF13', energy: 'Friction',   note: 'Resistance shows up. Push through or re-plan.' },
+    { name: 'Waxing Gibbous',  icon: '\uD83C\uDF14', energy: 'Strong',     note: 'Refine. Details decide the outcome.' },
+    { name: 'Full Moon',       icon: '\uD83C\uDF15', energy: 'Peak',       note: 'Visible, emotional, hard to hide. Good for decisions.' },
+    { name: 'Waning Gibbous',  icon: '\uD83C\uDF16', energy: 'Sharing',    note: 'Teach it, hand it over, say thank you.' },
+    { name: 'Last Quarter',    icon: '\uD83C\uDF17', energy: 'Releasing',  note: 'Cut what is finished. Do not start new weight.' },
+    { name: 'Waning Crescent', icon: '\uD83C\uDF18', energy: 'Resting',    note: 'Recover. Low output is correct here.' }
+  ];
+
+  var BIORHYTHM = {
+    physical:     { label: 'Physical',     cycle: 23, colour: '#f43f5e', high: 'Body is with you — train, travel, do the physical thing', low: 'Recover. Force now costs twice as much tomorrow' },
+    emotional:    { label: 'Emotional',    cycle: 28, colour: '#8b5cf6', high: 'Steady enough for hard conversations', low: 'Thin skin. Delay the confrontation if you can' },
+    intellectual: { label: 'Intellectual', cycle: 33, colour: '#14b8a6', high: 'Clear head — take on the complex problem', low: 'Fog. Do routine work, not decisions' }
+  };
+
+  var TAROT = [
+    { name: 'The Fool',           meaning: 'A beginning with no map. Go, but travel light.' },
+    { name: 'The Magician',       meaning: 'You already have the tools. Stop gathering, start doing.' },
+    { name: 'The High Priestess', meaning: 'The answer is known and unspoken. Wait before acting.' },
+    { name: 'The Empress',        meaning: 'Growth through care, not force. Feed what is already planted.' },
+    { name: 'The Emperor',        meaning: 'Structure now. Decide the rule before the exception.' },
+    { name: 'The Hierophant',     meaning: 'Learn from the tradition before you break it.' },
+    { name: 'The Lovers',         meaning: 'A choice between values, not between people.' },
+    { name: 'The Chariot',        meaning: 'Two forces, one direction. Hold the reins deliberately.' },
+    { name: 'Strength',           meaning: 'Soft control beats force. Patience is the strategy.' },
+    { name: 'The Hermit',         meaning: 'Withdraw to see it clearly. Solitude is the tool.' },
+    { name: 'Wheel of Fortune',   meaning: 'The cycle turns without asking. Work with the season.' },
+    { name: 'Justice',            meaning: 'Cause and effect are aligned. Be accurate, not nice.' },
+    { name: 'The Hanged Man',     meaning: 'Stop pushing. The shift comes from a change of angle.' },
+    { name: 'Death',              meaning: 'Something has finished. Let it, or it will finish itself.' },
+    { name: 'Temperance',         meaning: 'Blend, don\'t choose. The middle is the answer.' },
+    { name: 'The Devil',          meaning: 'A chain you are holding yourself. Check who has the key.' },
+    { name: 'The Tower',          meaning: 'What falls was load-bearing and wrong. Rebuild smaller.' },
+    { name: 'The Star',           meaning: 'Repair after damage. Small honest steps restore the ground.' },
+    { name: 'The Moon',           meaning: 'You are guessing and calling it knowing. Verify.' },
+    { name: 'The Sun',            meaning: 'Clear, visible, good. Say the thing out loud.' },
+    { name: 'Judgement',          meaning: 'A reckoning you have been avoiding. Answer the call.' },
+    { name: 'The World',          meaning: 'Complete. Close the loop before starting the next one.' }
+  ];
+
+  var TRIGRAMS = [
+    { name: 'The Creative',  meaning: 'Heaven over Heaven. Pure initiative — begin, do not deliberate.' },
+    { name: 'The Receptive', meaning: 'Earth over Earth. Yield and support. Strength is in following.' },
+    { name: 'The Arousing',  meaning: 'Thunder. A shock that starts movement. Act in the first moment.' },
+    { name: 'The Gentle',    meaning: 'Wind. Steady, persistent influence beats a single push.' },
+    { name: 'The Abysmal',   meaning: 'Water. Danger, and the way through is to keep moving.' },
+    { name: 'The Clinging',  meaning: 'Fire. Clarity and dependence. Illuminate, do not burn.' },
+    { name: 'Stillness',     meaning: 'Mountain. Stop. Stillness is the action required.' },
+    { name: 'The Joyous',    meaning: 'Lake. Openness and exchange. Speak, share, enjoy.' }
+  ];
+
+  var ORACLE_8 = [
+    'Yes, and sooner than you think', 'It is already decided — go', 'Yes, but not the way you planned',
+    'Strong yes', 'Yes, if you ask directly', 'Likely, keep moving', 'Good signs, weak evidence',
+    'Yes — with conditions you already know', 'Yes', 'Not yet — you are missing a fact',
+    'Ask again after you have done the reading', 'The answer is not yours to give',
+    'Cannot read it — the question is wrong', 'No, and you know why', 'No',
+    'My read says no', 'Poor odds as things stand', 'Very unlikely', 'No — stop spending on this'
+  ];
+
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+
+  var WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  var PHASE_ICON = ['\uD83C\uDF11', '\uD83C\uDF12', '\uD83C\uDF13', '\uD83C\uDF14',
+                    '\uD83C\uDF15', '\uD83C\uDF16', '\uD83C\uDF17', '\uD83C\uDF18'];
+
+  root.HL_DATA = {
+    NUMEROLOGY: NUMEROLOGY, ZODIAC: ZODIAC, ELEMENT_NOTE: ELEMENT_NOTE,
+    MOON_PHASES: MOON_PHASES, BIORHYTHM: BIORHYTHM, TAROT: TAROT,
+    TRIGRAMS: TRIGRAMS, ORACLE_8: ORACLE_8, MONTHS: MONTHS,
+    WEEKDAYS: WEEKDAYS, PHASE_ICON: PHASE_ICON
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+<script>
+/* ============================================================
+   Holistic — core logic
+   Pure functions only. No DOM. Importable in Node for tests.
+   ============================================================ */
+(function (root) {
+  'use strict';
+
+  var DAY_MS = 86400000;
+  var SYNODIC = 29.530588853;
+  /* Real new moon: 2000-01-06 18:14 UTC */
+  var EPOCH_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14);
+
+  /* ---------- numbers ---------- */
+
+  function sumDigits(n) {
+    return String(n).split('').reduce(function (a, b) { return a + Number(b); }, 0);
+  }
+
+  /* Keeps 11 and 22 as master numbers. 33 is treated as 6 by design. */
+  function reducePower(n) {
+    n = Math.abs(Math.round(n));
+    while (n > 9 && n !== 11 && n !== 22) n = sumDigits(n);
+    return n;
+  }
+
+  function reduceSingle(n) {
+    n = Math.abs(Math.round(n));
+    while (n > 9) n = sumDigits(n);
+    return n;
+  }
+
+  /* Collapses master numbers for comparison purposes. */
+  function baseDigit(n) {
+    return n === 11 ? 2 : n === 22 ? 4 : n;
+  }
+
+  /* ---------- dates ---------- */
+
+  /* Strict YYYY-MM-DD -> UTC ms, or null. Rejects 2023-02-30. */
+  function parseDate(str) {
+    if (!str) return null;
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(str).trim());
+    if (!m) return null;
+    var y = +m[1], mo = +m[2], d = +m[3];
+    if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+    if (y < 1900 || y > 2200) return null;
+    var ms = Date.UTC(y, mo - 1, d);
+    var dt = new Date(ms);
+    if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
+    return ms;
+  }
+
+  /* Local midnight of a Date, as ms. Used so "today" means the user's today. */
+  function localMidnight(date) {
+    var d = date || new Date();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  }
+
+  function toISO(ms) {
+    var d = new Date(ms);
+    return d.getUTCFullYear() + '-' +
+      String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getUTCDate()).padStart(2, '0');
+  }
+
+  function daysBetween(fromMs, toMs) {
+    return Math.floor((toMs - fromMs) / DAY_MS);
+  }
+
+  /* ---------- numerology ---------- */
+
+  function powerNumber(dob) {
+    var ms = parseDate(dob);
+    if (ms === null) return null;
+    var d = new Date(ms);
+    return reducePower(d.getUTCDate() + (d.getUTCMonth() + 1) + d.getUTCFullYear());
+  }
+
+  /* Personal year = birth day + birth month + target year, reduced. */
+  function personalYear(dob, year) {
+    var ms = parseDate(dob);
+    if (ms === null) return null;
+    var d = new Date(ms);
+    var y = year || new Date().getFullYear();
+    return reducePower(d.getUTCDate() + (d.getUTCMonth() + 1) + y);
+  }
+
+  /* Pythagorean letter values: A=1..I=9, J=1..R=9, S=1..Z=8. */
+  var LETTER = (function () {
+    var t = {}, alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    for (var i = 0; i < 26; i++) t[alphabet[i]] = (i % 9) + 1;
+    return t;
+  })();
+
+  function nameNumber(name) {
+    if (!name) return null;
+    var letters = String(name).toUpperCase().replace(/[^A-Z]/g, '');
+    if (!letters) return null;
+    var total = 0;
+    for (var i = 0; i < letters.length; i++) total += LETTER[letters[i]];
+    return reducePower(total);
+  }
+
+  function vowelsOf(name) {
+    var letters = String(name || '').toUpperCase().replace(/[^A-Z]/g, '');
+    var total = 0;
+    for (var i = 0; i < letters.length; i++) {
+      if ('AEIOU'.indexOf(letters[i]) > -1) total += LETTER[letters[i]];
+    }
+    return total ? reducePower(total) : null;
+  }
+
+  /* Universal day number for a given date. */
+  function dayNumber(date) {
+    var d = date || new Date();
+    return reducePower(d.getDate() + (d.getMonth() + 1) + d.getFullYear());
+  }
+
+  /* Days in a month whose digit sum lands on the same digit as the power number. */
+  function luckyDates(dob, year, month) {
+    var p = powerNumber(dob);
+    if (p === null) return [];
+    var y = year || new Date().getFullYear();
+    var m = (month === undefined) ? new Date().getMonth() : month; /* 0-based */
+    var last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+    var target = reduceSingle(p);
+    var out = [];
+    for (var d = 1; d <= last; d++) {
+      if (reduceSingle(d) === target) out.push(d);
+    }
+    return out;
+  }
+
+  /* ---------- astrology ---------- */
+
+  function zodiac(dob) {
+    var ms = parseDate(dob);
+    if (ms === null) return null;
+    var d = new Date(ms);
+    var month = d.getUTCMonth() + 1, day = d.getUTCDate();
+    var signs = ['Capricorn', 'Aquarius', 'Pisces', 'Aries', 'Taurus', 'Gemini',
+                 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius'];
+    var cutoffs = [20, 19, 21, 20, 21, 21, 21, 23, 23, 23, 22, 22];
+    return day < cutoffs[month - 1] ? signs[month - 1] : signs[month % 12];
+  }
+
+  /* ---------- moon ---------- */
+
+  function phasePosition(date) {
+    var t = (date || new Date()).getTime();
+    var days = (t - EPOCH_NEW_MOON) / DAY_MS;
+    return ((days % SYNODIC) + SYNODIC) % SYNODIC;
+  }
+
+  function moonPhase(date) {
+    var p = phasePosition(date);
+    var step = SYNODIC / 8;
+    var index = Math.floor(p / step) % 8;
+    var illumination = (1 - Math.cos(2 * Math.PI * p / SYNODIC)) / 2;
+    return {
+      index: index,
+      position: p,
+      fraction: p / SYNODIC,
+      illumination: illumination,
+      age: p
+    };
+  }
+
+  /* Days until the next occurrence of a phase index (0 = new, 4 = full). */
+  function daysToPhase(date, targetIndex) {
+    var p = phasePosition(date);
+    var step = SYNODIC / 8;
+    var target = (targetIndex * step) % SYNODIC;
+    var delta = (target - p + SYNODIC) % SYNODIC;
+    return delta;
+  }
+
+  function nextPhaseDate(date, targetIndex) {
+    var base = localMidnight(date);
+    return base + Math.round(daysToPhase(date, targetIndex) * DAY_MS);
+  }
+
+  /* ---------- biorhythm ---------- */
+
+  function biorhythm(dob, cycle, date) {
+    var birth = parseDate(dob);
+    if (birth === null) return null;
+    var today = localMidnight(date);
+    var days = daysBetween(birth, today);
+    if (days < 0) return null;
+    return Math.round(50 + 50 * Math.sin((days % cycle) / cycle * 2 * Math.PI));
+  }
+
+  /* Returns {labels:[ms], series:{physical:[],emotional:[],intellectual:[]}} */
+  function biorhythmSeries(dob, span, date) {
+    var birth = parseDate(dob);
+    if (birth === null) return null;
+    var spanDays = span || 30;
+    var today = localMidnight(date);
+    var out = { labels: [], series: { physical: [], emotional: [], intellectual: [] } };
+    var cycles = { physical: 23, emotional: 28, intellectual: 33 };
+    for (var i = 0; i < spanDays; i++) {
+      var dayMs = today + i * DAY_MS;
+      var days = daysBetween(birth, dayMs);
+      out.labels.push(dayMs);
+      ['physical', 'emotional', 'intellectual'].forEach(function (k) {
+        out.series[k].push(days < 0 ? 50 : Math.round(50 + 50 * Math.sin((days % cycles[k]) / cycles[k] * 2 * Math.PI)));
+      });
+    }
+    return out;
+  }
+
+  function biorhythmLabel(kind, value) {
+    if (value === null) return '—';
+    if (value >= 75) return 'High';
+    if (value >= 55) return 'Good';
+    if (value >= 45) return 'Neutral';
+    if (value >= 25) return 'Low';
+    return 'Critical';
+  }
+
+  /* ---------- couple ---------- */
+
+  function coupleScore(dobA, dobB) {
+    var n1 = powerNumber(dobA), n2 = powerNumber(dobB);
+    if (n1 === null || n2 === null) return null;
+    var z1 = zodiac(dobA), z2 = zodiac(dobB);
+    var D = root.HL_DATA;
+    var e1 = D.ZODIAC[z1].element, e2 = D.ZODIAC[z2].element;
+
+    var gap = Math.abs(baseDigit(n1) - baseDigit(n2));
+    var numCompat = Math.max(30, 100 - gap * 7);
+
+    var zCompat = 62;
+    var relation;
+    if (e1 === e2) { zCompat = 94; relation = 'same element — immediate recognition, same blind spots'; }
+    else if ((e1 === 'Fire' && e2 === 'Air') || (e1 === 'Air' && e2 === 'Fire')) {
+      zCompat = 88; relation = 'fire and air — air feeds fire, neither smothers';
+    } else if ((e1 === 'Earth' && e2 === 'Water') || (e1 === 'Water' && e2 === 'Earth')) {
+      zCompat = 86; relation = 'earth and water — water softens, earth holds';
+    } else if ((e1 === 'Fire' && e2 === 'Water') || (e1 === 'Water' && e2 === 'Fire')) {
+      zCompat = 55; relation = 'fire and water — high heat, needs deliberate pacing';
+    } else if ((e1 === 'Earth' && e2 === 'Air') || (e1 === 'Air' && e2 === 'Earth')) {
+      zCompat = 58; relation = 'earth and air — different speeds, translate often';
+    } else if ((e1 === 'Fire' && e2 === 'Earth') || (e1 === 'Earth' && e2 === 'Fire')) {
+      zCompat = 60; relation = 'fire and earth — one builds, one burns; agree the pace';
+    } else {
+      zCompat = 62; relation = 'air and water — talk and feel arrive by different routes';
+    }
+
+    var score = Math.round(numCompat * 0.4 + zCompat * 0.6);
+    return {
+      n1: n1, n2: n2, z1: z1, z2: z2, e1: e1, e2: e2,
+      numCompat: numCompat, zCompat: zCompat, score: score, relation: relation
+    };
+  }
+
+  function coupleVerdict(score) {
+    if (score >= 85) return { label: 'Easy fit', note: 'Little translation needed. The risk is complacency, not friction.' };
+    if (score >= 72) return { label: 'Strong', note: 'Works with normal effort. Differences are complementary, not corrosive.' };
+    if (score >= 58) return { label: 'Workable', note: 'Needs explicit agreements. Most of the friction is speed, not values.' };
+    if (score >= 45) return { label: 'Effortful', note: 'Different defaults. Name the difference early or it becomes resentment.' };
+    return { label: 'Hard', note: 'High translation cost. Only worth it if both people want it equally.' };
+  }
+
+  /* ---------- oracle ---------- */
+
+  function pick(list, rand) {
+    var r = rand === undefined ? Math.random() : rand;
+    return list[Math.floor(r * list.length) % list.length];
+  }
+
+  /* Deterministic pick from a seed string, so a given question is stable. */
+  function seededPick(list, seed) {
+    var h = 2166136261;
+    var s = String(seed || '');
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    var idx = Math.abs(h) % list.length;
+    return { item: list[idx], index: idx };
+  }
+
+  root.HL_CORE = {
+    DAY_MS: DAY_MS, SYNODIC: SYNODIC,
+    sumDigits: sumDigits, reducePower: reducePower, reduceSingle: reduceSingle, baseDigit: baseDigit,
+    parseDate: parseDate, localMidnight: localMidnight, toISO: toISO, daysBetween: daysBetween,
+    powerNumber: powerNumber, personalYear: personalYear, nameNumber: nameNumber,
+    vowelsOf: vowelsOf, dayNumber: dayNumber, luckyDates: luckyDates,
+    zodiac: zodiac,
+    phasePosition: phasePosition, moonPhase: moonPhase, daysToPhase: daysToPhase, nextPhaseDate: nextPhaseDate,
+    biorhythm: biorhythm, biorhythmSeries: biorhythmSeries, biorhythmLabel: biorhythmLabel,
+    coupleScore: coupleScore, coupleVerdict: coupleVerdict,
+    pick: pick, seededPick: seededPick
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+<script>
+/* ============================================================
+   Holistic — rendering
+   Builds every screen from state. No event handling here.
+   ============================================================ */
+(function (root) {
+  'use strict';
+
+  var C = root.HL_CORE;
+  var D = root.HL_DATA;
+
+  /* ---------- dom helpers ---------- */
+
+  function $(id) { return document.getElementById(id); }
+
+  function esc(v) {
+    return v == null ? '' : String(v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function setText(id, v) { var el = $(id); if (el) el.textContent = v == null ? '' : v; }
+  function setHTML(id, v) { var el = $(id); if (el) el.innerHTML = v == null ? '' : v; }
+  function show(id, on) { var el = $(id); if (el) el.hidden = !on; }
+
+  function fmtDate(ms) {
+    var d = new Date(ms);
+    return D.WEEKDAYS[d.getUTCDay()].slice(0, 3) + ' ' + d.getUTCDate() + ' ' +
+      D.MONTHS[d.getUTCMonth()].slice(0, 3);
+  }
+
+  function relDays(days) {
+    var n = Math.round(days);
+    if (n <= 0) return 'today';
+    if (n === 1) return 'tomorrow';
+    if (n < 7) return 'in ' + n + ' days';
+    return 'in ' + n + ' days';
+  }
+
+  /* ---------- visual: moon disc ---------- */
+
+  function moonDiscSVG(phase) {
+    var f = phase.fraction;               /* 0..1 through the cycle */
+    var lit = phase.illumination;         /* 0..1 lit area */
+    var r = 44, cx = 50, cy = 50;
+    var rx = Math.max(0.6, r * Math.abs(1 - 2 * lit));
+    var waxing = f < 0.5;
+    var innerSweep = lit < 0.5 ? 0 : 1;
+    var d = 'M' + cx + ',' + (cy - r) +
+            ' A' + r + ',' + r + ' 0 0,1 ' + cx + ',' + (cy + r) +
+            ' A' + rx + ',' + r + ' 0 0,' + innerSweep + ' ' + cx + ',' + (cy - r) + ' Z';
+
+    return '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<defs>' +
+        '<radialGradient id="moonGlow"><stop offset="0%" stop-color="#a78bfa" stop-opacity=".42"/>' +
+        '<stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></radialGradient>' +
+      '</defs>' +
+      '<circle cx="50" cy="50" r="48" fill="url(#moonGlow)"/>' +
+      '<circle cx="50" cy="50" r="' + r + '" fill="#243149" stroke="rgba(255,255,255,.16)" stroke-width="1"/>' +
+      '<g' + (waxing ? '' : ' transform="translate(100,0) scale(-1,1)"') + '>' +
+        '<path d="' + d + '" fill="#eef2fb"/>' +
+      '</g>' +
+      '</svg>';
+  }
+
+  /* ---------- visual: gauge ---------- */
+
+  function setGauge(id, value, max, colour) {
+    var el = $(id);
+    if (!el) return;
+    var C2 = 2 * Math.PI * 50;
+    var pct = Math.max(0, Math.min(1, value / max));
+    el.style.strokeDasharray = C2;
+    el.style.strokeDashoffset = C2 * (1 - pct);
+    if (colour) el.setAttribute('stroke', colour);
+  }
+
+  /* ---------- visual: biorhythm chart ---------- */
+
+  function drawChart(svg, series, span) {
+    if (!svg) return;
+    var W = 600, H = 210, padT = 10, padB = 50;
+    var keys = ['physical', 'emotional', 'intellectual'];
+    var n = series.series.physical.length;
+    var inner = H - padT - padB;
+
+    var out = '';
+    /* grid lines at 0 / 50 / 100 */
+    [0, 50, 100].forEach(function (v) {
+      var y = padT + inner * (1 - v / 100);
+      out += '<line x1="0" y1="' + y.toFixed(1) + '" x2="' + W + '" y2="' + y.toFixed(1) +
+        '" stroke="rgba(255,255,255,' + (v === 50 ? '.13' : '.06') + ')" stroke-width="1"' +
+        (v === 50 ? ' stroke-dasharray="4 5"' : '') + '/>';
+    });
+
+    keys.forEach(function (k) {
+      var pts = series.series[k].map(function (v, i) {
+        var x = n === 1 ? 0 : (i / (n - 1)) * W;
+        var y = padT + inner * (1 - v / 100);
+        return x.toFixed(1) + ',' + y.toFixed(1);
+      }).join(' ');
+      out += '<polyline points="' + pts + '" fill="none" stroke="' + D.BIORHYTHM[k].colour +
+        '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".92"/>';
+    });
+
+    /* today marker, clipped to the plot area */
+    out += '<line x1="1.5" y1="' + padT + '" x2="1.5" y2="' + (padT + inner) +
+      '" stroke="rgba(255,255,255,.28)" stroke-width="1.5" stroke-dasharray="3 4"/>';
+    /* month labels */
+    var labelEvery = span > 30 ? 30 : span > 7 ? 7 : 1;
+    for (var i = 0; i < n; i += labelEvery) {
+      var x = n === 1 ? 0 : (i / (n - 1)) * W;
+      var txt = fmtDate(series.labels[i]);
+      out += '<text x="' + Math.min(W - 30, Math.max(4, x)).toFixed(1) + '" y="' + (H - 22) +
+        '" fill="rgba(255,255,255,.38)" font-size="10" font-family="monospace">' + esc(txt) + '</text>';
+    }
+
+    svg.innerHTML = out;
+  }
+
+  /* ---------- screen: today ---------- */
+
+  function renderToday(profile, now) {
+    var has = !!(profile && profile.birthDate && C.powerNumber(profile.birthDate) !== null);
+    show('todayEmpty', !has);
+    show('todayBody', has);
+
+    var d = now || new Date();
+    setText('todayDate', D.WEEKDAYS[d.getDay()] + ' · ' + d.getDate() + ' ' +
+      D.MONTHS[d.getMonth()] + ' ' + d.getFullYear());
+
+    if (!has) {
+      setText('h-today', 'Today');
+      setText('todayLede', 'Set your birth date once and this screen fills in every day.');
+      return;
+    }
+
+    var firstName = String(profile.fullName || '').trim().split(/\s+/)[0];
+    var hour = d.getHours();
+    var greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    setText('h-today', firstName ? greet + ', ' + firstName : greet);
+    setText('todayLede', 'Your cycles for today, in one screen.');
+
+    var mp = C.moonPhase(d);
+    var phase = D.MOON_PHASES[mp.index];
+    setHTML('todayMoonDisc', moonDiscSVG(mp));
+    setText('todayMoonName', phase.name + ' · ' + Math.round(mp.illumination * 100) + '% lit');
+    setText('todayMoonNote', phase.note);
+
+    var dn = C.dayNumber(d);
+    setText('todayDayNum', dn);
+    setText('todayDayNote', 'Universal day ' + dn + ' — ' + (D.NUMEROLOGY[dn] ? D.NUMEROLOGY[dn].trait.split(',')[0].toLowerCase() : 'steady pace'));
+
+    ['physical', 'emotional', 'intellectual'].forEach(function (k) {
+      var v = C.biorhythm(profile.birthDate, D.BIORHYTHM[k].cycle, d);
+      var val = v === null ? 0 : v;
+      var bar = $('bio' + k.charAt(0).toUpperCase() + k.slice(1) + 'Bar');
+      var num = $('bio' + k.charAt(0).toUpperCase() + k.slice(1) + 'Val');
+      if (bar) bar.style.width = val + '%';
+      if (num) num.textContent = v === null ? '—' : v + '%';
+    });
+
+    var phy = C.biorhythm(profile.birthDate, 23, d) || 0;
+    var emo = C.biorhythm(profile.birthDate, 28, d) || 0;
+    var int = C.biorhythm(profile.birthDate, 33, d) || 0;
+    var lowKey = phy < 50 ? 'physical' : emo < 50 ? 'emotional' : int < 50 ? 'intellectual' : null;
+    setText('bioAdvice', lowKey
+      ? D.BIORHYTHM[lowKey].low + '.'
+      : D.BIORHYTHM.physical.high + '.');
+
+    /* coming up */
+    var rows = [
+      { i: 4, label: 'Full moon' },
+      { i: 0, label: 'New moon' }
+    ].map(function (x) {
+      var days = C.daysToPhase(d, x.i);
+      var when = C.nextPhaseDate(d, x.i);
+      return '<div class="kv-row"><span class="kv-key">' + x.label + '</span>' +
+        '<span class="kv-val">' + esc(fmtDate(when)) + ' <span class="sub">· ' + relDays(days) + '</span></span></div>';
+    }).join('');
+    setHTML('todayPhases', rows);
+
+    var p = C.powerNumber(profile.birthDate);
+    var info = D.NUMEROLOGY[p];
+    setText('todayPowerChip', '#' + p + ' · ' + info.name);
+    setText('todayPowerNote', 'Power number ' + p + ' — ' + info.trait.toLowerCase() +
+      '. Personal year ' + C.personalYear(profile.birthDate, d.getFullYear()) + '.');
+  }
+
+  /* ---------- screen: numbers ---------- */
+
+  function renderNumbers(profile, now) {
+    var has = !!(profile && profile.birthDate && C.powerNumber(profile.birthDate) !== null);
+    show('numbersEmpty', !has);
+    show('numbersBody', has);
+    if (!has) return;
+
+    var p = C.powerNumber(profile.birthDate);
+    var info = D.NUMEROLOGY[p];
+    setText('powerNum', p);
+    setGauge('powerArc', p, 22, info.colour);
+    setText('powerName', info.name);
+    setText('powerElement', info.element);
+    setText('powerTrait', info.trait + '.');
+    setText('powerStrengths', info.strengths + '.');
+    setText('powerWatch', info.watch + '.');
+
+    var d = now || new Date();
+    var py = C.personalYear(profile.birthDate, d.getFullYear());
+    setText('personalYear', py);
+    setText('personalYearNote', D.NUMEROLOGY[py] ? 'A ' + D.NUMEROLOGY[py].name.toLowerCase() + ' year — ' + D.NUMEROLOGY[py].trait.split(',')[0].toLowerCase() : '');
+
+    var nn = C.nameNumber(profile.fullName);
+    setText('nameNumber', nn === null ? '—' : nn);
+    setText('nameNumberNote', nn === null ? 'Add your full name' :
+      (D.NUMEROLOGY[nn] ? D.NUMEROLOGY[nn].name + ' — how you come across' : ''));
+
+    var sn = C.vowelsOf(profile.fullName);
+    setText('soulNumber', sn === null ? '—' : sn);
+    setText('soulNumberNote', sn === null ? 'Add your full name' : 'The vowel sum — what you actually want');
+
+    var dates = C.luckyDates(profile.birthDate, d.getFullYear(), d.getMonth());
+    setText('luckyMonth', D.MONTHS[d.getMonth()] + ' ' + d.getFullYear());
+    setHTML('luckyDates', dates.length
+      ? dates.map(function (x) { return '<span class="chip chip--violet">' + x + '</span>'; }).join('')
+      : '<span class="sub">None this month.</span>');
+  }
+
+  /* ---------- screen: sky ---------- */
+
+  var lastSpan = 30;
+
+  function renderSky(profile, now, span) {
+    var has = !!(profile && profile.birthDate && C.powerNumber(profile.birthDate) !== null);
+    show('skyEmpty', !has);
+    show('skyBody', has);
+    if (!has) return;
+
+    var z = C.zodiac(profile.birthDate);
+    var zi = D.ZODIAC[z];
+    setText('zodiacGlyph', zi.symbol);
+    setText('zodiacName', z);
+    setText('zodiacElement', zi.element);
+    setText('zodiacModality', zi.modality);
+    setText('zodiacTrait', zi.trait + '.');
+    setText('zodiacDates', zi.dates);
+    setText('zodiacElementNote', 'Leans on ' + (D.ELEMENT_NOTE[zi.element] || zi.element) + '.');
+
+    var d = now || new Date();
+    var useSpan = span || lastSpan;
+    lastSpan = useSpan;
+    var series = C.biorhythmSeries(profile.birthDate, useSpan, d);
+    if (series) drawChart($('bioChart'), series, useSpan);
+
+    var rows = [
+      { i: 0, label: 'New moon' },
+      { i: 2, label: 'First quarter' },
+      { i: 4, label: 'Full moon' },
+      { i: 6, label: 'Last quarter' }
+    ].map(function (x) {
+      var days = C.daysToPhase(d, x.i);
+      var when = C.nextPhaseDate(d, x.i);
+      return '<div class="kv-row"><span class="kv-key">' + x.label + '</span>' +
+        '<span class="kv-val">' + esc(fmtDate(when)) + ' <span class="sub">· ' + relDays(days) + '</span></span></div>';
+    }).join('');
+    setHTML('skyPhases', rows);
+  }
+
+  /* ---------- screen: couple ---------- */
+
+  function renderCouple(result) {
+    var out = $('coupleOut');
+    if (!out) return;
+    if (!result) { out.hidden = true; return; }
+    out.hidden = false;
+
+    setText('coupleScore', result.score + '%');
+    setGauge('coupleArc', result.score, 100, result.score >= 72 ? '#14b8a6' : result.score >= 58 ? '#f59e0b' : '#f43f5e');
+
+    var v = C.coupleVerdict(result.score);
+    setText('coupleVerdict', v.label);
+    setText('coupleVerdictNote', v.note);
+
+    setHTML('coupleBreakdown',
+      row('Your number', '#' + result.n1 + ' · ' + D.NUMEROLOGY[result.n1].name) +
+      row('Their number', '#' + result.n2 + ' · ' + D.NUMEROLOGY[result.n2].name) +
+      row('Your sign', result.z1 + ' · ' + result.e1) +
+      row('Their sign', result.z2 + ' · ' + result.e2) +
+      row('Number match', result.numCompat + '%') +
+      row('Element match', result.zCompat + '%'));
+
+    setText('coupleRelation', 'Your elements ' + result.relation + '.');
+
+    var gap = Math.abs(C.baseDigit(result.n1) - C.baseDigit(result.n2));
+    setHTML('coupleChips',
+      '<span class="chip chip--violet">' + (gap <= 1 ? 'Similar pacing' : gap <= 3 ? 'Complementary pacing' : 'Different pacing') + '</span>' +
+      '<span class="chip chip--teal">' + (result.e1 === result.e2 ? 'Same element' : 'Mixed elements') + '</span>' +
+      '<span class="chip">' + D.MONTHS[new Date().getMonth()] + ' reading</span>');
+
+    function row(k, val) {
+      return '<div class="kv-row"><span class="kv-key">' + esc(k) + '</span><span class="kv-val">' + esc(val) + '</span></div>';
+    }
+  }
+
+  /* ---------- screen: oracle ---------- */
+
+  function renderOracle(o) {
+    var out = $('oracleOut');
+    if (!out) return;
+    if (!o) { out.hidden = true; return; }
+    out.hidden = false;
+    out.innerHTML =
+      '<div class="oracle-out">' +
+        '<div class="oracle-type">' + esc(o.type) + '</div>' +
+        '<div class="oracle-card">' + esc(o.name) + '</div>' +
+        '<div class="oracle-body">' + esc(o.body) + '</div>' +
+        '<div class="sub" style="margin-top:14px">' + esc(o.footnote || '') + '</div>' +
+      '</div>';
+  }
+
+  /* ---------- screen: report ---------- */
+
+  function renderReport(profile, now) {
+    var host = $('reportBody');
+    if (!host) return;
+    var has = !!(profile && profile.birthDate && C.powerNumber(profile.birthDate) !== null);
+    if (!has) {
+      host.innerHTML = '<div class="empty"><span class="ico">▤</span>Complete your profile to generate a report.</div>';
+      return;
+    }
+
+    var d = now || new Date();
+    var p = C.powerNumber(profile.birthDate);
+    var info = D.NUMEROLOGY[p];
+    var z = C.zodiac(profile.birthDate);
+    var zi = D.ZODIAC[z];
+    var mp = C.moonPhase(d);
+    var ph = D.MOON_PHASES[mp.index];
+    var py = C.personalYear(profile.birthDate, d.getFullYear());
+    var nn = C.nameNumber(profile.fullName);
+
+    host.innerHTML =
+      '<div class="card" style="margin-bottom:14px">' +
+        '<h1 style="font-size:22px">Holistic reading</h1>' +
+        '<p class="sub">' + esc(profile.fullName || 'Unnamed') + ' · born ' + esc(profile.birthDate) +
+        (profile.birthTime ? ' at ' + esc(profile.birthTime) : '') +
+        (profile.birthLocation ? ', ' + esc(profile.birthLocation) : '') + '</p>' +
+        '<p class="sub" style="color:var(--ink-4);margin-top:4px">Generated ' +
+        esc(d.getDate() + ' ' + D.MONTHS[d.getMonth()] + ' ' + d.getFullYear()) + '</p>' +
+      '</div>' +
+
+      '<div class="grid g-2" style="margin-bottom:14px">' +
+        '<div class="card"><h3>Numerology</h3><div class="kv">' +
+          kv('Power number', '#' + p + ' · ' + info.name) +
+          kv('Trait', info.trait) +
+          kv('Personal year', py + ' · ' + (D.NUMEROLOGY[py] ? D.NUMEROLOGY[py].name : '')) +
+          kv('Name number', nn === null ? '—' : '#' + nn) +
+        '</div></div>' +
+        '<div class="card"><h3>Astrology</h3><div class="kv">' +
+          kv('Sun sign', z + ' ' + zi.symbol) +
+          kv('Element', zi.element) +
+          kv('Modality', zi.modality) +
+          kv('Trait', zi.trait) +
+        '</div></div>' +
+      '</div>' +
+
+      '<div class="grid g-2" style="margin-bottom:14px">' +
+        '<div class="card"><h3>Cycles today</h3><div class="kv">' +
+          kv('Moon', ph.name + ' · ' + Math.round(mp.illumination * 100) + '% lit') +
+          kv('Physical', C.biorhythm(profile.birthDate, 23, d) + '%') +
+          kv('Emotional', C.biorhythm(profile.birthDate, 28, d) + '%') +
+          kv('Intellectual', C.biorhythm(profile.birthDate, 33, d) + '%') +
+        '</div></div>' +
+        '<div class="card"><h3>Focus</h3><p class="sub" style="font-size:13px;color:var(--ink-2)">' +
+          esc(profile.userQuestion || 'Not stated.') + '</p>' +
+          '<h3 style="margin-top:16px">Next full moon</h3><p class="sub">' +
+          esc(fmtDate(C.nextPhaseDate(d, 4))) + '</p>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="card"><p class="sub" style="font-size:12px;color:var(--ink-4)">' +
+        'A reflective reading built from numerology, sun-sign astrology, lunar phase and biorhythm. ' +
+        'Not a diagnosis, not a prescription, not a prediction. Generated locally — nothing was sent anywhere.' +
+      '</p></div>';
+
+    function kv(k, v) {
+      return '<div class="kv-row"><span class="kv-key">' + esc(k) + '</span><span class="kv-val">' + esc(v) + '</span></div>';
+    }
+  }
+
+  /* ---------- report as plain text ---------- */
+
+  function reportText(profile, now) {
+    if (!profile || C.powerNumber(profile.birthDate) === null) return '';
+    var d = now || new Date();
+    var p = C.powerNumber(profile.birthDate);
+    var z = C.zodiac(profile.birthDate);
+    var mp = C.moonPhase(d);
+    return [
+      'HOLISTIC READING',
+      (profile.fullName || 'Unnamed') + ' · born ' + profile.birthDate,
+      'Generated ' + d.getDate() + ' ' + D.MONTHS[d.getMonth()] + ' ' + d.getFullYear(),
+      '',
+      'Numerology',
+      '  Power number  #' + p + ' · ' + D.NUMEROLOGY[p].name,
+      '  Trait         ' + D.NUMEROLOGY[p].trait,
+      '  Personal year ' + C.personalYear(profile.birthDate, d.getFullYear()),
+      '  Name number   ' + (C.nameNumber(profile.fullName) || '—'),
+      '',
+      'Astrology',
+      '  Sun sign      ' + z + ' · ' + D.ZODIAC[z].element,
+      '',
+      'Cycles today',
+      '  Moon          ' + D.MOON_PHASES[mp.index].name + ' · ' + Math.round(mp.illumination * 100) + '% lit',
+      '  Physical      ' + C.biorhythm(profile.birthDate, 23, d) + '%',
+      '  Emotional     ' + C.biorhythm(profile.birthDate, 28, d) + '%',
+      '  Intellectual  ' + C.biorhythm(profile.birthDate, 33, d) + '%',
+      '',
+      'Reflective reading only — not a diagnosis, prescription or prediction.'
+    ].join('\n');
+  }
+
+  root.HL_UI = {
+    $: $, esc: esc, setText: setText, setHTML: setHTML, show: show,
+    moonDiscSVG: moonDiscSVG, setGauge: setGauge, drawChart: drawChart,
+    renderToday: renderToday, renderNumbers: renderNumbers, renderSky: renderSky,
+    renderCouple: renderCouple, renderOracle: renderOracle, renderReport: renderReport,
+    reportText: reportText, fmtDate: fmtDate
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+<script>
+/* ============================================================
+   Holistic — app shell
+   State, storage, routing, events, offline registration.
+   ============================================================ */
+(function (root) {
+  'use strict';
+
+  var C = root.HL_CORE;
+  var D = root.HL_DATA;
+  var U = root.HL_UI;
+
+  var VERSION = '2.0.0';
+  var KEY = 'holistic.profile.v2';
+  var FIELDS = ['fullName', 'birthDate', 'birthTime', 'birthLocation', 'gender',
+                'occupation', 'userQuestion'];
+  var SCREENS = ['today', 'numbers', 'sky', 'couple', 'oracle', 'report', 'profile'];
+
+  var state = { profile: null, route: 'today', span: 30, couple: null };
+
+  /* ---------- storage ---------- */
+
+  function readStore() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return null;
+      var p = JSON.parse(raw);
+      if (!p || typeof p !== 'object') return null;
+      if (!p.birthDate || C.powerNumber(p.birthDate) === null) return null;
+      return p;
+    } catch (e) { return null; }
+  }
+
+  function writeStore(p) {
+    try { localStorage.setItem(KEY, JSON.stringify(p)); return true; }
+    catch (e) { return false; }
+  }
+
+  function clearStore() {
+    try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+  }
+
+  function storageAvailable() {
+    try {
+      var k = '__hl_test__';
+      localStorage.setItem(k, '1');
+      localStorage.removeItem(k);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* ---------- toast ---------- */
+
+  var toastTimer = null;
+  function toast(msg, kind) {
+    var el = U.$('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'toast is-on' + (kind ? ' is-' + kind : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('is-on'); }, 3000);
+  }
+
+  /* ---------- routing ---------- */
+
+  function setRoute(name) {
+    if (SCREENS.indexOf(name) === -1) name = 'today';
+    state.route = name;
+
+    SCREENS.forEach(function (s) {
+      var el = U.$('screen-' + s);
+      if (el) el.classList.toggle('is-active', s === name);
+    });
+
+    document.querySelectorAll('.nav-item, .tab').forEach(function (b) {
+      if (b.dataset.go === name) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+
+    if (window.location.hash !== '#' + name) {
+      try { history.replaceState(null, '', '#' + name); } catch (e) { /* file:// */ }
+    }
+    window.scrollTo(0, 0);
+    render(name);
+  }
+
+  function render(name) {
+    var p = state.profile;
+    var now = new Date();
+    try {
+      if (name === 'today') U.renderToday(p, now);
+      else if (name === 'numbers') U.renderNumbers(p, now);
+      else if (name === 'sky') U.renderSky(p, now, state.span);
+      else if (name === 'couple') U.renderCouple(state.couple);
+      else if (name === 'report') U.renderReport(p, now);
+      else if (name === 'profile') fillForm(p);
+    } catch (e) {
+      /* keep the shell alive if one screen fails */
+      console.error('render:' + name, e);
+    }
+  }
+
+  function renderAll() {
+    var now = new Date();
+    U.renderToday(state.profile, now);
+    U.renderNumbers(state.profile, now);
+    U.renderSky(state.profile, now, state.span);
+    U.renderReport(state.profile, now);
+    U.renderCouple(state.couple);
+  }
+
+  /* ---------- profile form ---------- */
+
+  function fillForm(p) {
+    FIELDS.forEach(function (f) {
+      var el = U.$(f);
+      if (el) el.value = (p && p[f]) || '';
+    });
+    U.setText('appVersion', VERSION);
+    U.setText('footVersion', 'v' + VERSION);
+    U.setText('storageState', storageAvailable() ? 'Local, this browser' : 'Blocked — session only');
+    U.setText('offlineState', ('serviceWorker' in navigator) ? 'Enabled' : 'Single-file mode');
+  }
+
+  function collectForm() {
+    var p = {};
+    FIELDS.forEach(function (f) {
+      var el = U.$(f);
+      p[f] = el ? String(el.value || '').trim() : '';
+    });
+    return p;
+  }
+
+  function saveProfile() {
+    var p = collectForm();
+    if (!p.fullName) { toast('Add your name first.', 'error'); return; }
+    if (!p.birthDate) { toast('Add your birth date.', 'error'); return; }
+    if (C.powerNumber(p.birthDate) === null) { toast('That birth date is not valid.', 'error'); return; }
+
+    state.profile = p;
+    var ok = writeStore(p);
+    renderAll();
+    render('profile');
+    toast(ok ? 'Profile saved.' : 'Saved for this session only — storage is blocked.', ok ? 'ok' : 'error');
+  }
+
+  function resetAll() {
+    if (!window.confirm('Erase your profile and every reading on this device?')) return;
+    clearStore();
+    state.profile = null;
+    state.couple = null;
+    FIELDS.forEach(function (f) { var el = U.$(f); if (el) el.value = ''; });
+    U.$('coupleA').value = '';
+    U.$('coupleB').value = '';
+    U.renderOracle(null);
+    renderAll();
+    setRoute('profile');
+    toast('Everything erased.', 'ok');
+  }
+
+  /* ---------- backup ---------- */
+
+  function exportBackup() {
+    if (!state.profile) { toast('Nothing to export yet.', 'error'); return; }
+    var blob = new Blob([JSON.stringify({ app: 'holistic', version: VERSION, profile: state.profile }, null, 2)],
+      { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'holistic-backup.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    toast('Backup downloaded.', 'ok');
+  }
+
+  function importBackup() {
+    var input = U.$('importFile');
+    if (input) input.click();
+  }
+
+  function handleImport(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(String(reader.result));
+        var p = data.profile || data;
+        if (!p || !p.birthDate || C.powerNumber(p.birthDate) === null) {
+          toast('That file has no valid profile.', 'error');
+          return;
+        }
+        FIELDS.forEach(function (f) { if (typeof p[f] !== 'string') p[f] = ''; });
+        state.profile = p;
+        writeStore(p);
+        fillForm(p);
+        renderAll();
+        toast('Profile restored.', 'ok');
+      } catch (e) {
+        toast('Could not read that file.', 'error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ---------- couple ---------- */
+
+  function compareCouple() {
+    var a = U.$('coupleA').value;
+    var b = U.$('coupleB').value;
+    if (!a || !b) { toast('Both birth dates are needed.', 'error'); return; }
+    if (C.powerNumber(a) === null || C.powerNumber(b) === null) {
+      toast('One of those dates is not valid.', 'error');
+      return;
+    }
+    state.couple = C.coupleScore(a, b);
+    U.renderCouple(state.couple);
+    toast('Compared.', 'ok');
+  }
+
+  function clearCouple() {
+    U.$('coupleA').value = '';
+    U.$('coupleB').value = '';
+    state.couple = null;
+    U.renderCouple(null);
+  }
+
+  /* ---------- oracle ---------- */
+
+  function askQuestion() {
+    var q = String(U.$('oracleQ').value || '').trim();
+    if (!q) { toast('Write a question first.', 'error'); return null; }
+    return q;
+  }
+
+  function drawTarot() {
+    var q = askQuestion();
+    if (!q) return;
+    var card = C.seededPick(D.TAROT, q + '|tarot');
+    U.renderOracle({
+      type: 'Tarot · major arcana',
+      name: card.item.name,
+      body: card.item.meaning,
+      footnote: 'Drawn once per question — rephrasing gives a different card.'
+    });
+  }
+
+  function drawIChing() {
+    var q = askQuestion();
+    if (!q) return;
+    var t = C.seededPick(D.TRIGRAMS, q + '|iching');
+    U.renderOracle({
+      type: 'I Ching · trigram',
+      name: t.item.name,
+      body: t.item.meaning,
+      footnote: 'A trigram, not a full hexagram — read it as the tone of the situation.'
+    });
+  }
+
+  function draw8Ball() {
+    var q = askQuestion();
+    if (!q) return;
+    var a = C.seededPick(D.ORACLE_8, q + '|8ball');
+    U.renderOracle({
+      type: 'Straight answer',
+      name: 'The short version',
+      body: a.item,
+      footnote: 'This is a coin-flip with better typography. Use it to break a tie you already decided.'
+    });
+  }
+
+  /* ---------- report ---------- */
+
+  function printReport() {
+    U.renderReport(state.profile, new Date());
+    setTimeout(function () { window.print(); }, 120);
+  }
+
+  function copyReport() {
+    var text = U.reportText(state.profile, new Date());
+    if (!text) { toast('Nothing to copy yet.', 'error'); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { toast('Copied to clipboard.', 'ok'); },
+        function () { toast('Clipboard blocked — select the report manually.', 'error'); }
+      );
+    } else {
+      toast('Clipboard not available in this browser.', 'error');
+    }
+  }
+
+  /* ---------- events ---------- */
+
+  var ACTIONS = {
+    save: saveProfile,
+    reset: resetAll,
+    export: exportBackup,
+    import: importBackup,
+    couple: compareCouple,
+    'couple-clear': clearCouple,
+    'draw-tarot': drawTarot,
+    'draw-iching': drawIChing,
+    'draw-8ball': draw8Ball,
+    print: printReport,
+    'copy-report': copyReport
+  };
+
+  document.addEventListener('click', function (e) {
+    var go = e.target.closest('[data-go]');
+    if (go) {
+      e.preventDefault();
+      setRoute(go.dataset.go);
+      return;
+    }
+
+    var act = e.target.closest('[data-action]');
+    if (act && ACTIONS[act.dataset.action]) {
+      e.preventDefault();
+      ACTIONS[act.dataset.action]();
+      return;
+    }
+
+    var span = e.target.closest('[data-span]');
+    if (span) {
+      e.preventDefault();
+      state.span = parseInt(span.dataset.span, 10) || 30;
+      document.querySelectorAll('[data-span]').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b === span));
+      });
+      U.renderSky(state.profile, new Date(), state.span);
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      var t = U.$('toast');
+      if (t) t.classList.remove('is-on');
+    }
+  });
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'importFile') {
+      handleImport(e.target.files && e.target.files[0]);
+      e.target.value = '';
+    }
+  });
+
+  window.addEventListener('hashchange', function () {
+    var name = (window.location.hash || '').replace('#', '');
+    if (name && name !== state.route) setRoute(name);
+  });
+
+  /* ---------- boot ---------- */
+
+  function init() {
+    state.profile = readStore();
+    if (state.profile) fillForm(state.profile);
+
+    var initial = (window.location.hash || '').replace('#', '');
+    setRoute(SCREENS.indexOf(initial) > -1 ? initial : 'today');
+    renderAll();
+    fillForm(state.profile);
+
+    if (false) { /* single-file build: no service worker */
+      navigator.serviceWorker.register('sw.js').catch(function () { /* offline still works: no network needed */ });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  /* exposed for tests */
+  root.HL_APP = {
+    version: VERSION,
+    actions: Object.keys(ACTIONS),
+    state: state,
+    setRoute: setRoute,
+    render: render,
+    renderAll: renderAll,
+    saveProfile: saveProfile,
+    resetAll: resetAll,
+    compareCouple: compareCouple,
+    drawTarot: drawTarot,
+    drawIChing: drawIChing,
+    draw8Ball: draw8Ball,
+    copyReport: copyReport,
+    exportBackup: exportBackup,
+    handleImport: handleImport
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+</body>
+</html>

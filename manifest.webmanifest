@@ -1,0 +1,58 @@
+{
+  "name": "Holistic — personal reflection, offline",
+  "short_name": "Holistic",
+  "description": "A private, offline reflection app built on numerology, sun-sign astrology, lunar phase and biorhythm. No accounts, no tracking.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "categories": [
+    "lifestyle",
+    "health",
+    "utilities"
+  ],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today",
+      "url": "./index.html#today"
+    },
+    {
+      "name": "Numbers",
+      "url": "./index.html#numbers"
+    },
+    {
+      "name": "Oracle",
+      "url": "./index.html#oracle"
+    }
+  ]
+}

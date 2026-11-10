@@ -1,0 +1,80 @@
+name: Build app packages
+
+# Manual only. Produces an Android debug APK and a Windows installer as
+# workflow artifacts. Kept out of the release job so a toolchain failure
+# can never block the HTML build from shipping.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Stage the web app
+        run: |
+          mkdir -p www
+          cp index.html manifest.webmanifest sw.js www/
+          cp -r assets www/assets
+
+      - name: Add Capacitor
+        run: |
+          npm init -y >/dev/null
+          npm i -D @capacitor/cli @capacitor/core @capacitor/android
+          npx cap add android
+          npx cap sync android
+
+      - name: Assemble debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: holistic-android-debug
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
+
+  windows:
+    name: Windows installer
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Electron
+        working-directory: desktop
+        run: npm install
+
+      - name: Build installer
+        working-directory: desktop
+        run: npx electron-builder --win nsis --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: holistic-windows
+          path: desktop/release/*.exe
+          if-no-files-found: warn

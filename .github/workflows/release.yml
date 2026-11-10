@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Test
+        run: node --test tests/core.test.mjs
+
+      - name: Build single file
+        run: node scripts/build-single-file.mjs
+
+      - name: Package
+        run: |
+          set -e
+          mkdir -p out
+          cp dist/holistic.html out/holistic.html
+          cd dist && zip -q ../out/holistic-v2.zip holistic.html && cd ..
+          ls -lh out
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Holistic ${{ github.ref_name }}
+          generate_release_notes: true
+          body_path: RELEASE_NOTES.md
+          files: |
+            out/holistic.html
+            out/holistic-v2.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

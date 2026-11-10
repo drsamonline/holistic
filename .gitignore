@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# generated
+
+_site/
+out/
+.test-page.html
+.shot.html
+.tmp-*
+*.zip
+
+# deps
+node_modules/
+desktop/release/
+www/
+android/
+ios/
+
+# editors
+.vscode/
+.idea/
+*.swp

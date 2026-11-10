@@ -1,0 +1,40 @@
+{
+  "name": "holistic",
+  "version": "2.0.0",
+  "private": true,
+  "description": "A private, offline reflection app built on numerology, sun-sign astrology, lunar phase and biorhythm. No accounts, no tracking, nothing leaves the device.",
+  "type": "module",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Dr Sohil Momin",
+    "url": "https://github.com/drsamonline"
+  },
+  "homepage": "https://drsamonline.github.io/holistic/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drsamonline/holistic.git"
+  },
+  "bugs": {
+    "url": "https://github.com/drsamonline/holistic/issues"
+  },
+  "keywords": [
+    "numerology",
+    "astrology",
+    "lunar-phase",
+    "biorhythm",
+    "offline-first",
+    "pwa",
+    "vanilla-js",
+    "privacy"
+  ],
+  "scripts": {
+    "test": "node --test tests/core.test.mjs",
+    "test:browser": "node scripts/make-test-page.mjs && node scripts/run-browser-tests.mjs",
+    "build": "node scripts/build-single-file.mjs",
+    "screenshots": "node scripts/make-shot-page.mjs && node scripts/shoot.mjs",
+    "serve": "python3 -m http.server 8080"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

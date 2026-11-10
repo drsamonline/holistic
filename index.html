@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="description" content="Holistic — a private, offline reflection app built on numerology, sun-sign astrology, lunar phase and biorhythm. No accounts, no tracking, nothing leaves your device.">
+<meta name="color-scheme" content="dark">
+<title>Holistic — personal reflection, offline</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ══════════ desktop rail ══════════ -->
+  <aside class="rail" aria-label="Primary">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">✦</div>
+      <div>
+        <div class="brand-name">Holistic</div>
+        <div class="brand-sub">Reflection</div>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Sections">
+      <button class="nav-item" data-go="today"    aria-current="page"><span class="ico" aria-hidden="true">◉</span>Today</button>
+      <button class="nav-item" data-go="numbers"><span class="ico" aria-hidden="true">#</span>Numbers</button>
+      <button class="nav-item" data-go="sky"><span class="ico" aria-hidden="true">☾</span>Sky</button>
+      <button class="nav-item" data-go="couple"><span class="ico" aria-hidden="true">∞</span>Couple</button>
+      <button class="nav-item" data-go="oracle"><span class="ico" aria-hidden="true">✧</span>Oracle</button>
+      <button class="nav-item" data-go="report"><span class="ico" aria-hidden="true">▤</span>Report</button>
+      <button class="nav-item" data-go="profile"><span class="ico" aria-hidden="true">⚙</span>Profile</button>
+    </nav>
+
+    <div class="rail-foot">
+      <p>Everything stays in this browser.<br>
+        <a href="https://github.com/drsamonline/holistic" target="_blank" rel="noopener">Source &amp; licence</a></p>
+    </div>
+  </aside>
+
+  <!-- ══════════ mobile top bar ══════════ -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">✦</div>
+      <div class="brand-name">Holistic</div>
+    </div>
+    <div class="row" style="gap:8px">
+      <button class="icon-btn" data-go="report" aria-label="Report">▤</button>
+      <button class="icon-btn" data-go="profile" aria-label="Profile and settings">⚙</button>
+    </div>
+  </header>
+
+  <!-- ══════════ main ══════════ -->
+  <main class="main">
+
+    <!-- ───── TODAY ───── -->
+    <section class="screen is-active" id="screen-today" aria-labelledby="h-today">
+      <div class="page-head">
+        <div class="eyebrow" id="todayDate">—</div>
+        <h1 id="h-today">Today</h1>
+        <p class="lede" id="todayLede">Set your birth date once and this screen fills in every day.</p>
+      </div>
+
+      <div id="todayEmpty" class="empty" hidden>
+        <span class="ico" aria-hidden="true">◉</span>
+        No profile yet. Add a name and birth date to begin.
+        <div style="margin-top:16px"><button class="btn btn--primary" data-go="profile">Set up profile</button></div>
+      </div>
+
+      <div id="todayBody" hidden>
+        <div class="grid g-3" style="margin-bottom:14px">
+          <div class="card span-2">
+            <div class="row" style="gap:18px;flex-wrap:wrap">
+              <div class="moon-disc" id="todayMoonDisc" aria-hidden="true"></div>
+              <div class="moon-meta">
+                <div class="moon-name" id="todayMoonName">—</div>
+                <div class="moon-note" id="todayMoonNote">—</div>
+              </div>
+            </div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">Universal day</div>
+            <div class="tile-value" id="todayDayNum">—</div>
+            <div class="tile-note" id="todayDayNote">—</div>
+          </div>
+        </div>
+
+        <div class="grid g-2" style="margin-bottom:14px">
+          <div class="card">
+            <h2>Biorhythm today</h2>
+            <div class="stack" style="gap:13px;margin-top:14px">
+              <div class="bio-row">
+                <span class="nm">Physical</span>
+                <div class="meter"><i id="bioPhysicalBar" style="width:0%;background:var(--rose)"></i></div>
+                <span class="val" id="bioPhysicalVal">—</span>
+              </div>
+              <div class="bio-row">
+                <span class="nm">Emotional</span>
+                <div class="meter"><i id="bioEmotionalBar" style="width:0%;background:var(--violet)"></i></div>
+                <span class="val" id="bioEmotionalVal">—</span>
+              </div>
+              <div class="bio-row">
+                <span class="nm">Intellectual</span>
+                <div class="meter"><i id="bioIntellectualBar" style="width:0%;background:var(--teal)"></i></div>
+                <span class="val" id="bioIntellectualVal">—</span>
+              </div>
+            </div>
+            <p class="sub" id="bioAdvice" style="margin-top:14px">—</p>
+          </div>
+
+          <div class="card">
+            <h2>Coming up</h2>
+            <div class="kv" id="todayPhases"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row row--between wrap" style="margin-bottom:4px">
+            <h2 style="margin:0">Your number today</h2>
+            <span class="chip chip--violet" id="todayPowerChip">—</span>
+          </div>
+          <p class="sub" id="todayPowerNote" style="margin:10px 0 16px">—</p>
+          <div class="btn-row">
+            <button class="btn btn--ghost btn--sm" data-go="numbers">Full reading</button>
+            <button class="btn btn--ghost btn--sm" data-go="sky">30-day chart</button>
+            <button class="btn btn--ghost btn--sm" data-go="oracle">Ask the oracle</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── NUMBERS ───── -->
+    <section class="screen" id="screen-numbers" aria-labelledby="h-numbers">
+      <div class="page-head">
+        <div class="eyebrow">Numerology</div>
+        <h1 id="h-numbers">Numbers</h1>
+        <p class="lede">Derived from your birth date and the spelling of your name. Master numbers 11 and 22 are kept unreduced.</p>
+      </div>
+
+      <div id="numbersEmpty" class="empty" hidden>
+        <span class="ico" aria-hidden="true">#</span>
+        Add your birth date to see your numbers.
+        <div style="margin-top:16px"><button class="btn btn--primary" data-go="profile">Set up profile</button></div>
+      </div>
+
+      <div id="numbersBody" hidden>
+        <div class="card card--accent" style="margin-bottom:14px">
+          <div class="gauge-wrap">
+            <div class="gauge">
+              <svg viewBox="0 0 120 120" role="img" aria-labelledby="gaugeTitle">
+                <title id="gaugeTitle">Power number gauge</title>
+                <circle class="track" cx="60" cy="60" r="50"></circle>
+                <circle class="fill" id="powerArc" cx="60" cy="60" r="50" stroke="#a78bfa"></circle>
+              </svg>
+              <div class="gauge-center">
+                <div>
+                  <div class="gauge-num" id="powerNum">—</div>
+                  <div class="gauge-cap">Power</div>
+                </div>
+              </div>
+            </div>
+            <div style="min-width:0;flex:1">
+              <div class="row wrap" style="gap:8px;margin-bottom:8px">
+                <h2 style="margin:0" id="powerName">—</h2>
+                <span class="chip" id="powerElement">—</span>
+              </div>
+              <p class="sub" id="powerTrait" style="font-size:13.5px">—</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g-2" style="margin-bottom:14px">
+          <div class="card">
+            <h3>Strengths</h3>
+            <p class="sub" id="powerStrengths" style="font-size:13.5px;color:var(--ink-2)">—</p>
+          </div>
+          <div class="card">
+            <h3>Watch for</h3>
+            <p class="sub" id="powerWatch" style="font-size:13.5px;color:var(--ink-2)">—</p>
+          </div>
+        </div>
+
+        <div class="grid g-3" style="margin-bottom:14px">
+          <div class="tile">
+            <div class="tile-label">Personal year</div>
+            <div class="tile-value" id="personalYear">—</div>
+            <div class="tile-note" id="personalYearNote">—</div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">Name number</div>
+            <div class="tile-value" id="nameNumber">—</div>
+            <div class="tile-note" id="nameNumberNote">—</div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">Soul urge</div>
+            <div class="tile-value" id="soulNumber">—</div>
+            <div class="tile-note" id="soulNumberNote">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row row--between wrap" style="margin-bottom:12px">
+            <h2 style="margin:0">Personal days this month</h2>
+            <span class="sub" id="luckyMonth">—</span>
+          </div>
+          <div class="row wrap" style="gap:8px" id="luckyDates"></div>
+          <p class="sub" style="margin-top:14px">Dates whose digit sum lands on your power digit. Use them for the things you keep postponing, not for decisions you have not thought through.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── SKY ───── -->
+    <section class="screen" id="screen-sky" aria-labelledby="h-sky">
+      <div class="page-head">
+        <div class="eyebrow">Astrology &amp; cycles</div>
+        <h1 id="h-sky">Sky</h1>
+        <p class="lede">Sun sign from your birth date, lunar phase for today, and the three biorhythm cycles over the month ahead.</p>
+      </div>
+
+      <div id="skyEmpty" class="empty" hidden>
+        <span class="ico" aria-hidden="true">☾</span>
+        Add your birth date to see your sign and cycles.
+        <div style="margin-top:16px"><button class="btn btn--primary" data-go="profile">Set up profile</button></div>
+      </div>
+
+      <div id="skyBody" hidden>
+        <div class="grid g-3" style="margin-bottom:14px">
+          <div class="card span-2">
+            <div class="row" style="gap:16px">
+              <div style="font-size:44px;line-height:1" id="zodiacGlyph" aria-hidden="true">♈</div>
+              <div style="min-width:0">
+                <div class="row wrap" style="gap:8px">
+                  <h2 style="margin:0" id="zodiacName">—</h2>
+                  <span class="chip chip--amber" id="zodiacElement">—</span>
+                  <span class="chip" id="zodiacModality">—</span>
+                </div>
+                <p class="sub" id="zodiacTrait" style="margin-top:6px">—</p>
+                <p class="sub" id="zodiacDates" style="margin-top:4px;color:var(--ink-4)">—</p>
+              </div>
+            </div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">Element reads as</div>
+            <div class="tile-value" style="font-size:16px;line-height:1.35" id="zodiacElementNote">—</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px">
+          <div class="row row--between wrap" style="margin-bottom:16px">
+            <h2 style="margin:0">Biorhythm chart</h2>
+            <div class="seg" role="group" aria-label="Chart range">
+              <button data-span="7" aria-pressed="false">7 days</button>
+              <button data-span="30" aria-pressed="true">30 days</button>
+              <button data-span="90" aria-pressed="false">90 days</button>
+            </div>
+          </div>
+          <svg class="chart" id="bioChart" viewBox="0 0 600 210" preserveAspectRatio="none" role="img" aria-labelledby="chartTitle">
+            <title id="chartTitle">Biorhythm cycles over time</title>
+          </svg>
+          <div class="chart-legend">
+            <span class="legend-item"><i class="legend-dot" style="background:#f43f5e"></i>Physical · 23d</span>
+            <span class="legend-item"><i class="legend-dot" style="background:#8b5cf6"></i>Emotional · 28d</span>
+            <span class="legend-item"><i class="legend-dot" style="background:#14b8a6"></i>Intellectual · 33d</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Lunar calendar</h2>
+          <div class="kv" id="skyPhases"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── COUPLE ───── -->
+    <section class="screen" id="screen-couple" aria-labelledby="h-couple">
+      <div class="page-head">
+        <div class="eyebrow">Compatibility</div>
+        <h1 id="h-couple">Couple</h1>
+        <p class="lede">Two birth dates, two sun signs, two numbers. Read it as a conversation starter, not a verdict on anyone.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="grid g-2">
+          <div class="field">
+            <label for="coupleA">Your birth date</label>
+            <input type="date" id="coupleA" min="1900-01-01" max="2200-12-31">
+          </div>
+          <div class="field">
+            <label for="coupleB">Partner's birth date</label>
+            <input type="date" id="coupleB" min="1900-01-01" max="2200-12-31">
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:16px">
+          <button class="btn btn--primary" data-action="couple">Compare</button>
+          <button class="btn btn--ghost" data-action="couple-clear">Clear</button>
+        </div>
+      </div>
+
+      <div id="coupleOut" hidden>
+        <div class="card card--accent" style="margin-bottom:14px">
+          <div class="gauge-wrap">
+            <div class="gauge">
+              <svg viewBox="0 0 120 120" role="img" aria-labelledby="coupleGaugeTitle">
+                <title id="coupleGaugeTitle">Compatibility score</title>
+                <circle class="track" cx="60" cy="60" r="50"></circle>
+                <circle class="fill" id="coupleArc" cx="60" cy="60" r="50" stroke="#14b8a6"></circle>
+              </svg>
+              <div class="gauge-center">
+                <div>
+                  <div class="gauge-num" id="coupleScore">—</div>
+                  <div class="gauge-cap">Score</div>
+                </div>
+              </div>
+            </div>
+            <div style="min-width:0;flex:1">
+              <h2 style="margin:0 0 6px" id="coupleVerdict">—</h2>
+              <p class="sub" id="coupleVerdictNote" style="font-size:13.5px">—</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g-2">
+          <div class="card">
+            <h3>Breakdown</h3>
+            <div class="kv" id="coupleBreakdown"></div>
+          </div>
+          <div class="card">
+            <h3>What it means</h3>
+            <p class="sub" id="coupleRelation" style="font-size:13.5px;color:var(--ink-2)">—</p>
+            <div class="row wrap" style="gap:8px;margin-top:14px" id="coupleChips"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── ORACLE ───── -->
+    <section class="screen" id="screen-oracle" aria-labelledby="h-oracle">
+      <div class="page-head">
+        <div class="eyebrow">Draw</div>
+        <h1 id="h-oracle">Oracle</h1>
+        <p class="lede">Write one question, then draw. Same question and same deck gives the same card — so rephrasing is part of the exercise.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="field">
+          <label for="oracleQ">Your question</label>
+          <textarea id="oracleQ" placeholder="What am I not seeing about…" maxlength="240"></textarea>
+        </div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn--primary" data-action="draw-tarot">Draw a card</button>
+          <button class="btn btn--ghost" data-action="draw-iching">Cast a trigram</button>
+          <button class="btn btn--ghost" data-action="draw-8ball">Ask straight</button>
+        </div>
+      </div>
+
+      <div id="oracleOut" hidden></div>
+    </section>
+
+    <!-- ───── REPORT ───── -->
+    <section class="screen" id="screen-report" aria-labelledby="h-report">
+      <div class="page-head">
+        <div class="eyebrow">Summary</div>
+        <h1 id="h-report">Report</h1>
+        <p class="lede">One page, printable. Use your browser's print dialog to save it as PDF.</p>
+      </div>
+
+      <div class="btn-row no-print" style="margin-bottom:16px">
+        <button class="btn btn--primary" data-action="print">Print / save as PDF</button>
+        <button class="btn btn--ghost" data-action="copy-report">Copy as text</button>
+      </div>
+
+      <div id="reportBody"></div>
+    </section>
+
+    <!-- ───── PROFILE ───── -->
+    <section class="screen" id="screen-profile" aria-labelledby="h-profile">
+      <div class="page-head">
+        <div class="eyebrow">Settings</div>
+        <h1 id="h-profile">Profile</h1>
+        <p class="lede">Name and birth date are enough for most of the app. Everything else is optional and only used where noted.</p>
+      </div>
+
+      <div class="notice notice--info" style="margin-bottom:16px">
+        <span class="ico" aria-hidden="true">🔒</span>
+        <div><strong>Nothing leaves this device.</strong> Your profile is stored in this browser's local storage only. No account, no server, no analytics. Clearing it is one button.</div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <h2>Required</h2>
+        <div class="grid g-2">
+          <div class="field">
+            <label for="fullName">Full name <span class="req">*</span></label>
+            <input type="text" id="fullName" placeholder="As you write it" autocomplete="name" maxlength="80">
+          </div>
+          <div class="field">
+            <label for="birthDate">Birth date <span class="req">*</span></label>
+            <input type="date" id="birthDate" min="1900-01-01" max="2200-12-31">
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <h2>Optional</h2>
+        <div class="grid g-2">
+          <div class="field">
+            <label for="birthTime">Birth time</label>
+            <input type="time" id="birthTime">
+          </div>
+          <div class="field">
+            <label for="birthLocation">Birth city</label>
+            <input type="text" id="birthLocation" placeholder="City" maxlength="60">
+          </div>
+        </div>
+        <div class="grid g-2" style="margin-top:14px">
+          <div class="field">
+            <label for="gender">Gender</label>
+            <select id="gender">
+              <option value="">Not specified</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="occupation">Occupation</label>
+            <input type="text" id="occupation" placeholder="Optional" maxlength="60">
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label for="userQuestion">What are you working on right now?</label>
+          <textarea id="userQuestion" placeholder="Career, a decision, a relationship, health — one or two lines" maxlength="400"></textarea>
+        </div>
+        <p class="sub" style="margin-top:10px">Please don't type identifying details here — it stays on your device, but it also appears on the printed report.</p>
+      </div>
+
+      <div class="btn-row" style="margin-bottom:20px">
+        <button class="btn btn--primary" data-action="save">Save profile</button>
+        <button class="btn btn--ghost" data-action="export">Export backup</button>
+        <button class="btn btn--ghost" data-action="import">Import backup</button>
+        <button class="btn btn--danger" data-action="reset">Erase everything</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+
+      <div class="card">
+        <h2>About</h2>
+        <div class="kv">
+          <div class="kv-row"><span class="kv-key">Version</span><span class="kv-val" id="appVersion">—</span></div>
+          <div class="kv-row"><span class="kv-key">Storage</span><span class="kv-val" id="storageState">—</span></div>
+          <div class="kv-row"><span class="kv-key">Offline</span><span class="kv-val" id="offlineState">—</span></div>
+          <div class="kv-row"><span class="kv-key">Licence</span><span class="kv-val">PolyForm Noncommercial 1.0.0</span></div>
+          <div class="kv-row"><span class="kv-key">Author</span><span class="kv-val">Dr Sohil Momin</span></div>
+        </div>
+        <p class="sub" style="margin-top:14px">Built as a reflective exercise. It is not a diagnostic tool, not a prescription, and not a forecast. If you are struggling with your mental health, please speak to a qualified professional.</p>
+      </div>
+    </section>
+
+    <div class="meta-foot">
+      <span>Holistic <span id="footVersion">v2.0.0</span></span>
+      <span>·</span>
+      <a href="https://github.com/drsamonline/holistic" target="_blank" rel="noopener">GitHub</a>
+      <span>·</span>
+      <a href="https://github.com/drsamonline/holistic/blob/main/ATTRIBUTION.md" target="_blank" rel="noopener">Attribution</a>
+      <span>·</span>
+      <a href="https://github.com/sponsors/drsamonline" target="_blank" rel="noopener">Sponsor</a>
+      <span>·</span>
+      <span>PolyForm Noncommercial 1.0.0</span>
+    </div>
+
+  </main>
+
+  <!-- ══════════ mobile tab bar ══════════ -->
+  <nav class="tabbar" aria-label="Primary">
+    <div class="tabbar-inner">
+      <button class="tab" data-go="today"    aria-current="page"><span class="ico" aria-hidden="true">◉</span>Today</button>
+      <button class="tab" data-go="numbers"><span class="ico" aria-hidden="true">#</span>Numbers</button>
+      <button class="tab" data-go="sky"><span class="ico" aria-hidden="true">☾</span>Sky</button>
+      <button class="tab" data-go="couple"><span class="ico" aria-hidden="true">∞</span>Couple</button>
+      <button class="tab" data-go="oracle"><span class="ico" aria-hidden="true">✧</span>Oracle</button>
+    </div>
+  </nav>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

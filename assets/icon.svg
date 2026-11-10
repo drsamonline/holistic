@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Holistic">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="55%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#0a0e1a"/>
+  <circle cx="256" cy="230" r="180" fill="url(#glow)"/>
+  <circle cx="256" cy="230" r="128" fill="none" stroke="url(#g)" stroke-width="10" opacity=".9"/>
+  <path d="M256 118 L281 205 L368 230 L281 255 L256 342 L231 255 L144 230 L231 205 Z" fill="url(#g)"/>
+  <circle cx="256" cy="230" r="26" fill="#0a0e1a" opacity=".85"/>
+  <circle cx="256" cy="230" r="9" fill="#fff" opacity=".9"/>
+</svg>
