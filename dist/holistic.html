@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-  Holistic v2.4.0 — single-file build
+  Holistic v2.5.0 — single-file build
   Personal reflection, offline. No accounts, no tracking, nothing leaves the device.
   Author: Dr Sohil Momin · Licence: PolyForm Noncommercial 1.0.0
   Source: https://github.com/drsamonline/holistic
-  Built: 2026-11-11T05:44:34.251Z
+  Built: 2026-11-11T05:56:11.914Z
 -->
 
 <html lang="en">
@@ -514,6 +514,35 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
 }
 .empty .ico { font-size: 28px; display: block; margin-bottom: 10px; opacity: .6; }
 
+/* ---------------- why disclosure ---------------- */
+
+.why { border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.why summary {
+  cursor: pointer; padding: 11px 15px; font-size: 12.5px; font-weight: 550;
+  color: var(--ink-3); list-style: none; display: flex; align-items: center; gap: 8px;
+}
+.why summary::-webkit-details-marker { display: none; }
+.why summary::before {
+  content: '+'; font-family: var(--mono); color: var(--violet-2); font-size: 13px; width: 10px;
+}
+.why[open] summary::before { content: '−'; }
+.why[open] summary { color: var(--ink-2); border-bottom: 1px solid var(--line-2); }
+.why p { padding: 12px 15px 14px; font-size: 12.5px; color: var(--ink-3); line-height: 1.55; margin: 0; }
+
+/* ---------------- offline badge ---------------- */
+
+.net-badge {
+  position: fixed; left: 16px; bottom: 16px; z-index: 60;
+  padding: 7px 13px; border-radius: 999px;
+  background: rgba(20, 184, 166, .14);
+  border: 1px solid rgba(20, 184, 166, .32);
+  color: #5eead4; font-size: 12px; font-weight: 550;
+  backdrop-filter: blur(8px);
+}
+@media (max-width: 860px) {
+  .net-badge { left: 50%; transform: translateX(-50%); bottom: calc(84px + var(--safe-b)); }
+}
+
 /* ---------------- toast ---------------- */
 
 .toast {
@@ -613,7 +642,17 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
 /* ---------------- print ---------------- */
 
 @media print {
+  @page { margin: 12mm; }
   body { background: #fff; color: #111; font-size: 10.5pt; }
+  /* compact card mode — fits an A5 page */
+  body.a5 { font-size: 8.6pt; }
+  body.a5 .card { padding: 8px 10px; margin-bottom: 6px !important; border-radius: 6px; }
+  body.a5 h1 { font-size: 15pt; }
+  body.a5 h2, body.a5 h3 { font-size: 9.5pt; margin-bottom: 4px; }
+  body.a5 .kv-row { padding: 4px 0; font-size: 8.4pt; }
+  body.a5 .sub, body.a5 .lede { font-size: 8pt; }
+  body.a5 .grid { gap: 6px !important; }
+  body.a5 .page-head { margin-bottom: 8px; }
   body::before { display: none; }
   .rail, .topbar, .tabbar, .toast, .btn, .seg, .no-print { display: none !important; }
   .main { margin: 0; padding: 0; }
@@ -798,6 +837,8 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
             </div>
           </div>
         </div>
+
+        <div id="powerWhy" style="margin:-4px 0 14px"></div>
 
         <div class="grid g-2" style="margin-bottom:14px">
           <div class="card">
@@ -1047,6 +1088,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
         <button class="btn btn--ghost" data-action="share-report">Share image</button>
         <button class="btn btn--ghost" data-action="export-md">.md</button>
         <button class="btn btn--ghost" data-action="export-rtf">.rtf</button>
+        <button class="btn btn--ghost" data-action="print-a5">Print A5 card</button>
       </div>
 
       <div id="reportBody"></div>
@@ -1190,6 +1232,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
 
 </div>
 
+<div class="net-badge" id="netBadge" hidden aria-live="polite">Offline · still working</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -1663,6 +1706,22 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     return reducePower(d.getUTCDate() + (d.getUTCMonth() + 1) + d.getUTCFullYear());
   }
 
+  /* The arithmetic behind the power number, for the "why" disclosure. */
+  function powerBreakdown(dob) {
+    var ms = parseDate(dob);
+    if (ms === null) return null;
+    var d = new Date(ms);
+    var day = d.getUTCDate(), month = d.getUTCMonth() + 1, year = d.getUTCFullYear();
+    var sum = day + month + year;
+    var steps = [sum];
+    var n = sum;
+    while (n > 9 && n !== 11 && n !== 22) {
+      n = sumDigits(n);
+      steps.push(n);
+    }
+    return { day: day, month: month, year: year, sum: sum, steps: steps, result: n };
+  }
+
   /* Personal year = birth day + birth month + target year, reduced. */
   function personalYear(dob, year) {
     var ms = parseDate(dob);
@@ -2052,7 +2111,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     DAY_MS: DAY_MS, SYNODIC: SYNODIC,
     sumDigits: sumDigits, reducePower: reducePower, reduceSingle: reduceSingle, baseDigit: baseDigit,
     parseDate: parseDate, localMidnight: localMidnight, toISO: toISO, daysBetween: daysBetween,
-    powerNumber: powerNumber, personalYear: personalYear, nameNumber: nameNumber,
+    powerNumber: powerNumber, powerBreakdown: powerBreakdown, personalYear: personalYear, nameNumber: nameNumber,
     vowelsOf: vowelsOf, dayNumber: dayNumber, luckyDates: luckyDates,
     zodiac: zodiac,
     julianDay: julianDay, sunLongitude: sunLongitude, moonLongitude: moonLongitude,
@@ -2093,8 +2152,18 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   function setHTML(id, v) { var el = $(id); if (el) el.innerHTML = v == null ? '' : v; }
   function show(id, on) { var el = $(id); if (el) el.hidden = !on; }
 
+  /* Locale-aware short date, with a hand-rolled fallback. */
+  var DATE_FMT = null;
+  try {
+    DATE_FMT = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+  } catch (e) { DATE_FMT = null; }
+
   function fmtDate(ms) {
     var d = new Date(ms);
+    if (DATE_FMT) {
+      try { return DATE_FMT.format(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); }
+      catch (e) { /* fall through */ }
+    }
     return D.WEEKDAYS[d.getUTCDay()].slice(0, 3) + ' ' + d.getUTCDate() + ' ' +
       D.MONTHS[d.getUTCMonth()].slice(0, 3);
   }
@@ -2169,8 +2238,10 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
         var y = padT + inner * (1 - v / 100);
         return x.toFixed(1) + ',' + y.toFixed(1);
       }).join(' ');
+      /* a different dash per cycle, so the chart reads without colour */
+      var dash = k === 'physical' ? '' : k === 'emotional' ? ' stroke-dasharray="7 5"' : ' stroke-dasharray="2 4"';
       out += '<polyline points="' + pts + '" fill="none" stroke="' + D.BIORHYTHM[k].colour +
-        '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".92"/>';
+        '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".92"' + dash + '/>';
     });
 
     /* today marker, clipped to the plot area */
@@ -2274,6 +2345,23 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     setText('powerTrait', info.trait + '.');
     setText('powerStrengths', info.strengths + '.');
     setText('powerWatch', info.watch + '.');
+
+    var bd = C.powerBreakdown(profile.birthDate);
+    if (bd) {
+      var chain = bd.steps.length > 1
+        ? bd.steps.join(' → ')
+        : String(bd.sum);
+      setHTML('powerWhy',
+        '<details class="why">' +
+          '<summary>Why #' + bd.result + '?</summary>' +
+          '<p class="sub">' + bd.day + ' + ' + bd.month + ' + ' + bd.year + ' = ' + bd.sum +
+          '. Reduce the digits: ' + chain + '. ' +
+          (bd.result === 11 || bd.result === 22
+            ? 'Eleven and twenty-two are kept unreduced as master numbers.'
+            : '') +
+          '</p>' +
+        '</details>');
+    }
 
     var d = now || new Date();
     var py = C.personalYear(profile.birthDate, d.getFullYear());
@@ -2440,6 +2528,10 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
         (o.second ? '<div class="oracle-second"><span class="lbl">' + esc(o.second.label) +
           '</span><p>' + esc(o.second.text) + '</p></div>' : '') +
         (o.footnote ? '<div class="sub" style="margin-top:14px">' + esc(o.footnote) + '</div>' : '') +
+        '<div class="row wrap no-print" style="gap:8px;margin-top:16px">' +
+          '<button class="btn btn--ghost btn--sm" data-action="export-draw-md">Export .md</button>' +
+          '<button class="btn btn--ghost btn--sm" data-action="export-draw-rtf">Export .rtf</button>' +
+        '</div>' +
       '</div>';
   }
 
@@ -3156,9 +3248,10 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.4.0';
+  var VERSION = '2.5.0';
   var KEY = 'holistic.profile.v2';
   var KEY_ALL = 'holistic.profiles.v1';
+  var KEY_ROUTE = 'holistic.route.v1';
   var FIELDS = ['fullName', 'birthDate', 'birthTime', 'birthLocation', 'gender',
                 'tzOffset', 'occupation', 'userQuestion'];
   var SCREENS = ['today', 'numbers', 'sky', 'couple', 'oracle', 'library', 'report', 'profile'];
@@ -3301,6 +3394,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     if (window.location.hash !== '#' + name) {
       try { history.replaceState(null, '', '#' + name); } catch (e) { /* file:// */ }
     }
+    try { localStorage.setItem(KEY_ROUTE, name); } catch (e) { /* ignore */ }
     window.scrollTo(0, 0);
     render(name);
   }
@@ -3696,6 +3790,22 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     toast('RTF saved.', 'ok');
   }
 
+  function exportDrawMd() {
+    if (!state.draw) { toast('Draw something first.', 'error'); return; }
+    var text = root.HL_EXPORT.markdown(state.profile, state.draw, new Date());
+    if (!text) { toast('Complete your profile first.', 'error'); return; }
+    root.HL_EXPORT.download(text, 'holistic-draw.md', 'text/markdown;charset=utf-8');
+    toast('Markdown saved.', 'ok');
+  }
+
+  function exportDrawRtf() {
+    if (!state.draw) { toast('Draw something first.', 'error'); return; }
+    var text = root.HL_EXPORT.rtf(state.profile, state.draw, new Date());
+    if (!text) { toast('Complete your profile first.', 'error'); return; }
+    root.HL_EXPORT.download(text, 'holistic-draw.rtf', 'application/rtf');
+    toast('RTF saved.', 'ok');
+  }
+
   /* ---------- report ---------- */
 
   function printReport() {
@@ -3733,6 +3843,9 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     'share-report': shareReport,
     'export-md': exportMd,
     'export-rtf': exportRtf,
+    'export-draw-md': exportDrawMd,
+    'export-draw-rtf': exportDrawRtf,
+    'print-a5': printA5,
     'draw-daily': drawDaily,
     print: printReport,
     'copy-report': copyReport
@@ -3796,6 +3909,17 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     if (e.key === 'Escape') {
       var t = U.$('toast');
       if (t) t.classList.remove('is-on');
+      return;
+    }
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.target && e.target.isContentEditable) return;
+
+    var n = parseInt(e.key, 10);
+    if (n >= 1 && n <= SCREENS.length) {
+      e.preventDefault();
+      setRoute(SCREENS[n - 1]);
     }
   });
 
@@ -3817,6 +3941,25 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     if (name && name !== state.route) setRoute(name);
   });
 
+  /* ---------- offline badge ---------- */
+
+  function updateNetBadge() {
+    var el = U.$('netBadge');
+    if (!el) return;
+    el.hidden = navigator.onLine !== false;
+  }
+
+  /* ---------- print ---------- */
+
+  function printA5() {
+    U.renderReport(state.profile, new Date());
+    document.body.classList.add('a5');
+    setTimeout(function () {
+      window.print();
+      setTimeout(function () { document.body.classList.remove('a5'); }, 400);
+    }, 120);
+  }
+
   /* ---------- boot ---------- */
 
   function init() {
@@ -3827,10 +3970,16 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     if (state.profile) fillForm(state.profile);
 
     var initial = (window.location.hash || '').replace('#', '');
+    if (!initial) {
+      try { initial = localStorage.getItem(KEY_ROUTE) || ''; } catch (e) { initial = ''; }
+    }
     setRoute(SCREENS.indexOf(initial) > -1 ? initial : 'today');
     renderAll();
     fillForm(state.profile);
     renderChips();
+    updateNetBadge();
+    window.addEventListener('online', updateNetBadge);
+    window.addEventListener('offline', updateNetBadge);
 
     if (false) { /* single-file build: no service worker */
       navigator.serviceWorker.register('sw.js').catch(function () { /* offline still works: no network needed */ });
@@ -3858,6 +4007,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     clarify: clarify, setSpread: setSpread, shareDraw: shareDraw, shareReport: shareReport,
     newProfile: newProfile, deleteProfile: deleteProfile, useProfile: useProfile,
     exportMd: exportMd, exportRtf: exportRtf,
+    exportDrawMd: exportDrawMd, exportDrawRtf: exportDrawRtf, printA5: printA5,
     copyReport: copyReport,
     exportBackup: exportBackup,
     handleImport: handleImport

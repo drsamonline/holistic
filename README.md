@@ -9,8 +9,8 @@
 [![Live app](https://img.shields.io/badge/live_app-open-8b5cf6?style=flat-square)](https://drsamonline.github.io/holistic/)
 [![Release](https://img.shields.io/github/v/release/drsamonline/holistic?style=flat-square&color=14b8a6)](https://github.com/drsamonline/holistic/releases)
 [![Licence](https://img.shields.io/badge/licence-PolyForm_Noncommercial_1.0.0-f59e0b?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-63_passing-4d6b1f?style=flat-square)](#testing)
-[![Size](https://img.shields.io/badge/single_file-163_KB-0ea5e9?style=flat-square)](dist/holistic.html)
+[![Tests](https://img.shields.io/badge/tests-67_passing-4d6b1f?style=flat-square)](#testing)
+[![Size](https://img.shields.io/badge/single_file-169_KB-0ea5e9?style=flat-square)](dist/holistic.html)
 [![Network](https://img.shields.io/badge/network_requests-0-e11d48?style=flat-square)](#privacy)
 
 <img src="screenshots/desktop-today.png" alt="The Today screen" width="880">
@@ -23,7 +23,7 @@
 
 A personal reflection app that runs entirely in your browser. You enter a name and a birth date once; it derives your numerology profile, your sun sign, today's lunar phase, and your biorhythm cycles, then keeps them on one screen you can open every morning.
 
-It is **not** a dashboard of tables. Every number is computed from your input rather than looked up from a hard-coded list, and the whole thing — stylesheet, scripts, icons, logic — fits in a single 163 KB file that works with the Wi-Fi off.
+It is **not** a dashboard of tables. Every number is computed from your input rather than looked up from a hard-coded list, and the whole thing — stylesheet, scripts, icons, logic — fits in a single 169 KB file that works with the Wi-Fi off.
 
 ## What it is not
 
@@ -69,7 +69,9 @@ There is no homeopathy content in this project. An earlier prototype carried a r
 - **Share as image** — any draw or your profile rendered to a 1080×1350 card, drawn on canvas, no library. Uses the native share sheet where the browser has one.
 - **Export as Markdown or RTF** — the whole reading as plain text. RTF opens in Word, Pages, LibreOffice and Google Docs; Markdown opens anywhere. No PDF, no binary format.
 - **Multiple profiles** — keep more than one person's dates on the same device.
-- **Printable report** plus a plain-text copy button.
+- **Printable report** plus a plain-text copy button, and a compact A5 card mode.
+- **Keyboard shortcuts** — `1`–`8` jump between screens.
+- **"Why this number?"** — the arithmetic behind your power number, shown on request.
 - **Backup and restore** as a JSON file you own.
 - **Installable PWA** with a service worker, and a single-file build for everything else.
 
@@ -127,7 +129,7 @@ assets/js/ui.js             rendering — no event handling
 assets/js/app.js            state, routing, events, storage
 landing/                    marketing page
 scripts/                    build, screenshot and test harnesses
-tests/core.test.mjs         63 logic tests
+tests/core.test.mjs         67 logic tests
 tests/harness/browser.js    87 in-browser assertions
 sw.js · manifest.webmanifest
 ```
@@ -135,8 +137,8 @@ sw.js · manifest.webmanifest
 ### Testing
 
 ```bash
-npm test              # 63 logic tests, Node's built-in runner
-npm run test:browser  # 145 DOM assertions in headless chromium
+npm test              # 67 logic tests, Node's built-in runner
+npm run test:browser  # 156 DOM assertions in headless chromium
 npm run build         # single-file bundle
 ```
 

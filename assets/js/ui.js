@@ -22,8 +22,18 @@
   function setHTML(id, v) { var el = $(id); if (el) el.innerHTML = v == null ? '' : v; }
   function show(id, on) { var el = $(id); if (el) el.hidden = !on; }
 
+  /* Locale-aware short date, with a hand-rolled fallback. */
+  var DATE_FMT = null;
+  try {
+    DATE_FMT = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+  } catch (e) { DATE_FMT = null; }
+
   function fmtDate(ms) {
     var d = new Date(ms);
+    if (DATE_FMT) {
+      try { return DATE_FMT.format(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); }
+      catch (e) { /* fall through */ }
+    }
     return D.WEEKDAYS[d.getUTCDay()].slice(0, 3) + ' ' + d.getUTCDate() + ' ' +
       D.MONTHS[d.getUTCMonth()].slice(0, 3);
   }
@@ -98,8 +108,10 @@
         var y = padT + inner * (1 - v / 100);
         return x.toFixed(1) + ',' + y.toFixed(1);
       }).join(' ');
+      /* a different dash per cycle, so the chart reads without colour */
+      var dash = k === 'physical' ? '' : k === 'emotional' ? ' stroke-dasharray="7 5"' : ' stroke-dasharray="2 4"';
       out += '<polyline points="' + pts + '" fill="none" stroke="' + D.BIORHYTHM[k].colour +
-        '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".92"/>';
+        '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".92"' + dash + '/>';
     });
 
     /* today marker, clipped to the plot area */
@@ -203,6 +215,23 @@
     setText('powerTrait', info.trait + '.');
     setText('powerStrengths', info.strengths + '.');
     setText('powerWatch', info.watch + '.');
+
+    var bd = C.powerBreakdown(profile.birthDate);
+    if (bd) {
+      var chain = bd.steps.length > 1
+        ? bd.steps.join(' → ')
+        : String(bd.sum);
+      setHTML('powerWhy',
+        '<details class="why">' +
+          '<summary>Why #' + bd.result + '?</summary>' +
+          '<p class="sub">' + bd.day + ' + ' + bd.month + ' + ' + bd.year + ' = ' + bd.sum +
+          '. Reduce the digits: ' + chain + '. ' +
+          (bd.result === 11 || bd.result === 22
+            ? 'Eleven and twenty-two are kept unreduced as master numbers.'
+            : '') +
+          '</p>' +
+        '</details>');
+    }
 
     var d = now || new Date();
     var py = C.personalYear(profile.birthDate, d.getFullYear());
@@ -369,6 +398,10 @@
         (o.second ? '<div class="oracle-second"><span class="lbl">' + esc(o.second.label) +
           '</span><p>' + esc(o.second.text) + '</p></div>' : '') +
         (o.footnote ? '<div class="sub" style="margin-top:14px">' + esc(o.footnote) + '</div>' : '') +
+        '<div class="row wrap no-print" style="gap:8px;margin-top:16px">' +
+          '<button class="btn btn--ghost btn--sm" data-action="export-draw-md">Export .md</button>' +
+          '<button class="btn btn--ghost btn--sm" data-action="export-draw-rtf">Export .rtf</button>' +
+        '</div>' +
       '</div>';
   }
 

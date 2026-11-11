@@ -9,9 +9,10 @@
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.4.0';
+  var VERSION = '2.5.0';
   var KEY = 'holistic.profile.v2';
   var KEY_ALL = 'holistic.profiles.v1';
+  var KEY_ROUTE = 'holistic.route.v1';
   var FIELDS = ['fullName', 'birthDate', 'birthTime', 'birthLocation', 'gender',
                 'tzOffset', 'occupation', 'userQuestion'];
   var SCREENS = ['today', 'numbers', 'sky', 'couple', 'oracle', 'library', 'report', 'profile'];
@@ -154,6 +155,7 @@
     if (window.location.hash !== '#' + name) {
       try { history.replaceState(null, '', '#' + name); } catch (e) { /* file:// */ }
     }
+    try { localStorage.setItem(KEY_ROUTE, name); } catch (e) { /* ignore */ }
     window.scrollTo(0, 0);
     render(name);
   }
@@ -549,6 +551,22 @@
     toast('RTF saved.', 'ok');
   }
 
+  function exportDrawMd() {
+    if (!state.draw) { toast('Draw something first.', 'error'); return; }
+    var text = root.HL_EXPORT.markdown(state.profile, state.draw, new Date());
+    if (!text) { toast('Complete your profile first.', 'error'); return; }
+    root.HL_EXPORT.download(text, 'holistic-draw.md', 'text/markdown;charset=utf-8');
+    toast('Markdown saved.', 'ok');
+  }
+
+  function exportDrawRtf() {
+    if (!state.draw) { toast('Draw something first.', 'error'); return; }
+    var text = root.HL_EXPORT.rtf(state.profile, state.draw, new Date());
+    if (!text) { toast('Complete your profile first.', 'error'); return; }
+    root.HL_EXPORT.download(text, 'holistic-draw.rtf', 'application/rtf');
+    toast('RTF saved.', 'ok');
+  }
+
   /* ---------- report ---------- */
 
   function printReport() {
@@ -586,6 +604,9 @@
     'share-report': shareReport,
     'export-md': exportMd,
     'export-rtf': exportRtf,
+    'export-draw-md': exportDrawMd,
+    'export-draw-rtf': exportDrawRtf,
+    'print-a5': printA5,
     'draw-daily': drawDaily,
     print: printReport,
     'copy-report': copyReport
@@ -649,6 +670,17 @@
     if (e.key === 'Escape') {
       var t = U.$('toast');
       if (t) t.classList.remove('is-on');
+      return;
+    }
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.target && e.target.isContentEditable) return;
+
+    var n = parseInt(e.key, 10);
+    if (n >= 1 && n <= SCREENS.length) {
+      e.preventDefault();
+      setRoute(SCREENS[n - 1]);
     }
   });
 
@@ -670,6 +702,25 @@
     if (name && name !== state.route) setRoute(name);
   });
 
+  /* ---------- offline badge ---------- */
+
+  function updateNetBadge() {
+    var el = U.$('netBadge');
+    if (!el) return;
+    el.hidden = navigator.onLine !== false;
+  }
+
+  /* ---------- print ---------- */
+
+  function printA5() {
+    U.renderReport(state.profile, new Date());
+    document.body.classList.add('a5');
+    setTimeout(function () {
+      window.print();
+      setTimeout(function () { document.body.classList.remove('a5'); }, 400);
+    }, 120);
+  }
+
   /* ---------- boot ---------- */
 
   function init() {
@@ -680,10 +731,16 @@
     if (state.profile) fillForm(state.profile);
 
     var initial = (window.location.hash || '').replace('#', '');
+    if (!initial) {
+      try { initial = localStorage.getItem(KEY_ROUTE) || ''; } catch (e) { initial = ''; }
+    }
     setRoute(SCREENS.indexOf(initial) > -1 ? initial : 'today');
     renderAll();
     fillForm(state.profile);
     renderChips();
+    updateNetBadge();
+    window.addEventListener('online', updateNetBadge);
+    window.addEventListener('offline', updateNetBadge);
 
     if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
       navigator.serviceWorker.register('sw.js').catch(function () { /* offline still works: no network needed */ });
@@ -711,6 +768,7 @@
     clarify: clarify, setSpread: setSpread, shareDraw: shareDraw, shareReport: shareReport,
     newProfile: newProfile, deleteProfile: deleteProfile, useProfile: useProfile,
     exportMd: exportMd, exportRtf: exportRtf,
+    exportDrawMd: exportDrawMd, exportDrawRtf: exportDrawRtf, printA5: printA5,
     copyReport: copyReport,
     exportBackup: exportBackup,
     handleImport: handleImport

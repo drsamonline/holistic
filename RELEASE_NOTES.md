@@ -1,24 +1,29 @@
-# Holistic 2.4.0
+# Holistic 2.5.0
 
-Markdown and RTF exports. Still no network.
+Eight small things. No new concepts, no new bytes worth counting.
 
 ### Downloads
 
 | Asset | Size | Notes |
 | --- | --- | --- |
-| `holistic.html` | 163 KB | One self-contained file. Double-click it. Works offline. |
+| `holistic.html` | 169 KB | One self-contained file. Works offline. |
 | `holistic-android.apk` | ~4.3 MB | Capacitor debug build. Unsigned. |
 | `holistic-windows-setup.exe` | ~78 MB | NSIS installer. Unsigned. |
 
 ### What's new
 
-- **Export as Markdown** — the whole reading as a `.md` file.
-- **Export as RTF** — the same, as Rich Text for Word, Pages, LibreOffice or Google Docs.
+- Keyboard shortcuts `1`–`8`
+- Offline badge
+- Last screen remembered
+- "Why this number?" — the arithmetic, shown on request
+- Export the current draw as `.md` or `.rtf`
+- A5 print card mode
+- Chart lines differ by dash as well as colour
+- Locale-aware dates
 
-### Deliberately not added
+### Unchanged
 
-- **PDF.** Use your browser's Print → Save as PDF. No library needed.
-- **Cloud sync or backup.** None. Zero network requests, by design.
+No network requests. No cloud. No PDF. No journal.
 
 ### Licence
 

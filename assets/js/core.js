@@ -76,6 +76,22 @@
     return reducePower(d.getUTCDate() + (d.getUTCMonth() + 1) + d.getUTCFullYear());
   }
 
+  /* The arithmetic behind the power number, for the "why" disclosure. */
+  function powerBreakdown(dob) {
+    var ms = parseDate(dob);
+    if (ms === null) return null;
+    var d = new Date(ms);
+    var day = d.getUTCDate(), month = d.getUTCMonth() + 1, year = d.getUTCFullYear();
+    var sum = day + month + year;
+    var steps = [sum];
+    var n = sum;
+    while (n > 9 && n !== 11 && n !== 22) {
+      n = sumDigits(n);
+      steps.push(n);
+    }
+    return { day: day, month: month, year: year, sum: sum, steps: steps, result: n };
+  }
+
   /* Personal year = birth day + birth month + target year, reduced. */
   function personalYear(dob, year) {
     var ms = parseDate(dob);
@@ -465,7 +481,7 @@
     DAY_MS: DAY_MS, SYNODIC: SYNODIC,
     sumDigits: sumDigits, reducePower: reducePower, reduceSingle: reduceSingle, baseDigit: baseDigit,
     parseDate: parseDate, localMidnight: localMidnight, toISO: toISO, daysBetween: daysBetween,
-    powerNumber: powerNumber, personalYear: personalYear, nameNumber: nameNumber,
+    powerNumber: powerNumber, powerBreakdown: powerBreakdown, personalYear: personalYear, nameNumber: nameNumber,
     vowelsOf: vowelsOf, dayNumber: dayNumber, luckyDates: luckyDates,
     zodiac: zodiac,
     julianDay: julianDay, sunLongitude: sunLongitude, moonLongitude: moonLongitude,

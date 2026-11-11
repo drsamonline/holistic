@@ -1,3 +1,28 @@
+# Holistic 2.5.0
+
+The polish pass: eight small things, no new concepts.
+
+## Added
+
+- **Keyboard shortcuts.** `1`–`8` jump between screens. Ignored while typing in a field.
+- **Offline badge.** A quiet chip appears when the browser reports it is offline — which, for this app, changes nothing.
+- **Last screen is remembered.** Reopening lands where you left off instead of always on Today.
+- **"Why this number?"** A disclosure under the power number showing the arithmetic: day + month + year, then the reduction chain, step by step.
+- **Export the current draw.** `.md` and `.rtf` buttons on any reading, not just the full report.
+- **A5 print card.** A compact print mode that fits the report on an A5 page.
+
+## Changed
+
+- **Biorhythm chart** now distinguishes its three lines by dash pattern as well as colour, so it reads without colour vision.
+- **Dates** use `Intl.DateTimeFormat` where available, falling back to the hand-rolled formatter.
+
+## Testing
+
+- 67 logic tests (up from 63): the power-number breakdown against known dates, master-number handling, and agreement with `powerNumber` across a decade of dates.
+- 156 browser assertions (up from 145): the why-disclosure arithmetic, three distinct dash patterns, draw-level export buttons, keyboard navigation, and that shortcuts are ignored while typing.
+
+---
+
 # Holistic 2.4.0
 
 Plain-text exports, and no PDF.

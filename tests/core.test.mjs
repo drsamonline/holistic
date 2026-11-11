@@ -552,3 +552,35 @@ test('sync scores stay in range and degrade with distance', () => {
 test('sync returns null for an invalid date', () => {
   assert.equal(C.biorhythmSync('bad', '1990-01-15', new Date()), null);
 });
+
+/* ---------------- power breakdown ---------------- */
+
+test('the breakdown explains the power number step by step', () => {
+  const b = C.powerBreakdown('1990-01-15');
+  assert.equal(b.day, 15);
+  assert.equal(b.month, 1);
+  assert.equal(b.year, 1990);
+  assert.equal(b.sum, 2006);
+  assert.deepEqual(b.steps, [2006, 8]);
+  assert.equal(b.result, 8);
+});
+
+test('the breakdown keeps master numbers unreduced', () => {
+  /* 29 reduces to 11, which must stop there */
+  const b = C.powerBreakdown('1985-11-03');
+  assert.equal(b.sum, 1999);
+  assert.equal(b.result, C.powerNumber('1985-11-03'));
+});
+
+test('the breakdown result always equals powerNumber', () => {
+  for (let y = 1960; y <= 2000; y += 3) {
+    for (let m = 1; m <= 12; m += 2) {
+      const iso = `${y}-${String(m).padStart(2, '0')}-11`;
+      assert.equal(C.powerBreakdown(iso).result, C.powerNumber(iso), iso);
+    }
+  }
+});
+
+test('the breakdown rejects an invalid date', () => {
+  assert.equal(C.powerBreakdown('nope'), null);
+});

@@ -316,6 +316,36 @@
     A.deleteProfile();
     eq('profiles: delete removes one', A.state.profiles.length, 1);
 
+    /* polish wave */
+    A.setRoute('numbers');
+    var why = origGet('powerWhy').querySelector('details.why');
+    ok('why: disclosure rendered', why !== null);
+    ok('why: shows the arithmetic', why && /\d+ \+ \d+ \+ \d+ = \d+/.test(why.textContent), why && why.textContent.slice(0, 60));
+    ok('why: names the result', why && why.textContent.indexOf('#8') > -1);
+
+    A.setRoute('sky');
+    var polys = origGet('bioChart').querySelectorAll('polyline');
+    var dashes = Array.prototype.map.call(polys, function (p) { return p.getAttribute('stroke-dasharray') || 'solid'; });
+    ok('chart: lines differ without colour', new Set(dashes).size === 3, dashes.join(' / '));
+
+    A.setRoute('oracle');
+    A.setMode('tarot');
+    A.setSpread(1);
+    origGet('oracleQ').value = 'What now?';
+    A.drawNow();
+    ok('oracle: draw offers md export', origGet('oracleOut').querySelector('[data-action="export-draw-md"]') !== null);
+    ok('oracle: draw offers rtf export', origGet('oracleOut').querySelector('[data-action="export-draw-rtf"]') !== null);
+
+    /* keyboard shortcuts */
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: '3', bubbles: true }));
+    eq('keys: 3 opens the third screen', A.state.route, 'sky');
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: '1', bubbles: true }));
+    eq('keys: 1 returns to today', A.state.route, 'today');
+    origGet('oracleQ').dispatchEvent(new KeyboardEvent('keydown', { key: '5', bubbles: true }));
+    eq('keys: ignored while typing', A.state.route, 'today');
+
+    ok('offline badge element exists', origGet('netBadge') !== null);
+
     /* no homeopathy anywhere in the rendered document */
     var docText = document.body.textContent.toLowerCase();
     ['homeopath', 'remedy', 'potency', 'lycopodium', 'aurum'].forEach(function (t) {
