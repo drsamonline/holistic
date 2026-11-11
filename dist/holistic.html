@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-  Holistic v2.6.0 — single-file build
+  Holistic v2.7.0 — single-file build
   Personal reflection, offline. No accounts, no tracking, nothing leaves the device.
   Author: Dr Sohil Momin · Licence: PolyForm Noncommercial 1.0.0
   Source: https://github.com/drsamonline/holistic
-  Built: 2026-11-11T06:29:36.146Z
+  Built: 2026-11-11T07:02:28.370Z
 -->
 
 <html lang="en">
@@ -556,6 +556,31 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
 @media (max-width: 860px) {
   .net-badge { left: 50%; transform: translateX(-50%); bottom: calc(84px + var(--safe-b)); }
 }
+
+/* ---------------- support ---------------- */
+
+.support-grid { display: grid; grid-template-columns: 222px minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 640px) { .support-grid { grid-template-columns: minmax(0, 1fr); justify-items: center; } }
+.support-qr {
+  background: #fff; border-radius: 14px; padding: 10px;
+  width: 222px; max-width: 100%;
+}
+.support-qr img { display: block; width: 100%; height: auto; }
+.support-qr .sub { color: #4b5563 !important; }
+
+.kv-val a { color: var(--violet-2); text-decoration: none; }
+.kv-val a:hover { text-decoration: underline; }
+.kv-val code { font-size: 12.5px; }
+
+.apps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.app-link {
+  display: block; text-decoration: none; color: inherit;
+  border: 1px solid var(--line); border-radius: 11px; padding: 12px 14px;
+  background: var(--surface-2); transition: border-color .15s, background .15s;
+}
+.app-link:hover { border-color: rgba(139, 92, 246, .45); background: var(--surface-3); }
+.app-link .nm { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.app-link .nt { font-size: 11.5px; color: var(--ink-3); line-height: 1.45; margin-top: 3px; }
 
 /* ---------------- toast ---------------- */
 
@@ -1241,6 +1266,36 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
         </div>
         <p class="sub" style="margin-top:14px">Built as a reflective exercise. It is not a diagnostic tool, not a prescription, and not a forecast. If you are struggling with your mental health, please speak to a qualified professional.</p>
       </div>
+
+      <div class="card" id="supportCard" style="margin-top:14px">
+        <div class="row row--between wrap" style="margin-bottom:14px">
+          <h2 style="margin:0">Support this</h2>
+          <span class="chip chip--teal">Free, and staying that way</span>
+        </div>
+        <div class="support-grid">
+          <div class="support-qr">
+            <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgd2lkdGg9IjIyMiIgaGVpZ2h0PSIyMjIiIGNsYXNzPSJzZWdubyI+PHRpdGxlPlVQSTogZHJzb2hpbGJvaUB5Ymw8L3RpdGxlPjxkZXNjPlNjYW4gd2l0aCBhbnkgVVBJIGFwcCB0byBwYXkgRHIuIFNvaGlsIE1vbWluPC9kZXNjPjxnIHRyYW5zZm9ybT0ic2NhbGUoNikiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0wIDBoMzd2MzdoLTM3eiIvPjxwYXRoIGNsYXNzPSJxcmxpbmUiIHN0cm9rZT0iIzBiMGIwYiIgZD0iTTIgMi41aDdtMiAwaDJtMiAwaDFtNCAwaDRtMSAwaDFtMiAwaDdtLTMzIDFoMW01IDBoMW0yIDBoMm0xIDBoNG0xIDBoMW0zIDBoMm0zIDBoMW01IDBoMW0tMzMgMWgxbTEgMGgzbTEgMGgxbTEgMGgybTMgMGgxbTEgMGgybTEgMGgybTEgMGgybTMgMGgxbTEgMGgzbTEgMGgxbS0zMyAxaDFtMSAwaDNtMSAwaDFtMSAwaDJtMSAwaDFtMiAwaDFtMiAwaDFtNSAwaDJtMSAwaDFtMSAwaDNtMSAwaDFtLTMzIDFoMW0xIDBoM20xIDBoMW0xIDBoMW02IDBoMW0xIDBoM20xIDBoNG0xIDBoMW0xIDBoM20xIDBoMW0tMzMgMWgxbTUgMGgxbTEgMGgxbTEgMGg2bTEgMGgxbTMgMGgybTEgMGgxbTEgMGgxbTUgMGgxbS0zMyAxaDdtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDdtLTI1IDFoMW0xIDBoM20yIDBoMW0zIDBoM20tMjIgMWgxbTEgMGg1bTIgMGgxbTIgMGg0bTEgMGgxbTEgMGgxbTIgMGgybTIgMGg1bS0yOSAxaDJtMSAwaDFtMiAwaDJtMiAwaDFtMSAwaDFtMSAwaDFtMSAwaDdtMSAwaDFtMyAwaDFtLTMxIDFoMW0xIDBoMW0zIDBoNG0yIDBoMW0yIDBoMW0xIDBoMm04IDBoMW0yIDBoMm0tMzIgMWgxbTEgMGgxbTEgMGgxbTIgMGgybTEgMGgxbTMgMGgxbTUgMGgybTIgMGgxbTIgMGgxbTEgMGgzbS0zMiAxaDJtMyAwaDRtMiAwaDFtMyAwaDFtMSAwaDFtMSAwaDFtNCAwaDJtMiAwaDFtMiAwaDJtLTMxIDFoMm0xIDBoMW0xIDBoMW0xIDBoMm0zIDBoMm0xIDBoMW0xIDBoNW0xIDBoMW0xIDBoMW0xIDBoNG0tMzMgMWgxbTMgMGgxbTEgMGgybTIgMGgxbTEgMGgxbTIgMGgxbTIgMGgxbTEgMGgxbTYgMGgybTEgMGgybS0yOSAxaDNtMSAwaDFtMSAwaDFtMSAwaDJtOCAwaDFtMiAwaDJtMSAwaDFtMSAwaDNtLTMxIDFoM20xIDBoMm01IDBoMm0xIDBoMW0xIDBoM20yIDBoNG0yIDBoMm0xIDBoMW0tMzAgMWg0bTIgMGgybTQgMGgxbTEgMGgxbTEgMGg2bTEgMGgybTQgMGgybS0zMyAxaDFtMSAwaDFtMSAwaDhtMSAwaDRtMyAwaDJtMiAwaDFtMyAwaDNtLTMxIDFoMm0xIDBoMW00IDBoMW0xIDBoMW0zIDBoMm01IDBoMW0yIDBoM20xIDBoMW0xIDBoMW0xIDBoMW0tMzMgMWgzbTMgMGgybTEgMGgzbTEgMGgybTEgMGg0bTEgMGgybTEgMGgybTIgMGgybTEgMGgybS0zMyAxaDJtMSAwaDJtMyAwaDFtMiAwaDFtMyAwaDJtMiAwaDNtMSAwaDFtMiAwaDJtMiAwaDNtLTMzIDFoMW0yIDBoNG0xIDBoMW0yIDBoM20xIDBoMW00IDBoMW0zIDBoMW0xIDBoMW00IDBoMW0tMzIgMWgxbTEgMGgxbTEgMGgxbTMgMGgxbTQgMGgxbTIgMGgxbTMgMGgzbTEgMGgybTQgMGgzbS0zMyAxaDFtMiAwaDFtMSAwaDJtMyAwaDFtMSAwaDNtMSAwaDRtMiAwaDdtMyAwaDFtLTI1IDFoMW0xIDBoMW0zIDBoMW0xIDBoMm0xIDBoMm0yIDBoMm0zIDBoMW0zIDBoMW0tMzMgMWg3bTQgMGgxbTIgMGgybTUgMGg0bTEgMGgxbTEgMGgxbTIgMGgxbS0zMiAxaDFtNSAwaDFtMSAwaDFtMiAwaDJtMSAwaDJtNSAwaDRtMyAwaDFtMSAwaDFtLTMxIDFoMW0xIDBoM20xIDBoMW0xIDBoMW0xIDBoNm0zIDBoMW0yIDBoMW0xIDBoNW0tMjkgMWgxbTEgMGgzbTEgMGgxbTEgMGgybTEgMGgzbTEgMGgybTEgMGgzbTIgMGgxbTMgMGgzbTEgMGgybS0zMyAxaDFtMSAwaDNtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMiAwaDJtMyAwaDFtMSAwaDJtMSAwaDNtLTI4IDFoMW01IDBoMW0yIDBoM20zIDBoMW0yIDBoNW0yIDBoMm0xIDBoMW0xIDBoMW0tMzEgMWg3bTEgMGg0bTEgMGgybTEgMGg0bTIgMGg1bTEgMGgxbTIgMGgxIi8+PC9nPjwvc3ZnPgo=" alt="UPI QR code for drsohilboi@ybl" width="222" height="222">
+            <div class="sub" style="text-align:center;margin-top:8px">Scan with any UPI app</div>
+          </div>
+          <div>
+            <div class="kv">
+              <div class="kv-row">
+                <span class="kv-key">UPI</span>
+                <span class="kv-val"><code id="upiId">drsohilboi@ybl</code>
+                  <button class="btn btn--ghost btn--sm" data-action="copy-upi" style="margin-left:8px">Copy</button></span>
+              </div>
+              <div class="kv-row"><span class="kv-key">Ko-fi</span><span class="kv-val"><a href="https://ko-fi.com/matneo" target="_blank" rel="noopener">ko-fi.com/matneo</a></span></div>
+              <div class="kv-row"><span class="kv-key">PayPal</span><span class="kv-val"><a href="https://paypal.me/drsohilmomin?locale.x=en_GB&country.x=IN" target="_blank" rel="noopener">paypal.me/drsohilmomin</a></span></div>
+              <div class="kv-row"><span class="kv-key">My books</span><span class="kv-val"><a href="https://www.amazon.com/stores/author/B08ZT331LY/allbooks" target="_blank" rel="noopener">Amazon author store</a></span></div>
+              <div class="kv-row"><span class="kv-key">More apps</span><span class="kv-val"><a href="https://drsamonline.github.io/" target="_blank" rel="noopener">drsamonline.github.io</a></span></div>
+            </div>
+            <p class="sub" style="margin-top:12px">Nothing here is gated: no accounts, no tracking, no network requests.</p>
+          </div>
+        </div>
+
+        <h3 style="margin-top:22px">Other apps from the same hand</h3>
+        <div class="apps-grid" id="otherApps"></div>
+      </div>
     </section>
 
     <div class="meta-foot">
@@ -1250,7 +1305,9 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
       <span>·</span>
       <a href="https://github.com/drsamonline/holistic/blob/main/ATTRIBUTION.md" target="_blank" rel="noopener">Attribution</a>
       <span>·</span>
-      <a href="https://github.com/sponsors/drsamonline" target="_blank" rel="noopener">Sponsor</a>
+      <a href="https://ko-fi.com/matneo" target="_blank" rel="noopener">Support</a>
+      <span>·</span>
+      <a href="https://www.amazon.com/stores/author/B08ZT331LY/allbooks" target="_blank" rel="noopener">Books</a>
       <span>·</span>
       <span>PolyForm Noncommercial 1.0.0</span>
     </div>
@@ -3535,6 +3592,49 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
 </script>
 <script>
 /* ============================================================
+   Holistic — support links
+   One place to change them. Rendered into the Profile screen.
+   ============================================================ */
+(function (root) {
+  'use strict';
+
+  var SUPPORT = {
+    upi: 'drsohilboi@ybl',
+    upiName: 'Dr. Sohil Momin',
+    kofi: 'https://ko-fi.com/matneo',
+    kofiLabel: 'ko-fi.com/matneo',
+    paypal: 'https://paypal.me/drsohilmomin?locale.x=en_GB&country.x=IN',
+    paypalLabel: 'paypal.me/drsohilmomin',
+    books: 'https://www.amazon.com/stores/author/B08ZT331LY/allbooks',
+    booksLabel: 'Amazon author store',
+    more: 'https://drsamonline.github.io/',
+    moreLabel: 'drsamonline.github.io',
+    email: 'sohilmomin2000@gmail.com',
+    note: 'Free, offline, accountless — and staying that way. Nothing here is gated: no accounts, no tracking, no network requests.'
+  };
+
+  /* Other apps from the same hand, so the block is not only a payment ask. */
+  var OTHER_APPS = [
+    { name: 'Panchang', url: 'https://drsamonline.github.io/app-panchang/',
+      note: 'A daily Indian almanac — tithi, nakshatra, rahu-kaal, computed offline.' },
+    { name: 'Thermals', url: 'https://drsamonline.github.io/app-thermals/',
+      note: 'Homoeopathic remedies by thermal reaction, quoted from the sources.' },
+    { name: 'Organon Reader', url: 'https://drsamonline.github.io/app-organon-reader/',
+      note: 'The Organon, sixth edition, Boericke translation — searchable, offline.' },
+    { name: 'Ambient Sound Studio', url: 'https://drsamonline.github.io/ambient-sound-studio/',
+      note: 'A private, offline ambient mixer in a single HTML file.' },
+    { name: 'Accent Oracle', url: 'https://drsamonline.github.io/accent-oracle/',
+      note: 'Four seconds of speech, on-device, with a band on how sure it is.' },
+    { name: 'All4ONE', url: 'https://drsamonline.github.io/All4ONE/',
+      note: '403 working tools in one portable Windows binary. No telemetry.' }
+  ];
+
+  root.HL_SUPPORT = { SUPPORT: SUPPORT, OTHER_APPS: OTHER_APPS };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+<script>
+/* ============================================================
    Holistic — app shell
    State, storage, routing, events, offline registration.
    ============================================================ */
@@ -3545,7 +3645,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.6.0';
+  var VERSION = '2.7.0';
   var KEY = 'holistic.profile.v2';
   var KEY_ALL = 'holistic.profiles.v1';
   var KEY_ROUTE = 'holistic.route.v1';
@@ -4149,6 +4249,31 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     toast('CSV saved.', 'ok');
   }
 
+  /* ---------- support ---------- */
+
+  function renderSupport() {
+    var host = U.$('otherApps');
+    if (!host || !root.HL_SUPPORT) return;
+    host.innerHTML = root.HL_SUPPORT.OTHER_APPS.map(function (a) {
+      return '<a class="app-link" href="' + U.esc(a.url) + '" target="_blank" rel="noopener">' +
+        '<div class="nm">' + U.esc(a.name) + '</div>' +
+        '<div class="nt">' + U.esc(a.note) + '</div></a>';
+    }).join('');
+  }
+
+  function copyUpi() {
+    var id = root.HL_SUPPORT ? root.HL_SUPPORT.SUPPORT.upi : '';
+    if (!id) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(id).then(
+        function () { toast('UPI ID copied.', 'ok'); },
+        function () { toast('Clipboard blocked — select it manually.', 'error'); }
+      );
+    } else {
+      toast('Clipboard not available.', 'error');
+    }
+  }
+
   /* ---------- report ---------- */
 
   function printReport() {
@@ -4190,6 +4315,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     'export-draw-rtf': exportDrawRtf,
     'print-a5': printA5,
     'export-days': exportDays,
+    'copy-upi': copyUpi,
     'draw-daily': drawDaily,
     print: printReport,
     'copy-report': copyReport
@@ -4330,6 +4456,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     renderAll();
     fillForm(state.profile);
     renderChips();
+    renderSupport();
     updateNetBadge();
     window.addEventListener('online', updateNetBadge);
     window.addEventListener('offline', updateNetBadge);
@@ -4359,7 +4486,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     drawNow: drawNow, drawDaily: drawDaily, setMode: setMode, setLib: setLib,
     clarify: clarify, setSpread: setSpread, shareDraw: shareDraw, shareReport: shareReport,
     newProfile: newProfile, deleteProfile: deleteProfile, useProfile: useProfile,
-    exportMd: exportMd, exportRtf: exportRtf,
+    exportMd: exportMd, exportRtf: exportRtf, copyUpi: copyUpi,
     exportDrawMd: exportDrawMd, exportDrawRtf: exportDrawRtf, printA5: printA5, exportDays: exportDays,
     copyReport: copyReport,
     exportBackup: exportBackup,

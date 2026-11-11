@@ -1,6 +1,6 @@
 {
   "name": "holistic",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "private": true,
   "description": "A private, offline reflection app built on numerology, sun-sign astrology, lunar phase and biorhythm. No accounts, no tracking, nothing leaves the device.",
   "type": "module",

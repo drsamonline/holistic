@@ -1,3 +1,20 @@
+# Holistic 2.7.0
+
+Feature work stops here. The app is complete; this release adds the support block and links to the rest of the shelf.
+
+## Added
+
+- **Support block** in the app (Profile → Support this) and on the landing page: UPI with a scannable QR, Ko-fi, PayPal, the Amazon author store, and the app index. The QR is inlined as a data URI in the single-file build, so it still works offline.
+- **Other apps** — six sibling projects linked from inside the app and a full grid on the landing page.
+- **Copy UPI ID** button, for people who would rather paste than scan.
+
+## Notes
+
+- No payment data is invented: every handle here is the one already published in this author's other repositories.
+- Nothing is gated behind the support block, and the app still makes zero network requests. The links only open when tapped.
+
+---
+
 # Holistic 2.6.0
 
 The rising sign, and a bug that was quietly inventing one.

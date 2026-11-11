@@ -385,6 +385,18 @@
     /* csv export is wired */
     ok('csv: action registered', A.actions.indexOf('export-days') > -1);
 
+    /* support block */
+    ok('support: config present', !!window.HL_SUPPORT);
+    var SU = window.HL_SUPPORT.SUPPORT;
+    ok('support: upi id configured', /@/.test(SU.upi), SU.upi);
+    ok('support: kofi link', SU.kofi.indexOf('ko-fi.com') > -1);
+    ok('support: books link', SU.books.indexOf('amazon.') > -1);
+    ok('support: qr image present', origGet('supportCard').querySelector('img') !== null);
+    ok('support: upi id rendered', origGet('upiId').textContent === SU.upi, origGet('upiId').textContent);
+    ok('support: six sibling apps', origGet('otherApps').querySelectorAll('.app-link').length === 6,
+      'links=' + origGet('otherApps').querySelectorAll('.app-link').length);
+    ok('support: copy action registered', A.actions.indexOf('copy-upi') > -1);
+
     /* no homeopathy anywhere in the rendered document */
     var docText = document.body.textContent.toLowerCase();
     ['homeopath', 'remedy', 'potency', 'lycopodium', 'aurum'].forEach(function (t) {

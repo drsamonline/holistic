@@ -10,7 +10,7 @@
 [![Release](https://img.shields.io/github/v/release/drsamonline/holistic?style=flat-square&color=14b8a6)](https://github.com/drsamonline/holistic/releases)
 [![Licence](https://img.shields.io/badge/licence-PolyForm_Noncommercial_1.0.0-f59e0b?style=flat-square)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-79_passing-4d6b1f?style=flat-square)](#testing)
-[![Size](https://img.shields.io/badge/single_file-184_KB-0ea5e9?style=flat-square)](dist/holistic.html)
+[![Size](https://img.shields.io/badge/single_file-193_KB-0ea5e9?style=flat-square)](dist/holistic.html)
 [![Network](https://img.shields.io/badge/network_requests-0-e11d48?style=flat-square)](#privacy)
 
 <img src="screenshots/desktop-today.png" alt="The Today screen" width="880">
@@ -23,7 +23,7 @@
 
 A personal reflection app that runs entirely in your browser. You enter a name and a birth date once; it derives your numerology profile, your sun sign, today's lunar phase, and your biorhythm cycles, then keeps them on one screen you can open every morning.
 
-It is **not** a dashboard of tables. Every number is computed from your input rather than looked up from a hard-coded list, and the whole thing — stylesheet, scripts, icons, logic — fits in a single 184 KB file that works with the Wi-Fi off.
+It is **not** a dashboard of tables. Every number is computed from your input rather than looked up from a hard-coded list, and the whole thing — stylesheet, scripts, icons, logic — fits in a single 193 KB file that works with the Wi-Fi off.
 
 ## What it is not
 
@@ -163,11 +163,33 @@ Sources, traditions and their licences are listed in **[ATTRIBUTION.md](ATTRIBUT
 
 **[PolyForm Noncommercial 1.0.0](LICENSE)** — use, change and share it for any noncommercial purpose. Commercial use requires a separate licence. Copyright © 2026 Dr Sohil Momin.
 
-## Sponsor
+## Support this
 
-It stays free, uncommercial and ad-free. If it earned a place on your home screen:
+Free, offline, accountless — and staying that way. Nothing here is gated: no accounts, no tracking, no network requests.
 
-[![Sponsor](https://img.shields.io/badge/%E2%9D%A4-sponsor_this_project-ea4aaa?style=flat-square)](https://github.com/sponsors/drsamonline)
+<img src="assets/upi-qr.svg" width="150" alt="UPI QR code">
+
+| | |
+|---|---|
+| UPI (India) | `drsohilboi@ybl` — payee Dr. Sohil Momin, open amount, or scan the QR above |
+| Ko-fi | [ko-fi.com/matneo](https://ko-fi.com/matneo) |
+| PayPal | [paypal.me/drsohilmomin](https://paypal.me/drsohilmomin?locale.x=en_GB&country.x=IN) |
+| My books | [Amazon author store](https://www.amazon.com/stores/author/B08ZT331LY/allbooks) |
+| More apps | [drsamonline.github.io](https://drsamonline.github.io/) |
+| Email | [sohilmomin2000@gmail.com](mailto:sohilmomin2000@gmail.com) |
+
+## More from the same hand
+
+| App | What it is |
+| --- | --- |
+| [Panchang](https://drsamonline.github.io/app-panchang/) | A daily Indian almanac — tithi, nakshatra, yoga, karana, rahu-kaal and muhurat, computed offline |
+| [Thermals](https://drsamonline.github.io/app-thermals/) | Homoeopathic remedies by thermal reaction, quoted from the classical sources |
+| [Organon Reader](https://drsamonline.github.io/app-organon-reader/) | The Organon of Medicine, sixth edition, Boericke translation |
+| [Ambient Sound Studio](https://drsamonline.github.io/ambient-sound-studio/) | A private, offline ambient mixer in a single HTML file |
+| [Accent Oracle](https://drsamonline.github.io/accent-oracle/) | Four seconds of speech, on device, with a band on how sure it is |
+| [All4ONE](https://drsamonline.github.io/All4ONE/) | 403 working tools in one portable Windows binary |
+
+[See all 30 →](https://drsamonline.github.io/)
 
 ## Author
 

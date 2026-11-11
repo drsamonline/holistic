@@ -9,7 +9,7 @@
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.6.0';
+  var VERSION = '2.7.0';
   var KEY = 'holistic.profile.v2';
   var KEY_ALL = 'holistic.profiles.v1';
   var KEY_ROUTE = 'holistic.route.v1';
@@ -613,6 +613,31 @@
     toast('CSV saved.', 'ok');
   }
 
+  /* ---------- support ---------- */
+
+  function renderSupport() {
+    var host = U.$('otherApps');
+    if (!host || !root.HL_SUPPORT) return;
+    host.innerHTML = root.HL_SUPPORT.OTHER_APPS.map(function (a) {
+      return '<a class="app-link" href="' + U.esc(a.url) + '" target="_blank" rel="noopener">' +
+        '<div class="nm">' + U.esc(a.name) + '</div>' +
+        '<div class="nt">' + U.esc(a.note) + '</div></a>';
+    }).join('');
+  }
+
+  function copyUpi() {
+    var id = root.HL_SUPPORT ? root.HL_SUPPORT.SUPPORT.upi : '';
+    if (!id) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(id).then(
+        function () { toast('UPI ID copied.', 'ok'); },
+        function () { toast('Clipboard blocked — select it manually.', 'error'); }
+      );
+    } else {
+      toast('Clipboard not available.', 'error');
+    }
+  }
+
   /* ---------- report ---------- */
 
   function printReport() {
@@ -654,6 +679,7 @@
     'export-draw-rtf': exportDrawRtf,
     'print-a5': printA5,
     'export-days': exportDays,
+    'copy-upi': copyUpi,
     'draw-daily': drawDaily,
     print: printReport,
     'copy-report': copyReport
@@ -794,6 +820,7 @@
     renderAll();
     fillForm(state.profile);
     renderChips();
+    renderSupport();
     updateNetBadge();
     window.addEventListener('online', updateNetBadge);
     window.addEventListener('offline', updateNetBadge);
@@ -823,7 +850,7 @@
     drawNow: drawNow, drawDaily: drawDaily, setMode: setMode, setLib: setLib,
     clarify: clarify, setSpread: setSpread, shareDraw: shareDraw, shareReport: shareReport,
     newProfile: newProfile, deleteProfile: deleteProfile, useProfile: useProfile,
-    exportMd: exportMd, exportRtf: exportRtf,
+    exportMd: exportMd, exportRtf: exportRtf, copyUpi: copyUpi,
     exportDrawMd: exportDrawMd, exportDrawRtf: exportDrawRtf, printA5: printA5, exportDays: exportDays,
     copyReport: copyReport,
     exportBackup: exportBackup,

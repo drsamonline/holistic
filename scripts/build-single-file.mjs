@@ -29,7 +29,7 @@ html = html
   .replace(/<link rel="apple-touch-icon"[^>]*>\n?/, '');
 
 /* inline every script, in order */
-const scripts = ['data', 'core', 'ui', 'share', 'export', 'app'];
+const scripts = ['data', 'core', 'ui', 'share', 'export', 'support', 'app'];
 scripts.forEach((name) => {
   const js = read(`assets/js/${name}.js`);
   html = html.replace(
@@ -43,6 +43,13 @@ html = html.replace(
   "if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {",
   "if (false) { /* single-file build: no service worker */"
 );
+
+/* the QR is an external asset — inline it so the single file stays single */
+try {
+  const qr = read('assets/upi-qr.svg');
+  const dataUri = 'data:image/svg+xml;base64,' + Buffer.from(qr, 'utf8').toString('base64');
+  html = html.replace(/src="assets\/upi-qr\.svg"/, `src="${dataUri}"`);
+} catch (e) { /* QR is optional */ }
 
 const banner = `<!--
   Holistic v${VERSION} — single-file build
