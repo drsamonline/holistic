@@ -1,22 +1,22 @@
-# Holistic 2.1.0
+# Holistic 2.2.0
 
-All 64 hexagrams, all 78 tarot cards, all 24 runes — and a library to read them in.
+Spreads, a clarifying card, your moon sign, and biorhythm sync.
 
 ### Downloads
 
 | Asset | Size | Notes |
 | --- | --- | --- |
-| `holistic.html` | 127 KB | One self-contained file. Double-click it. Works offline. |
+| `holistic.html` | 137 KB | One self-contained file. Double-click it. Works offline. |
 | `holistic-android.apk` | ~4.3 MB | Capacitor debug build. Unsigned. |
 | `holistic-windows-setup.exe` | ~78 MB | NSIS installer. Unsigned. |
 
 ### What's new
 
-- **Full I Ching** — 64 hexagrams, three-coin casting, changing lines read as a movement toward the transformed hexagram.
-- **Full tarot** — 22 majors and 56 minors, one line each.
-- **24 Elder Futhark runes**, upright and reversed.
-- **Library** — 166 entries, searchable, offline.
-- **Daily draw** — one card or hexagram per day, fixed by the date so it cannot be re-rolled.
+- **Tarot spreads** — single, three-card past/present/future, five-card relationship. Drawn without replacement.
+- **Clarifying card** — one more card against a single draw.
+- **Moon sign** from your birth time, computed from the lunar longitude and validated against the new and full moons of January 2000.
+- **Biorhythm sync** — how far apart two people's cycles sit today.
+- **UTC offset** field, so a birth time actually means something.
 
 ### Still true
 

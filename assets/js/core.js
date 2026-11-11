@@ -180,6 +180,83 @@
     return base + Math.round(daysToPhase(date, targetIndex) * DAY_MS);
   }
 
+
+  /* ---------- moon sign (low precision) ---------- */
+
+  /* Julian Day from a UTC calendar date + fractional hours. */
+  function julianDay(y, m, d, hoursUTC) {
+    if (m <= 2) { y -= 1; m += 12; }
+    var A = Math.floor(y / 100);
+    var B = 2 - A + Math.floor(A / 4);
+    return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) +
+      d + B - 1524.5 + (hoursUTC || 0) / 24;
+  }
+
+  function norm360(x) { return ((x % 360) + 360) % 360; }
+
+  /* Apparent solar longitude, degrees. Accurate to about 0.01 deg. */
+  function sunLongitude(jd) {
+    var rad = Math.PI / 180;
+    var T = (jd - 2451545.0) / 36525;
+    var L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+    var M = 357.52911 + 35999.05029 * T - 0.0001537 * T * T;
+    var C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M * rad) +
+            (0.019993 - 0.000101 * T) * Math.sin(2 * M * rad) +
+            0.000289 * Math.sin(3 * M * rad);
+    return norm360(L0 + C);
+  }
+
+  /* Ecliptic longitude of the Moon, degrees.
+     Principal periodic terms only — good to roughly 0.3 deg, which is
+     ample for a sign boundary that is 30 deg wide. */
+  function moonLongitude(jd) {
+    var rad = Math.PI / 180;
+    var T = (jd - 2451545.0) / 36525;
+    var Lp = 218.316 + 481267.881 * T;
+    var D = 297.8502 + 445267.1115 * T;
+    var M = 357.5291 + 35999.0503 * T;
+    var Mp = 134.9634 + 477198.8676 * T;
+    var F = 93.272 + 483202.0175 * T;
+    var lon = Lp +
+      6.289 * Math.sin(Mp * rad) +
+      1.274 * Math.sin((2 * D - Mp) * rad) +
+      0.658 * Math.sin(2 * D * rad) +
+      0.214 * Math.sin(2 * Mp * rad) -
+      0.186 * Math.sin(M * rad) -
+      0.114 * Math.sin(2 * F * rad);
+    return norm360(lon);
+  }
+
+  var SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+               'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+
+  function signFromLongitude(lon) {
+    return SIGNS[Math.floor(norm360(lon) / 30) % 12];
+  }
+
+  /* Birth time is local; tzOffset is minutes east of UTC (IST = 330). */
+  function moonSign(dob, birthTime, tzOffsetMinutes) {
+    var ms = parseDate(dob);
+    if (ms === null) return null;
+    var d = new Date(ms);
+    var time = /^(\d{1,2}):(\d{2})/.exec(String(birthTime || '').trim());
+    var hh = time ? +time[1] : 12;
+    var mm = time ? +time[2] : 0;
+    if (hh > 23 || mm > 59) { hh = 12; mm = 0; }
+    var offset = typeof tzOffsetMinutes === 'number' ? tzOffsetMinutes : 330;
+    var utcHours = hh + mm / 60 - offset / 60;
+    var jd = julianDay(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate(), utcHours);
+    var lon = moonLongitude(jd);
+    return {
+      sign: signFromLongitude(lon),
+      longitude: lon,
+      degree: lon % 30,
+      jd: jd,
+      usedTime: time !== null,
+      assumedNoon: !time
+    };
+  }
+
   /* ---------- biorhythm ---------- */
 
   function biorhythm(dob, cycle, date) {
@@ -217,6 +294,23 @@
     if (value >= 45) return 'Neutral';
     if (value >= 25) return 'Low';
     return 'Critical';
+  }
+
+  /* How far apart two people's cycles are today. 100 = in phase. */
+  function biorhythmSync(a, b, date) {
+    var out = {}, total = 0, n = 0;
+    ['physical', 'emotional', 'intellectual'].forEach(function (k) {
+      var cycle = root.HL_DATA.BIORHYTHM[k].cycle;
+      var va = biorhythm(a, cycle, date);
+      var vb = biorhythm(b, cycle, date);
+      if (va === null || vb === null) return;
+      var diff = Math.abs(va - vb);
+      out[k] = { a: va, b: vb, diff: diff };
+      total += diff;
+      n++;
+    });
+    if (!n) return null;
+    return { cycles: out, score: Math.round(100 - total / n) };
   }
 
   /* ---------- couple ---------- */
@@ -374,9 +468,11 @@
     powerNumber: powerNumber, personalYear: personalYear, nameNumber: nameNumber,
     vowelsOf: vowelsOf, dayNumber: dayNumber, luckyDates: luckyDates,
     zodiac: zodiac,
+    julianDay: julianDay, sunLongitude: sunLongitude, moonLongitude: moonLongitude,
+    signFromLongitude: signFromLongitude, moonSign: moonSign, SIGNS: SIGNS,
     phasePosition: phasePosition, moonPhase: moonPhase, daysToPhase: daysToPhase, nextPhaseDate: nextPhaseDate,
     biorhythm: biorhythm, biorhythmSeries: biorhythmSeries, biorhythmLabel: biorhythmLabel,
-    coupleScore: coupleScore, coupleVerdict: coupleVerdict,
+    coupleScore: coupleScore, coupleVerdict: coupleVerdict, biorhythmSync: biorhythmSync,
     pick: pick, seededPick: seededPick,
     castLine: castLine, castHexagram: castHexagram, hexagramByBits: hexagramByBits,
     dailyIndex: dailyIndex, fullDeck: fullDeck, drawCards: drawCards,

@@ -44,6 +44,9 @@
 
 html { -webkit-text-size-adjust: 100%; }
 
+/* hidden must beat any display rule below */
+[hidden] { display: none !important; }
+
 body {
   font-family: var(--font);
   background: var(--bg);
@@ -394,6 +397,30 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   color: var(--violet-2);
 }
 .oracle-second p { font-size: 14px; color: var(--ink-2); margin-top: 4px; }
+
+/* ---------------- spreads ---------------- */
+
+.spread { display: grid; gap: 10px; margin: 14px 0 4px; }
+.spread--1 { grid-template-columns: 1fr; }
+.spread--2, .spread--3 { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.spread--4, .spread--5, .spread--6 { grid-template-columns: repeat(auto-fit, minmax(138px, 1fr)); }
+.spread-card {
+  background: rgba(255, 255, 255, .045);
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 12px;
+  padding: 13px 14px;
+  min-width: 0;
+}
+.sc-pos {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--violet-2);
+}
+.sc-name { font-size: 14.5px; font-weight: 650; margin: 5px 0 6px; letter-spacing: -.01em; }
+.sc-body { font-size: 12.5px; color: var(--ink-3); line-height: 1.5; }
+
+@media (max-width: 560px) {
+  .spread--4, .spread--5, .spread--6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 /* ---------------- library ---------------- */
 

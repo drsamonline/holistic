@@ -476,3 +476,79 @@ test('dailyIndex works for hexagrams and runes too', () => {
   assert.ok(h.item.bits);
   assert.ok(r.item.glyph);
 });
+
+/* ---------------- moon sign ---------------- */
+
+/* signed angular difference, in [-180, 180) */
+const separation = (a, b) => {
+  const d = (((a - b) % 360) + 360) % 360;
+  return d > 180 ? d - 360 : d;
+};
+
+test('at a known new moon the Moon and Sun share a longitude', () => {
+  const jd = C.julianDay(2000, 1, 6, 18 + 14 / 60);
+  const moon = C.moonLongitude(jd);
+  const sun = C.sunLongitude(jd);
+  const sep = Math.abs(separation(moon, sun));
+  assert.ok(sep < 1.5, `expected conjunction, got ${moon.toFixed(2)} vs ${sun.toFixed(2)} (${sep.toFixed(2)} deg apart)`);
+});
+
+test('at a known full moon the Moon is opposite the Sun', () => {
+  const jd = C.julianDay(2000, 1, 21, 4 + 40 / 60);
+  const moon = C.moonLongitude(jd);
+  const sun = C.sunLongitude(jd);
+  const sep = Math.abs(separation(moon, sun));
+  assert.ok(Math.abs(sep - 180) < 1.5, `expected opposition, got ${sep.toFixed(2)} deg`);
+});
+
+test('moon longitude always lands in 0..360', () => {
+  for (let i = 0; i < 400; i++) {
+    const lon = C.moonLongitude(2451545 + i * 7.3);
+    assert.ok(lon >= 0 && lon < 360, `out of range ${lon}`);
+  }
+});
+
+test('moonSign maps a longitude to the right sign', () => {
+  assert.equal(C.signFromLongitude(0), 'Aries');
+  assert.equal(C.signFromLongitude(29.9), 'Aries');
+  assert.equal(C.signFromLongitude(30), 'Taurus');
+  assert.equal(C.signFromLongitude(359.9), 'Pisces');
+});
+
+test('moonSign needs a valid date and handles a missing time', () => {
+  assert.equal(C.moonSign('nope', '10:00', 330), null);
+  const withTime = C.moonSign('1990-01-15', '06:45', 330);
+  const noTime = C.moonSign('1990-01-15', '', 330);
+  assert.ok(C.SIGNS.includes(withTime.sign));
+  assert.equal(withTime.assumedNoon, false);
+  assert.equal(noTime.assumedNoon, true);
+});
+
+test('moonSign respects the UTC offset', () => {
+  /* twelve hours apart is about six degrees of lunar motion, which can
+     cross a sign boundary — the two offsets must not always agree */
+  const a = C.moonSign('1990-01-15', '00:30', 330);
+  const b = C.moonSign('1990-01-15', '00:30', -480);
+  assert.ok(a && b);
+  assert.notEqual(a.longitude.toFixed(4), b.longitude.toFixed(4));
+});
+
+/* ---------------- biorhythm sync ---------------- */
+
+test('the same person is always fully in sync', () => {
+  const s = C.biorhythmSync('1990-01-15', '1990-01-15', new Date(2026, 10, 11));
+  assert.equal(s.score, 100);
+  assert.equal(Object.keys(s.cycles).length, 3);
+});
+
+test('sync scores stay in range and degrade with distance', () => {
+  const close = C.biorhythmSync('1990-01-15', '1990-01-16', new Date(2026, 10, 11));
+  const far = C.biorhythmSync('1990-01-15', '1990-07-15', new Date(2026, 10, 11));
+  assert.ok(close.score >= 0 && close.score <= 100);
+  assert.ok(far.score >= 0 && far.score <= 100);
+  assert.ok(close.score > far.score, 'adjacent birthdays should sync more closely');
+});
+
+test('sync returns null for an invalid date', () => {
+  assert.equal(C.biorhythmSync('bad', '1990-01-15', new Date()), null);
+});

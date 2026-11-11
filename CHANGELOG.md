@@ -1,3 +1,27 @@
+# Holistic 2.2.0
+
+The version where the readings got a shape.
+
+## Added
+
+- **Tarot spreads** — single card, three-card past/present/future, and a five-card relationship spread (You / Them / The bond / What helps / What blocks). Cards are drawn without replacement, so a spread never repeats one.
+- **Clarifying card** — one more card against a single draw, seeded from the same question.
+- **Moon sign** — ecliptic longitude of the Moon at your birth time, computed from the principal periodic terms. Validated against the new and full moons of January 2000; accurate to about 0.3°, which is ample for a 30° sign.
+- **Biorhythm sync** in the Couple screen — how far apart two people's three cycles sit today, plus a single sync percentage.
+- **UTC offset** field in the profile, used only to place the Moon. Without it a birth time is uninterpretable.
+
+## Changed
+
+- The Sky screen leads with sun sign and moon sign side by side, instead of a sun-sign card with an element tile.
+- Moon sign falls back to noon when no birth time is given, and says so rather than pretending.
+
+## Testing
+
+- 63 logic tests (up from 54): conjunction at a known new moon, opposition at a known full moon, longitude range, sign boundaries, UTC-offset sensitivity, and sync scoring.
+- 115 browser assertions (up from 102): spread sizes, card distinctness, the clarifying card, moon sign rendering, and the sync rows.
+
+---
+
 # Holistic 2.1.0
 
 The version where the decks got real.

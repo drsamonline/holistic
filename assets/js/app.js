@@ -9,14 +9,14 @@
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.1.0';
+  var VERSION = '2.2.0';
   var KEY = 'holistic.profile.v2';
   var FIELDS = ['fullName', 'birthDate', 'birthTime', 'birthLocation', 'gender',
-                'occupation', 'userQuestion'];
+                'tzOffset', 'occupation', 'userQuestion'];
   var SCREENS = ['today', 'numbers', 'sky', 'couple', 'oracle', 'library', 'report', 'profile'];
 
   var state = { profile: null, route: 'today', span: 30, couple: null,
-                mode: 'tarot', lib: 'tarot', draw: null };
+                mode: 'tarot', lib: 'tarot', draw: null, spread: 1 };
 
   /* ---------- storage ---------- */
 
@@ -217,6 +217,7 @@
       return;
     }
     state.couple = C.coupleScore(a, b);
+    if (state.couple) { state.couple.dobA = a; state.couple.dobB = b; }
     U.renderCouple(state.couple);
     toast('Compared.', 'ok');
   }
@@ -236,17 +237,28 @@
     return q;
   }
 
+  var SPREAD_POSITIONS = {
+    1: ['The card'],
+    3: ['Past', 'Present', 'Future'],
+    5: ['You', 'Them', 'The bond', 'What helps', 'What blocks']
+  };
+
   function currentMode() { return state.mode || 'tarot'; }
 
   function drawFor(mode, seed) {
     var deck = C.fullDeck();
     if (mode === 'tarot') {
-      var card = C.seededPick(deck, seed + '|tarot').item;
+      var n = state.spread || 1;
+      var drawn = C.drawCards(deck, n, seed + '|tarot');
+      var pos = SPREAD_POSITIONS[n] || [];
       return {
-        type: 'Tarot · ' + card.suit,
-        title: card.name,
-        body: card.reading,
-        footnote: 'Drawn once per question — rephrasing gives a different card.'
+        type: 'Tarot · ' + (n === 1 ? 'single card' : n + '-card spread'),
+        cards: drawn.map(function (c, i) {
+          return { pos: pos[i] || ('Card ' + (i + 1)), name: c.name, reading: c.reading };
+        }),
+        footnote: n === 1
+          ? 'Drawn once per question — rephrasing gives a different card.'
+          : 'Each card is drawn without replacement, so a spread never repeats a card.'
       };
     }
     if (mode === 'iching') {
@@ -299,6 +311,7 @@
     if (!q) return;
     state.draw = drawFor(currentMode(), q);
     U.renderOracle(state.draw);
+    updateClarifyBtn();
   }
 
   function drawDaily() {
@@ -310,7 +323,25 @@
     d.footnote = 'Today\u2019s draw — fixed for ' + today.day + ', and it cannot be re-rolled.';
     state.draw = d;
     U.renderOracle(d);
+    updateClarifyBtn();
     toast('Today\u2019s draw.', 'ok');
+  }
+
+  function clarify() {
+    var d = state.draw;
+    if (!d || !d.cards) { toast('Draw a card first.', 'error'); return; }
+    var seed = (U.$('oracleQ').value || '') + '|clarify|' + d.cards.length;
+    var extra = C.drawCards(C.fullDeck(), 1, seed)[0];
+    d.cards.push({ pos: 'Clarifying', name: extra.name, reading: extra.reading });
+    d.footnote = 'A clarifying card answers the first one, not the original question.';
+    U.renderOracle(d);
+  }
+
+  function setSpread(n) {
+    state.spread = n;
+    document.querySelectorAll('[data-spread]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(+b.dataset.spread === n));
+    });
   }
 
   function setMode(mode) {
@@ -318,8 +349,18 @@
     document.querySelectorAll('[data-mode]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
     });
+    var row = U.$('spreadRow');
+    if (row) row.hidden = mode !== 'tarot';
     U.renderOracle(null);
     state.draw = null;
+    updateClarifyBtn();
+  }
+
+  function updateClarifyBtn() {
+    var btn = U.$('clarifyBtn');
+    if (!btn) return;
+    var d = state.draw;
+    btn.hidden = !(d && d.cards && d.cards.length === 1 && currentMode() === 'tarot');
   }
 
   function setLib(kind) {
@@ -360,6 +401,7 @@
     couple: compareCouple,
     'couple-clear': clearCouple,
     draw: drawNow,
+    clarify: clarify,
     'draw-daily': drawDaily,
     print: printReport,
     'copy-report': copyReport
@@ -384,6 +426,13 @@
     if (mode) {
       e.preventDefault();
       setMode(mode.dataset.mode);
+      return;
+    }
+
+    var sp = e.target.closest('[data-spread]');
+    if (sp) {
+      e.preventDefault();
+      setSpread(parseInt(sp.dataset.spread, 10) || 1);
       return;
     }
 
@@ -464,6 +513,7 @@
     resetAll: resetAll,
     compareCouple: compareCouple,
     drawNow: drawNow, drawDaily: drawDaily, setMode: setMode, setLib: setLib,
+    clarify: clarify, setSpread: setSpread,
     copyReport: copyReport,
     exportBackup: exportBackup,
     handleImport: handleImport

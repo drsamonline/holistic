@@ -2,7 +2,7 @@
    Cache-first for the app shell. The app makes no network requests at
    runtime, so this exists only to make the first load survive offline. */
 
-const VERSION = 'holistic-v2.1.0';
+const VERSION = 'holistic-v2.2.0';
 const SHELL = [
   './',
   './index.html',

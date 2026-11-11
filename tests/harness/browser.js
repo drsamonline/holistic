@@ -106,6 +106,12 @@
     ok('sky: 90-day span rerenders', origGet('bioChart').querySelectorAll('polyline').length === 3);
     ok('sky: span pressed state', btn.getAttribute('aria-pressed') === 'true');
 
+    /* moon sign */
+    A.setRoute('sky');
+    ok('sky: moon sign resolved', /^[A-Z][a-z]+$/.test(origGet('moonSignName').textContent),
+      origGet('moonSignName').textContent);
+    ok('sky: moon sign note mentions the model', origGet('moonSignNote').textContent.length > 20);
+
     /* couple */
     A.setRoute('couple');
     origGet('coupleA').value = '1990-01-15';
@@ -115,6 +121,9 @@
     ok('couple: score rendered', /^\d+%$/.test(origGet('coupleScore').textContent), origGet('coupleScore').textContent);
     ok('couple: breakdown rows', origGet('coupleBreakdown').querySelectorAll('.kv-row').length === 6);
     ok('couple: verdict text', origGet('coupleVerdict').textContent.length > 2);
+    ok('couple: biorhythm sync shown', origGet('coupleSync').querySelectorAll('.kv-row').length === 4,
+      'rows=' + origGet('coupleSync').querySelectorAll('.kv-row').length);
+    ok('couple: sync has a percentage', /\d+%/.test(origGet('coupleSync').textContent));
 
     /* couple clear */
     document.querySelector('[data-action="couple-clear"]').click();
@@ -148,6 +157,32 @@
     A.setMode('straight');
     A.drawNow();
     ok('oracle: straight answer', origGet('oracleOut').textContent.indexOf('Straight answer') > -1);
+
+    /* spreads */
+    A.setMode('tarot');
+    A.setSpread(3);
+    A.drawNow();
+    eq('oracle: three-card spread', origGet('oracleOut').querySelectorAll('.spread-card').length, 3);
+    var names3 = Array.prototype.map.call(
+      origGet('oracleOut').querySelectorAll('.sc-name'), function (n) { return n.textContent; });
+    eq('oracle: spread cards are distinct', new Set(names3).size, 3);
+
+    A.setSpread(5);
+    A.drawNow();
+    eq('oracle: five-card spread', origGet('oracleOut').querySelectorAll('.spread-card').length, 5);
+
+    A.setSpread(1);
+    A.drawNow();
+    eq('oracle: single spread', origGet('oracleOut').querySelectorAll('.spread-card').length, 1);
+    ok('oracle: clarify button visible for a single card', origGet('clarifyBtn').hidden === false);
+    A.clarify();
+    eq('oracle: clarify adds a card', origGet('oracleOut').querySelectorAll('.spread-card').length, 2);
+    ok('oracle: clarify is labelled', origGet('oracleOut').textContent.indexOf('Clarifying') > -1);
+
+    A.setSpread(3);
+    A.drawNow();
+    ok('oracle: clarify hidden on a spread', origGet('clarifyBtn').hidden === true);
+    A.setSpread(1);
 
     /* daily draw is stable within a day */
     A.setMode('tarot');

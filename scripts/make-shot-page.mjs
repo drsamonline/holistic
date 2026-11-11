@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   if (r === 'oracle') {
     document.getElementById('oracleQ').value = 'Should I take the offer?';
-    HL_APP.setMode('iching');
+    HL_APP.setMode('tarot');
+    HL_APP.setSpread(5);
     HL_APP.drawNow();
   }
   if (r === 'library') {

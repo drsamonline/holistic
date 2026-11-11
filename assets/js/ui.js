@@ -245,6 +245,19 @@
     setText('zodiacDates', zi.dates);
     setText('zodiacElementNote', 'Leans on ' + (D.ELEMENT_NOTE[zi.element] || zi.element) + '.');
 
+    /* moon sign — needs a birth time to be meaningful */
+    var ms = C.moonSign(profile.birthDate, profile.birthTime, parseInt(profile.tzOffset, 10));
+    if (ms) {
+      setText('moonSignName', ms.sign);
+      setText('moonSignGlyph', D.ZODIAC[ms.sign].symbol);
+      setText('moonSignNote', ms.assumedNoon
+        ? 'No birth time given, so this assumes noon — the Moon moves about 13° a day, so the sign may be off by one.'
+        : 'The Moon at ' + Math.floor(ms.degree) + '° ' + ms.sign + ', from your birth time. Low-precision model, ±0.3°.');
+    } else {
+      setText('moonSignName', '—');
+      setText('moonSignNote', 'Add a birth date to place the Moon.');
+    }
+
     var d = now || new Date();
     var useSpan = span || lastSpan;
     lastSpan = useSpan;
@@ -290,6 +303,20 @@
 
     setText('coupleRelation', 'Your elements ' + result.relation + '.');
 
+    var sync = C.biorhythmSync(result.dobA, result.dobB, new Date());
+    if (sync) {
+      var order = ['physical', 'emotional', 'intellectual'];
+      setHTML('coupleSync',
+        order.map(function (k) {
+          var c = sync.cycles[k];
+          return '<div class="kv-row"><span class="kv-key">' + D.BIORHYTHM[k].label + '</span>' +
+            '<span class="kv-val">' + c.a + '% / ' + c.b + '% <span class="sub">· ' +
+            (c.diff < 20 ? 'in phase' : c.diff < 50 ? 'offset' : 'opposite') + '</span></span></div>';
+        }).join('') +
+        '<div class="kv-row"><span class="kv-key">Sync</span><span class="kv-val">' +
+        sync.score + '%</span></div>');
+    }
+
     var gap = Math.abs(C.baseDigit(result.n1) - C.baseDigit(result.n2));
     setHTML('coupleChips',
       '<span class="chip chip--violet">' + (gap <= 1 ? 'Similar pacing' : gap <= 3 ? 'Complementary pacing' : 'Different pacing') + '</span>' +
@@ -319,13 +346,26 @@
     if (!out) return;
     if (!o) { out.hidden = true; out.innerHTML = ''; return; }
     out.hidden = false;
+    var cards = '';
+    if (o.cards && o.cards.length) {
+      cards = '<div class="spread spread--' + o.cards.length + '">' +
+        o.cards.map(function (c) {
+          return '<div class="spread-card">' +
+            '<div class="sc-pos">' + esc(c.pos) + '</div>' +
+            '<div class="sc-name">' + esc(c.name) + '</div>' +
+            '<div class="sc-body">' + esc(c.reading) + '</div>' +
+          '</div>';
+        }).join('') + '</div>';
+    }
+
     out.innerHTML =
       '<div class="oracle-out">' +
         '<div class="oracle-type">' + esc(o.type) + '</div>' +
         (o.glyph ? '<div class="draw-visual">' + o.glyph + '</div>' : '') +
-        '<div class="oracle-card">' + esc(o.title) + '</div>' +
+        cards +
+        (o.title ? '<div class="oracle-card">' + esc(o.title) + '</div>' : '') +
         (o.sub ? '<div class="sub" style="margin:-4px 0 10px">' + esc(o.sub) + '</div>' : '') +
-        '<div class="oracle-body">' + esc(o.body) + '</div>' +
+        (o.body ? '<div class="oracle-body">' + esc(o.body) + '</div>' : '') +
         (o.second ? '<div class="oracle-second"><span class="lbl">' + esc(o.second.label) +
           '</span><p>' + esc(o.second.text) + '</p></div>' : '') +
         (o.footnote ? '<div class="sub" style="margin-top:14px">' + esc(o.footnote) + '</div>' : '') +

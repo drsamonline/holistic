@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-  Holistic v2.1.0 — single-file build
+  Holistic v2.2.0 — single-file build
   Personal reflection, offline. No accounts, no tracking, nothing leaves the device.
   Author: Dr Sohil Momin · Licence: PolyForm Noncommercial 1.0.0
   Source: https://github.com/drsamonline/holistic
-  Built: 2026-11-11T04:11:58.429Z
+  Built: 2026-11-11T04:22:15.997Z
 -->
 
 <html lang="en">
@@ -61,6 +61,9 @@
 }
 
 html { -webkit-text-size-adjust: 100%; }
+
+/* hidden must beat any display rule below */
+[hidden] { display: none !important; }
 
 body {
   font-family: var(--font);
@@ -412,6 +415,30 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   color: var(--violet-2);
 }
 .oracle-second p { font-size: 14px; color: var(--ink-2); margin-top: 4px; }
+
+/* ---------------- spreads ---------------- */
+
+.spread { display: grid; gap: 10px; margin: 14px 0 4px; }
+.spread--1 { grid-template-columns: 1fr; }
+.spread--2, .spread--3 { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.spread--4, .spread--5, .spread--6 { grid-template-columns: repeat(auto-fit, minmax(138px, 1fr)); }
+.spread-card {
+  background: rgba(255, 255, 255, .045);
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 12px;
+  padding: 13px 14px;
+  min-width: 0;
+}
+.sc-pos {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--violet-2);
+}
+.sc-name { font-size: 14.5px; font-weight: 650; margin: 5px 0 6px; letter-spacing: -.01em; }
+.sc-body { font-size: 12.5px; color: var(--ink-3); line-height: 1.5; }
+
+@media (max-width: 560px) {
+  .spread--4, .spread--5, .spread--6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 /* ---------------- library ---------------- */
 
@@ -827,8 +854,8 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
       </div>
 
       <div id="skyBody" hidden>
-        <div class="grid g-3" style="margin-bottom:14px">
-          <div class="card span-2">
+        <div class="grid g-2" style="margin-bottom:14px">
+          <div class="card">
             <div class="row" style="gap:16px">
               <div style="font-size:44px;line-height:1" id="zodiacGlyph" aria-hidden="true">♈</div>
               <div style="min-width:0">
@@ -841,10 +868,15 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
                 <p class="sub" id="zodiacDates" style="margin-top:4px;color:var(--ink-4)">—</p>
               </div>
             </div>
+            <p class="sub" id="zodiacElementNote" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line-2)">—</p>
           </div>
-          <div class="tile">
-            <div class="tile-label">Element reads as</div>
-            <div class="tile-value" style="font-size:16px;line-height:1.35" id="zodiacElementNote">—</div>
+          <div class="card">
+            <div class="tile-label">Moon sign</div>
+            <div class="row wrap" style="gap:8px;margin:8px 0 6px">
+              <span class="tile-value" id="moonSignName" style="font-size:22px">—</span>
+              <span class="chip" id="moonSignGlyph" style="font-size:15px">—</span>
+            </div>
+            <p class="sub" id="moonSignNote" style="font-size:12.5px">Add a birth time to place the Moon.</p>
           </div>
         </div>
 
@@ -926,6 +958,8 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
           <div class="card">
             <h3>Breakdown</h3>
             <div class="kv" id="coupleBreakdown"></div>
+            <h3 style="margin-top:18px">Biorhythm today</h3>
+            <div class="kv" id="coupleSync"></div>
           </div>
           <div class="card">
             <h3>What it means</h3>
@@ -956,8 +990,17 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
           <textarea id="oracleQ" placeholder="What am I not seeing about…" maxlength="240"></textarea>
           <p class="sub" id="oracleHint">Open questions read better than yes/no ones. Try “give me insight into …”.</p>
         </div>
+        <div class="row row--between wrap" id="spreadRow" style="margin-top:16px">
+          <span class="sub">Spread</span>
+          <div class="seg" role="group" aria-label="Spread" id="spreadSeg">
+            <button data-spread="1" aria-pressed="true">Single</button>
+            <button data-spread="3" aria-pressed="false">Three</button>
+            <button data-spread="5" aria-pressed="false">Five</button>
+          </div>
+        </div>
         <div class="btn-row" style="margin-top:14px">
           <button class="btn btn--primary" data-action="draw">Draw</button>
+          <button class="btn btn--ghost" data-action="clarify" id="clarifyBtn" hidden>Clarify</button>
           <button class="btn btn--ghost" data-action="draw-daily">Today's draw</button>
           <button class="btn btn--ghost" data-go="library">Browse</button>
         </div>
@@ -1057,6 +1100,25 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
           <div class="field">
             <label for="occupation">Occupation</label>
             <input type="text" id="occupation" placeholder="Optional" maxlength="60">
+          </div>
+        </div>
+        <div class="grid g-2" style="margin-top:14px">
+          <div class="field">
+            <label for="tzOffset">UTC offset at birth</label>
+            <select id="tzOffset">
+              <option value="330" selected>+05:30 — India</option>
+              <option value="0">+00:00 — UTC / London (winter)</option>
+              <option value="-300">−05:00 — New York (winter)</option>
+              <option value="-480">−08:00 — Los Angeles (winter)</option>
+              <option value="60">+01:00 — Central Europe (winter)</option>
+              <option value="240">+04:00 — Dubai</option>
+              <option value="480">+08:00 — Singapore / Perth</option>
+              <option value="540">+09:00 — Tokyo</option>
+              <option value="600">+10:00 — Sydney (winter)</option>
+            </select>
+          </div>
+          <div class="field" style="justify-content:flex-end">
+            <span class="sub">Used only for the moon sign.</span>
           </div>
         </div>
         <div class="field" style="margin-top:14px">
@@ -1691,6 +1753,83 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     return base + Math.round(daysToPhase(date, targetIndex) * DAY_MS);
   }
 
+
+  /* ---------- moon sign (low precision) ---------- */
+
+  /* Julian Day from a UTC calendar date + fractional hours. */
+  function julianDay(y, m, d, hoursUTC) {
+    if (m <= 2) { y -= 1; m += 12; }
+    var A = Math.floor(y / 100);
+    var B = 2 - A + Math.floor(A / 4);
+    return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) +
+      d + B - 1524.5 + (hoursUTC || 0) / 24;
+  }
+
+  function norm360(x) { return ((x % 360) + 360) % 360; }
+
+  /* Apparent solar longitude, degrees. Accurate to about 0.01 deg. */
+  function sunLongitude(jd) {
+    var rad = Math.PI / 180;
+    var T = (jd - 2451545.0) / 36525;
+    var L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+    var M = 357.52911 + 35999.05029 * T - 0.0001537 * T * T;
+    var C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M * rad) +
+            (0.019993 - 0.000101 * T) * Math.sin(2 * M * rad) +
+            0.000289 * Math.sin(3 * M * rad);
+    return norm360(L0 + C);
+  }
+
+  /* Ecliptic longitude of the Moon, degrees.
+     Principal periodic terms only — good to roughly 0.3 deg, which is
+     ample for a sign boundary that is 30 deg wide. */
+  function moonLongitude(jd) {
+    var rad = Math.PI / 180;
+    var T = (jd - 2451545.0) / 36525;
+    var Lp = 218.316 + 481267.881 * T;
+    var D = 297.8502 + 445267.1115 * T;
+    var M = 357.5291 + 35999.0503 * T;
+    var Mp = 134.9634 + 477198.8676 * T;
+    var F = 93.272 + 483202.0175 * T;
+    var lon = Lp +
+      6.289 * Math.sin(Mp * rad) +
+      1.274 * Math.sin((2 * D - Mp) * rad) +
+      0.658 * Math.sin(2 * D * rad) +
+      0.214 * Math.sin(2 * Mp * rad) -
+      0.186 * Math.sin(M * rad) -
+      0.114 * Math.sin(2 * F * rad);
+    return norm360(lon);
+  }
+
+  var SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+               'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+
+  function signFromLongitude(lon) {
+    return SIGNS[Math.floor(norm360(lon) / 30) % 12];
+  }
+
+  /* Birth time is local; tzOffset is minutes east of UTC (IST = 330). */
+  function moonSign(dob, birthTime, tzOffsetMinutes) {
+    var ms = parseDate(dob);
+    if (ms === null) return null;
+    var d = new Date(ms);
+    var time = /^(\d{1,2}):(\d{2})/.exec(String(birthTime || '').trim());
+    var hh = time ? +time[1] : 12;
+    var mm = time ? +time[2] : 0;
+    if (hh > 23 || mm > 59) { hh = 12; mm = 0; }
+    var offset = typeof tzOffsetMinutes === 'number' ? tzOffsetMinutes : 330;
+    var utcHours = hh + mm / 60 - offset / 60;
+    var jd = julianDay(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate(), utcHours);
+    var lon = moonLongitude(jd);
+    return {
+      sign: signFromLongitude(lon),
+      longitude: lon,
+      degree: lon % 30,
+      jd: jd,
+      usedTime: time !== null,
+      assumedNoon: !time
+    };
+  }
+
   /* ---------- biorhythm ---------- */
 
   function biorhythm(dob, cycle, date) {
@@ -1728,6 +1867,23 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     if (value >= 45) return 'Neutral';
     if (value >= 25) return 'Low';
     return 'Critical';
+  }
+
+  /* How far apart two people's cycles are today. 100 = in phase. */
+  function biorhythmSync(a, b, date) {
+    var out = {}, total = 0, n = 0;
+    ['physical', 'emotional', 'intellectual'].forEach(function (k) {
+      var cycle = root.HL_DATA.BIORHYTHM[k].cycle;
+      var va = biorhythm(a, cycle, date);
+      var vb = biorhythm(b, cycle, date);
+      if (va === null || vb === null) return;
+      var diff = Math.abs(va - vb);
+      out[k] = { a: va, b: vb, diff: diff };
+      total += diff;
+      n++;
+    });
+    if (!n) return null;
+    return { cycles: out, score: Math.round(100 - total / n) };
   }
 
   /* ---------- couple ---------- */
@@ -1885,9 +2041,11 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     powerNumber: powerNumber, personalYear: personalYear, nameNumber: nameNumber,
     vowelsOf: vowelsOf, dayNumber: dayNumber, luckyDates: luckyDates,
     zodiac: zodiac,
+    julianDay: julianDay, sunLongitude: sunLongitude, moonLongitude: moonLongitude,
+    signFromLongitude: signFromLongitude, moonSign: moonSign, SIGNS: SIGNS,
     phasePosition: phasePosition, moonPhase: moonPhase, daysToPhase: daysToPhase, nextPhaseDate: nextPhaseDate,
     biorhythm: biorhythm, biorhythmSeries: biorhythmSeries, biorhythmLabel: biorhythmLabel,
-    coupleScore: coupleScore, coupleVerdict: coupleVerdict,
+    coupleScore: coupleScore, coupleVerdict: coupleVerdict, biorhythmSync: biorhythmSync,
     pick: pick, seededPick: seededPick,
     castLine: castLine, castHexagram: castHexagram, hexagramByBits: hexagramByBits,
     dailyIndex: dailyIndex, fullDeck: fullDeck, drawCards: drawCards,
@@ -2144,6 +2302,19 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     setText('zodiacDates', zi.dates);
     setText('zodiacElementNote', 'Leans on ' + (D.ELEMENT_NOTE[zi.element] || zi.element) + '.');
 
+    /* moon sign — needs a birth time to be meaningful */
+    var ms = C.moonSign(profile.birthDate, profile.birthTime, parseInt(profile.tzOffset, 10));
+    if (ms) {
+      setText('moonSignName', ms.sign);
+      setText('moonSignGlyph', D.ZODIAC[ms.sign].symbol);
+      setText('moonSignNote', ms.assumedNoon
+        ? 'No birth time given, so this assumes noon — the Moon moves about 13° a day, so the sign may be off by one.'
+        : 'The Moon at ' + Math.floor(ms.degree) + '° ' + ms.sign + ', from your birth time. Low-precision model, ±0.3°.');
+    } else {
+      setText('moonSignName', '—');
+      setText('moonSignNote', 'Add a birth date to place the Moon.');
+    }
+
     var d = now || new Date();
     var useSpan = span || lastSpan;
     lastSpan = useSpan;
@@ -2189,6 +2360,20 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
 
     setText('coupleRelation', 'Your elements ' + result.relation + '.');
 
+    var sync = C.biorhythmSync(result.dobA, result.dobB, new Date());
+    if (sync) {
+      var order = ['physical', 'emotional', 'intellectual'];
+      setHTML('coupleSync',
+        order.map(function (k) {
+          var c = sync.cycles[k];
+          return '<div class="kv-row"><span class="kv-key">' + D.BIORHYTHM[k].label + '</span>' +
+            '<span class="kv-val">' + c.a + '% / ' + c.b + '% <span class="sub">· ' +
+            (c.diff < 20 ? 'in phase' : c.diff < 50 ? 'offset' : 'opposite') + '</span></span></div>';
+        }).join('') +
+        '<div class="kv-row"><span class="kv-key">Sync</span><span class="kv-val">' +
+        sync.score + '%</span></div>');
+    }
+
     var gap = Math.abs(C.baseDigit(result.n1) - C.baseDigit(result.n2));
     setHTML('coupleChips',
       '<span class="chip chip--violet">' + (gap <= 1 ? 'Similar pacing' : gap <= 3 ? 'Complementary pacing' : 'Different pacing') + '</span>' +
@@ -2218,13 +2403,26 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     if (!out) return;
     if (!o) { out.hidden = true; out.innerHTML = ''; return; }
     out.hidden = false;
+    var cards = '';
+    if (o.cards && o.cards.length) {
+      cards = '<div class="spread spread--' + o.cards.length + '">' +
+        o.cards.map(function (c) {
+          return '<div class="spread-card">' +
+            '<div class="sc-pos">' + esc(c.pos) + '</div>' +
+            '<div class="sc-name">' + esc(c.name) + '</div>' +
+            '<div class="sc-body">' + esc(c.reading) + '</div>' +
+          '</div>';
+        }).join('') + '</div>';
+    }
+
     out.innerHTML =
       '<div class="oracle-out">' +
         '<div class="oracle-type">' + esc(o.type) + '</div>' +
         (o.glyph ? '<div class="draw-visual">' + o.glyph + '</div>' : '') +
-        '<div class="oracle-card">' + esc(o.title) + '</div>' +
+        cards +
+        (o.title ? '<div class="oracle-card">' + esc(o.title) + '</div>' : '') +
         (o.sub ? '<div class="sub" style="margin:-4px 0 10px">' + esc(o.sub) + '</div>' : '') +
-        '<div class="oracle-body">' + esc(o.body) + '</div>' +
+        (o.body ? '<div class="oracle-body">' + esc(o.body) + '</div>' : '') +
         (o.second ? '<div class="oracle-second"><span class="lbl">' + esc(o.second.label) +
           '</span><p>' + esc(o.second.text) + '</p></div>' : '') +
         (o.footnote ? '<div class="sub" style="margin-top:14px">' + esc(o.footnote) + '</div>' : '') +
@@ -2396,14 +2594,14 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.1.0';
+  var VERSION = '2.2.0';
   var KEY = 'holistic.profile.v2';
   var FIELDS = ['fullName', 'birthDate', 'birthTime', 'birthLocation', 'gender',
-                'occupation', 'userQuestion'];
+                'tzOffset', 'occupation', 'userQuestion'];
   var SCREENS = ['today', 'numbers', 'sky', 'couple', 'oracle', 'library', 'report', 'profile'];
 
   var state = { profile: null, route: 'today', span: 30, couple: null,
-                mode: 'tarot', lib: 'tarot', draw: null };
+                mode: 'tarot', lib: 'tarot', draw: null, spread: 1 };
 
   /* ---------- storage ---------- */
 
@@ -2604,6 +2802,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
       return;
     }
     state.couple = C.coupleScore(a, b);
+    if (state.couple) { state.couple.dobA = a; state.couple.dobB = b; }
     U.renderCouple(state.couple);
     toast('Compared.', 'ok');
   }
@@ -2623,17 +2822,28 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     return q;
   }
 
+  var SPREAD_POSITIONS = {
+    1: ['The card'],
+    3: ['Past', 'Present', 'Future'],
+    5: ['You', 'Them', 'The bond', 'What helps', 'What blocks']
+  };
+
   function currentMode() { return state.mode || 'tarot'; }
 
   function drawFor(mode, seed) {
     var deck = C.fullDeck();
     if (mode === 'tarot') {
-      var card = C.seededPick(deck, seed + '|tarot').item;
+      var n = state.spread || 1;
+      var drawn = C.drawCards(deck, n, seed + '|tarot');
+      var pos = SPREAD_POSITIONS[n] || [];
       return {
-        type: 'Tarot · ' + card.suit,
-        title: card.name,
-        body: card.reading,
-        footnote: 'Drawn once per question — rephrasing gives a different card.'
+        type: 'Tarot · ' + (n === 1 ? 'single card' : n + '-card spread'),
+        cards: drawn.map(function (c, i) {
+          return { pos: pos[i] || ('Card ' + (i + 1)), name: c.name, reading: c.reading };
+        }),
+        footnote: n === 1
+          ? 'Drawn once per question — rephrasing gives a different card.'
+          : 'Each card is drawn without replacement, so a spread never repeats a card.'
       };
     }
     if (mode === 'iching') {
@@ -2686,6 +2896,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     if (!q) return;
     state.draw = drawFor(currentMode(), q);
     U.renderOracle(state.draw);
+    updateClarifyBtn();
   }
 
   function drawDaily() {
@@ -2697,7 +2908,25 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     d.footnote = 'Today\u2019s draw — fixed for ' + today.day + ', and it cannot be re-rolled.';
     state.draw = d;
     U.renderOracle(d);
+    updateClarifyBtn();
     toast('Today\u2019s draw.', 'ok');
+  }
+
+  function clarify() {
+    var d = state.draw;
+    if (!d || !d.cards) { toast('Draw a card first.', 'error'); return; }
+    var seed = (U.$('oracleQ').value || '') + '|clarify|' + d.cards.length;
+    var extra = C.drawCards(C.fullDeck(), 1, seed)[0];
+    d.cards.push({ pos: 'Clarifying', name: extra.name, reading: extra.reading });
+    d.footnote = 'A clarifying card answers the first one, not the original question.';
+    U.renderOracle(d);
+  }
+
+  function setSpread(n) {
+    state.spread = n;
+    document.querySelectorAll('[data-spread]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(+b.dataset.spread === n));
+    });
   }
 
   function setMode(mode) {
@@ -2705,8 +2934,18 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     document.querySelectorAll('[data-mode]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
     });
+    var row = U.$('spreadRow');
+    if (row) row.hidden = mode !== 'tarot';
     U.renderOracle(null);
     state.draw = null;
+    updateClarifyBtn();
+  }
+
+  function updateClarifyBtn() {
+    var btn = U.$('clarifyBtn');
+    if (!btn) return;
+    var d = state.draw;
+    btn.hidden = !(d && d.cards && d.cards.length === 1 && currentMode() === 'tarot');
   }
 
   function setLib(kind) {
@@ -2747,6 +2986,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     couple: compareCouple,
     'couple-clear': clearCouple,
     draw: drawNow,
+    clarify: clarify,
     'draw-daily': drawDaily,
     print: printReport,
     'copy-report': copyReport
@@ -2771,6 +3011,13 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     if (mode) {
       e.preventDefault();
       setMode(mode.dataset.mode);
+      return;
+    }
+
+    var sp = e.target.closest('[data-spread]');
+    if (sp) {
+      e.preventDefault();
+      setSpread(parseInt(sp.dataset.spread, 10) || 1);
       return;
     }
 
@@ -2851,6 +3098,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     resetAll: resetAll,
     compareCouple: compareCouple,
     drawNow: drawNow, drawDaily: drawDaily, setMode: setMode, setLib: setLib,
+    clarify: clarify, setSpread: setSpread,
     copyReport: copyReport,
     exportBackup: exportBackup,
     handleImport: handleImport
