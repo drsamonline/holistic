@@ -1,33 +1,26 @@
-# Holistic 2.0.0
+# Holistic 2.1.0
 
-A private, offline reflection app — rebuilt as an app shell, with the homeopathy module removed entirely.
+All 64 hexagrams, all 78 tarot cards, all 24 runes — and a library to read them in.
 
 ### Downloads
 
-- **`holistic.html`** — one self-contained file, 92 KB. Double-click it. Works offline, from a USB stick, or as an email attachment.
-- **`holistic-v2.zip`** — the same file, zipped, for when your mail client is fussy about `.html`.
+| Asset | Size | Notes |
+| --- | --- | --- |
+| `holistic.html` | 127 KB | One self-contained file. Double-click it. Works offline. |
+| `holistic-android.apk` | ~4.3 MB | Capacitor debug build. Unsigned. |
+| `holistic-windows-setup.exe` | ~78 MB | NSIS installer. Unsigned. |
 
-### Install
+### What's new
 
-1. Download `holistic.html`.
-2. Open it in any modern browser.
-3. Optional: open <https://drsamonline.github.io/holistic/app/> and use **Install** / **Add to Home Screen** for the PWA version.
+- **Full I Ching** — 64 hexagrams, three-coin casting, changing lines read as a movement toward the transformed hexagram.
+- **Full tarot** — 22 majors and 56 minors, one line each.
+- **24 Elder Futhark runes**, upright and reversed.
+- **Library** — 166 entries, searchable, offline.
+- **Daily draw** — one card or hexagram per day, fixed by the date so it cannot be re-rolled.
 
-### What changed
+### Still true
 
-- Removed the homeopathy module — tab, remedy table, potency, frequency, duration and the "healing crisis" copy.
-- Added personal year, expression number, soul urge and derived personal days.
-- Added a lunar calendar with the next four phase dates, and a real illuminated moon disc.
-- Added a biorhythm chart with 7 / 30 / 90-day views.
-- Added backup/restore as a JSON file, and a printable report with a text-copy button.
-- Rebuilt the layout: rail on desktop, bottom tab bar on mobile, 48 px targets, safe-area insets.
-- Fixed couple scoring so master numbers are no longer capped at 65%.
-- Seeded the oracle from the question so it is consistent.
-- 38 logic tests and 87 browser assertions.
-
-### Privacy
-
-No network requests at runtime. One `localStorage` key on your device, erased with one button. No account, no sync, no analytics.
+No network requests at runtime. One `localStorage` key on your device. No account, no sync, no analytics.
 
 ### Licence
 

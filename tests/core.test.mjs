@@ -318,3 +318,161 @@ test('no homeopathy content survives anywhere in the data', () => {
     assert.ok(!blob.includes(term), `found "${term}" in data tables`);
   }
 });
+
+/* ---------------- I Ching ---------------- */
+
+test('the deck holds all 64 hexagrams with unique line patterns', () => {
+  assert.equal(D.HEXAGRAMS.length, 64);
+  assert.equal(new Set(D.HEXAGRAMS.map((h) => h.bits)).size, 64);
+  D.HEXAGRAMS.forEach((h) => {
+    assert.match(h.bits, /^[01]{6}$/, `hexagram ${h.n} has bad bits`);
+    assert.ok(h.name && h.name.length > 2, `hexagram ${h.n} has no name`);
+    assert.ok(h.reading && h.reading.length > 20, `hexagram ${h.n} has no reading`);
+  });
+});
+
+test('hexagram numbers are 1..64 with no gaps', () => {
+  const nums = D.HEXAGRAMS.map((h) => h.n).sort((a, b) => a - b);
+  assert.deepEqual(nums, Array.from({ length: 64 }, (_, i) => i + 1));
+});
+
+test('known hexagrams sit on the right line pattern', () => {
+  /* 1 Creative is all yang, 2 Receptive all yin, 11 Peace is heaven below earth */
+  assert.equal(C.hexagramByBits('111111').n, 1);
+  assert.equal(C.hexagramByBits('000000').n, 2);
+  assert.equal(C.hexagramByBits('111000').n, 11);
+  assert.equal(C.hexagramByBits('000111').n, 12);
+  assert.equal(C.hexagramByBits('101010').n, 63);
+  assert.equal(C.hexagramByBits('010101').n, 64);
+});
+
+test('every hexagram round-trips through its own bits', () => {
+  D.HEXAGRAMS.forEach((h) => {
+    const found = C.hexagramByBits(h.bits);
+    assert.ok(found, `no lookup for ${h.bits}`);
+    assert.equal(found.n, h.n);
+  });
+});
+
+test('hexagramByBits returns null for an unknown pattern', () => {
+  assert.equal(C.hexagramByBits(''), null);
+  assert.equal(C.hexagramByBits('111'), null);
+});
+
+test('casting always yields six valid lines', () => {
+  for (let i = 0; i < 300; i++) {
+    const cast = C.castHexagram();
+    assert.equal(cast.lines.length, 6);
+    assert.match(cast.bits, /^[01]{6}$/);
+    assert.match(cast.changedBits, /^[01]{6}$/);
+    cast.lines.forEach((l) => {
+      assert.ok([6, 7, 8, 9].includes(l.value), `bad line value ${l.value}`);
+      assert.equal(l.yang, l.value === 7 || l.value === 9);
+      assert.equal(l.changing, l.value === 6 || l.value === 9);
+      assert.equal(l.coins.length, 3);
+    });
+    assert.ok(C.hexagramByBits(cast.bits), 'cast bits must map to a hexagram');
+  }
+});
+
+test('a changing line flips exactly one bit in the transformed hexagram', () => {
+  /* force every line to 9 (old yang) — all six change */
+  const cast = C.castHexagram(() => 0.9);
+  assert.equal(cast.bits, '111111');
+  assert.equal(cast.changing, 6);
+  assert.equal(cast.changedBits, '000000');
+});
+
+test('a cast with no changing lines transforms to itself', () => {
+  /* 2,2,3 per line = 7 young yang: static */
+  const seq = [0.1, 0.1, 0.9];
+  let i = 0;
+  const cast = C.castHexagram(() => seq[i++ % 3]);
+  assert.equal(cast.changing, 0);
+  assert.equal(cast.bits, '111111');
+  assert.equal(cast.bits, cast.changedBits);
+
+  /* and in general, no changing lines means no transformation */
+  for (let n = 0; n < 200; n++) {
+    const c = C.castHexagram();
+    if (c.changing === 0) assert.equal(c.bits, c.changedBits);
+    else assert.notEqual(c.bits, c.changedBits);
+  }
+});
+
+/* ---------------- tarot deck ---------------- */
+
+test('the full deck is 78 unique cards', () => {
+  const deck = C.fullDeck();
+  assert.equal(deck.length, 78);
+  assert.equal(new Set(deck.map((c) => c.name)).size, 78);
+  deck.forEach((c) => assert.ok(c.reading && c.reading.length > 10, `${c.name} has no reading`));
+});
+
+test('the deck keeps 22 majors and 56 minors', () => {
+  const deck = C.fullDeck();
+  assert.equal(deck.filter((c) => c.suit === 'Major').length, 22);
+  assert.equal(deck.filter((c) => c.suit !== 'Major').length, 56);
+  ['Wands', 'Cups', 'Swords', 'Coins'].forEach((s) => {
+    assert.equal(deck.filter((c) => c.suit === s).length, 14, `${s} should have 14`);
+  });
+});
+
+test('drawCards returns distinct cards and is deterministic', () => {
+  const deck = C.fullDeck();
+  const a = C.drawCards(deck, 5, 'seed');
+  const b = C.drawCards(deck, 5, 'seed');
+  assert.equal(a.length, 5);
+  assert.equal(new Set(a.map((c) => c.name)).size, 5);
+  assert.deepEqual(a.map((c) => c.name), b.map((c) => c.name));
+});
+
+test('drawCards cannot draw more than the deck holds', () => {
+  const deck = C.fullDeck();
+  assert.equal(C.drawCards(deck, 200, 'x').length, 78);
+});
+
+/* ---------------- runes ---------------- */
+
+test('the rune set is the 24 Elder Futhark', () => {
+  assert.equal(D.RUNES.length, 24);
+  assert.equal(new Set(D.RUNES.map((r) => r.name)).size, 24);
+  D.RUNES.forEach((r) => {
+    assert.ok(r.glyph, `${r.name} has no glyph`);
+    assert.ok(r.upright && r.upright.length > 10, `${r.name} has no upright meaning`);
+    assert.ok(r.reversed && r.reversed.length > 10, `${r.name} has no reversed meaning`);
+  });
+  assert.equal(D.RUNES[0].name, 'Fehu');
+  assert.equal(D.RUNES[23].name, 'Othala');
+});
+
+/* ---------------- determinism ---------------- */
+
+test('seededRandom is reproducible and stays in range', () => {
+  const a = C.seededRandom('abc');
+  const b = C.seededRandom('abc');
+  const c = C.seededRandom('abd');
+  for (let i = 0; i < 50; i++) {
+    const v = a();
+    assert.equal(v, b());
+    assert.ok(v >= 0 && v < 1, `out of range: ${v}`);
+  }
+  assert.notEqual(C.seededRandom('abc')(), c());
+});
+
+test('dailyIndex is stable per day and changes across days', () => {
+  const deck = C.fullDeck();
+  const d1 = C.dailyIndex(deck, new Date(2026, 10, 11), 'tarot');
+  const d1b = C.dailyIndex(deck, new Date(2026, 10, 11, 23, 30), 'tarot');
+  const d2 = C.dailyIndex(deck, new Date(2026, 10, 12), 'tarot');
+  assert.equal(d1.item.name, d1b.item.name, 'same day must give the same draw');
+  assert.notEqual(d1.item.name, d2.item.name, 'next day must differ');
+  assert.equal(d1.day, '2026-11-11');
+});
+
+test('dailyIndex works for hexagrams and runes too', () => {
+  const h = C.dailyIndex(D.HEXAGRAMS, new Date(2026, 10, 11), 'iching');
+  const r = C.dailyIndex(D.RUNES, new Date(2026, 10, 11), 'runes');
+  assert.ok(h.item.bits);
+  assert.ok(r.item.glyph);
+});

@@ -9,13 +9,14 @@
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.0.0';
+  var VERSION = '2.1.0';
   var KEY = 'holistic.profile.v2';
   var FIELDS = ['fullName', 'birthDate', 'birthTime', 'birthLocation', 'gender',
                 'occupation', 'userQuestion'];
-  var SCREENS = ['today', 'numbers', 'sky', 'couple', 'oracle', 'report', 'profile'];
+  var SCREENS = ['today', 'numbers', 'sky', 'couple', 'oracle', 'library', 'report', 'profile'];
 
-  var state = { profile: null, route: 'today', span: 30, couple: null };
+  var state = { profile: null, route: 'today', span: 30, couple: null,
+                mode: 'tarot', lib: 'tarot', draw: null };
 
   /* ---------- storage ---------- */
 
@@ -91,6 +92,8 @@
       else if (name === 'numbers') U.renderNumbers(p, now);
       else if (name === 'sky') U.renderSky(p, now, state.span);
       else if (name === 'couple') U.renderCouple(state.couple);
+      else if (name === 'oracle') U.renderOracle(state.draw);
+      else if (name === 'library') U.renderLibrary(state.lib, U.$('libSearch') ? U.$('libSearch').value : '');
       else if (name === 'report') U.renderReport(p, now);
       else if (name === 'profile') fillForm(p);
     } catch (e) {
@@ -233,40 +236,98 @@
     return q;
   }
 
-  function drawTarot() {
-    var q = askQuestion();
-    if (!q) return;
-    var card = C.seededPick(D.TAROT, q + '|tarot');
-    U.renderOracle({
-      type: 'Tarot · major arcana',
-      name: card.item.name,
-      body: card.item.meaning,
-      footnote: 'Drawn once per question — rephrasing gives a different card.'
-    });
-  }
+  function currentMode() { return state.mode || 'tarot'; }
 
-  function drawIChing() {
-    var q = askQuestion();
-    if (!q) return;
-    var t = C.seededPick(D.TRIGRAMS, q + '|iching');
-    U.renderOracle({
-      type: 'I Ching · trigram',
-      name: t.item.name,
-      body: t.item.meaning,
-      footnote: 'A trigram, not a full hexagram — read it as the tone of the situation.'
-    });
-  }
-
-  function draw8Ball() {
-    var q = askQuestion();
-    if (!q) return;
-    var a = C.seededPick(D.ORACLE_8, q + '|8ball');
-    U.renderOracle({
+  function drawFor(mode, seed) {
+    var deck = C.fullDeck();
+    if (mode === 'tarot') {
+      var card = C.seededPick(deck, seed + '|tarot').item;
+      return {
+        type: 'Tarot · ' + card.suit,
+        title: card.name,
+        body: card.reading,
+        footnote: 'Drawn once per question — rephrasing gives a different card.'
+      };
+    }
+    if (mode === 'iching') {
+      var cast = C.castHexagram(C.seededRandom(seed + '|iching'));
+      var hex = C.hexagramByBits(cast.bits);
+      var out = {
+        type: 'I Ching · three coins',
+        title: hex.name,
+        sub: 'Hexagram ' + hex.n + ' of 64',
+        glyph: '<div class="stack">' + U.hexGlyph(cast.bits, cast.changedBits) +
+          '<div class="cap">' + (cast.changing ? cast.changing + ' changing' : 'static') + '</div></div>',
+        body: hex.reading,
+        footnote: cast.changing
+          ? cast.changing + ' changing line' + (cast.changing > 1 ? 's' : '') + ' — the marked lines are where the situation is moving.'
+          : 'No changing lines: read the hexagram as a description of the situation, not a forecast.'
+      };
+      if (cast.changing) {
+        var next = C.hexagramByBits(cast.changedBits);
+        if (next && next.n !== hex.n) {
+          out.second = { label: 'Moving toward · ' + next.n + ' ' + next.name, text: next.reading };
+        }
+      }
+      return out;
+    }
+    if (mode === 'runes') {
+      var r = C.seededPick(D.RUNES, seed + '|runes');
+      var reversed = C.seededRandom(seed + '|rev')() < 0.4;
+      return {
+        type: 'Rune · Elder Futhark',
+        title: r.item.name + (reversed ? ' (reversed)' : ''),
+        sub: r.item.gloss,
+        glyph: '<span class="rune-glyph" style="font-size:40px">' + r.item.glyph + '</span>',
+        body: reversed ? r.item.reversed : r.item.upright,
+        footnote: reversed
+          ? 'Drawn reversed — read it as the same force turned inward or delayed.'
+          : 'Drawn upright.'
+      };
+    }
+    var a = C.seededPick(D.ORACLE_8, seed + '|straight');
+    return {
       type: 'Straight answer',
-      name: 'The short version',
+      title: 'The short version',
       body: a.item,
-      footnote: 'This is a coin-flip with better typography. Use it to break a tie you already decided.'
+      footnote: 'A coin flip with better typography. Use it to break a tie you have already decided.'
+    };
+  }
+
+  function drawNow() {
+    var q = askQuestion();
+    if (!q) return;
+    state.draw = drawFor(currentMode(), q);
+    U.renderOracle(state.draw);
+  }
+
+  function drawDaily() {
+    var mode = currentMode();
+    var deck = mode === 'tarot' ? C.fullDeck() : mode === 'runes' ? D.RUNES : D.HEXAGRAMS;
+    var today = C.dailyIndex(deck, new Date(), mode);
+    var seed = 'daily|' + today.day + '|' + mode;
+    var d = drawFor(mode, seed);
+    d.footnote = 'Today\u2019s draw — fixed for ' + today.day + ', and it cannot be re-rolled.';
+    state.draw = d;
+    U.renderOracle(d);
+    toast('Today\u2019s draw.', 'ok');
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    document.querySelectorAll('[data-mode]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
     });
+    U.renderOracle(null);
+    state.draw = null;
+  }
+
+  function setLib(kind) {
+    state.lib = kind;
+    document.querySelectorAll('[data-lib]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.lib === kind));
+    });
+    U.renderLibrary(kind, U.$('libSearch') ? U.$('libSearch').value : '');
   }
 
   /* ---------- report ---------- */
@@ -298,9 +359,8 @@
     import: importBackup,
     couple: compareCouple,
     'couple-clear': clearCouple,
-    'draw-tarot': drawTarot,
-    'draw-iching': drawIChing,
-    'draw-8ball': draw8Ball,
+    draw: drawNow,
+    'draw-daily': drawDaily,
     print: printReport,
     'copy-report': copyReport
   };
@@ -320,6 +380,20 @@
       return;
     }
 
+    var mode = e.target.closest('[data-mode]');
+    if (mode) {
+      e.preventDefault();
+      setMode(mode.dataset.mode);
+      return;
+    }
+
+    var lib = e.target.closest('[data-lib]');
+    if (lib) {
+      e.preventDefault();
+      setLib(lib.dataset.lib);
+      return;
+    }
+
     var span = e.target.closest('[data-span]');
     if (span) {
       e.preventDefault();
@@ -335,6 +409,12 @@
     if (e.key === 'Escape') {
       var t = U.$('toast');
       if (t) t.classList.remove('is-on');
+    }
+  });
+
+  document.addEventListener('input', function (e) {
+    if (e.target && e.target.id === 'libSearch') {
+      U.renderLibrary(state.lib, e.target.value);
     }
   });
 
@@ -383,9 +463,7 @@
     saveProfile: saveProfile,
     resetAll: resetAll,
     compareCouple: compareCouple,
-    drawTarot: drawTarot,
-    drawIChing: drawIChing,
-    draw8Ball: draw8Ball,
+    drawNow: drawNow, drawDaily: drawDaily, setMode: setMode, setLib: setLib,
     copyReport: copyReport,
     exportBackup: exportBackup,
     handleImport: handleImport

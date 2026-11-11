@@ -42,14 +42,14 @@
     };
 
     /* --- 2. screens and navigation --- */
-    var screens = ['today', 'numbers', 'sky', 'couple', 'oracle', 'report', 'profile'];
+    var screens = ['today', 'numbers', 'sky', 'couple', 'oracle', 'library', 'report', 'profile'];
     screens.forEach(function (s) {
       ok('screen exists: ' + s, !!origGet('screen-' + s));
     });
 
     var navCount = document.querySelectorAll('.nav-item').length;
     var tabCount = document.querySelectorAll('.tab').length;
-    eq('rail has 7 items', navCount, 7);
+    eq('rail has 8 items', navCount, 8);
     eq('tab bar has 5 items', tabCount, 5);
 
     document.querySelectorAll('[data-go]').forEach(function (b) {
@@ -120,18 +120,61 @@
     document.querySelector('[data-action="couple-clear"]').click();
     ok('couple: clear hides output', origGet('coupleOut').hidden === true);
 
-    /* oracle */
+    /* oracle — four modes */
     A.setRoute('oracle');
     origGet('oracleQ').value = 'Should I take the offer?';
-    A.drawTarot();
-    ok('oracle: tarot output', origGet('oracleOut').hidden === false);
+    A.setMode('tarot');
+    A.drawNow();
+    ok('oracle: tarot draws', origGet('oracleOut').hidden === false);
     var first = origGet('oracleOut').textContent;
-    A.drawTarot();
+    A.drawNow();
     eq('oracle: same question same card', origGet('oracleOut').textContent, first);
-    A.drawIChing();
-    ok('oracle: iching renders', origGet('oracleOut').textContent.indexOf('I Ching') > -1);
-    A.draw8Ball();
-    ok('oracle: 8ball renders', origGet('oracleOut').textContent.indexOf('Straight answer') > -1);
+
+    A.setMode('iching');
+    ok('oracle: mode clears output', origGet('oracleOut').hidden === true);
+    A.drawNow();
+    var ich = origGet('oracleOut').textContent;
+    ok('oracle: iching names a hexagram', /Hexagram \d+ of 64/.test(ich), ich.slice(0, 80));
+    ok('oracle: iching draws six lines', origGet('oracleOut').querySelectorAll('.hex i').length === 6,
+      'lines=' + origGet('oracleOut').querySelectorAll('.hex i').length);
+    A.drawNow();
+    eq('oracle: iching is reproducible', origGet('oracleOut').textContent, ich);
+
+    A.setMode('runes');
+    A.drawNow();
+    ok('oracle: rune draws', origGet('oracleOut').textContent.indexOf('Rune') > -1);
+    ok('oracle: rune has a glyph', origGet('oracleOut').querySelector('.rune-glyph') !== null);
+
+    A.setMode('straight');
+    A.drawNow();
+    ok('oracle: straight answer', origGet('oracleOut').textContent.indexOf('Straight answer') > -1);
+
+    /* daily draw is stable within a day */
+    A.setMode('tarot');
+    A.drawDaily();
+    var day1 = origGet('oracleOut').textContent;
+    A.drawDaily();
+    eq('oracle: daily draw is stable', origGet('oracleOut').textContent, day1);
+    ok('oracle: daily says it cannot re-roll', /cannot be re-rolled/.test(day1));
+
+    /* library */
+    A.setRoute('library');
+    A.setLib('tarot');
+    eq('library: tarot has 78 rows', origGet('libList').querySelectorAll('.lib-row').length, 78);
+    A.setLib('iching');
+    eq('library: iching has 64 rows', origGet('libList').querySelectorAll('.lib-row').length, 64);
+    ok('library: hexagram glyphs render', origGet('libList').querySelectorAll('.hex').length === 64);
+    A.setLib('runes');
+    eq('library: runes has 24 rows', origGet('libList').querySelectorAll('.lib-row').length, 24);
+
+    origGet('libSearch').value = 'Fehu';
+    origGet('libSearch').dispatchEvent(new Event('input', { bubbles: true }));
+    eq('library: search filters', origGet('libList').querySelectorAll('.lib-row').length, 1);
+    origGet('libSearch').value = 'zzzzz';
+    origGet('libSearch').dispatchEvent(new Event('input', { bubbles: true }));
+    ok('library: empty search shows empty state', origGet('libList').textContent.indexOf('Nothing matches') > -1);
+    origGet('libSearch').value = '';
+    A.setLib('tarot');
 
     /* report */
     A.setRoute('report');

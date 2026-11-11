@@ -282,6 +282,91 @@
     return { item: list[idx], index: idx };
   }
 
+
+  /* Deterministic PRNG from a string seed (FNV-1a hash + LCG). */
+  function seededRandom(seed) {
+    var h = 2166136261;
+    var str = String(seed || '');
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    var st = h >>> 0;
+    return function () {
+      st = (Math.imul(st, 1664525) + 1013904223) >>> 0;
+      return st / 4294967296;
+    };
+  }
+
+  /* ---------- I Ching ---------- */
+
+  /* Three coins per line: heads 3, tails 2. 6 old yin, 7 young yang,
+     8 young yin, 9 old yang. Six lines, bottom to top. */
+  function castLine(rand) {
+    var r = rand || Math.random;
+    var coins = [r() < 0.5 ? 2 : 3, r() < 0.5 ? 2 : 3, r() < 0.5 ? 2 : 3];
+    var value = coins[0] + coins[1] + coins[2];
+    return {
+      value: value,
+      yang: value === 7 || value === 9,
+      changing: value === 6 || value === 9,
+      coins: coins
+    };
+  }
+
+  function castHexagram(rand) {
+    var lines = [];
+    for (var i = 0; i < 6; i++) lines.push(castLine(rand));
+    var bits = lines.map(function (l) { return l.yang ? '1' : '0'; }).join('');
+    var changed = lines.map(function (l) {
+      var yang = l.changing ? !l.yang : l.yang;
+      return yang ? '1' : '0';
+    }).join('');
+    return {
+      lines: lines,
+      bits: bits,
+      changedBits: changed,
+      changing: lines.filter(function (l) { return l.changing; }).length
+    };
+  }
+
+  function hexagramByBits(bits) {
+    var list = root.HL_DATA.HEXAGRAMS;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].bits === bits) return list[i];
+    }
+    return null;
+  }
+
+  /* ---------- daily draw ---------- */
+
+  /* Stable per calendar day: the same day cannot be re-rolled. */
+  function dailyIndex(list, date, salt) {
+    var day = toISO(localMidnight(date));
+    var picked = seededPick(list, day + '|' + (salt || ''));
+    return { item: picked.item, index: picked.index, day: day };
+  }
+
+  /* ---------- tarot deck ---------- */
+
+  function fullDeck() {
+    var D = root.HL_DATA;
+    return D.TAROT.map(function (c) {
+      return { name: c.name, suit: 'Major', element: 'all', reading: c.meaning };
+    }).concat(D.MINORS);
+  }
+
+  function drawCards(deck, count, seed) {
+    var pool = deck.slice();
+    var out = [];
+    for (var i = 0; i < count && pool.length; i++) {
+      var pick = seededPick(pool, seed + '|' + i);
+      out.push(pick.item);
+      pool.splice(pick.index, 1);
+    }
+    return out;
+  }
+
   root.HL_CORE = {
     DAY_MS: DAY_MS, SYNODIC: SYNODIC,
     sumDigits: sumDigits, reducePower: reducePower, reduceSingle: reduceSingle, baseDigit: baseDigit,
@@ -292,6 +377,9 @@
     phasePosition: phasePosition, moonPhase: moonPhase, daysToPhase: daysToPhase, nextPhaseDate: nextPhaseDate,
     biorhythm: biorhythm, biorhythmSeries: biorhythmSeries, biorhythmLabel: biorhythmLabel,
     coupleScore: coupleScore, coupleVerdict: coupleVerdict,
-    pick: pick, seededPick: seededPick
+    pick: pick, seededPick: seededPick,
+    castLine: castLine, castHexagram: castHexagram, hexagramByBits: hexagramByBits,
+    dailyIndex: dailyIndex, fullDeck: fullDeck, drawCards: drawCards,
+    seededRandom: seededRandom
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

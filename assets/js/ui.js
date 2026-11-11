@@ -303,18 +303,73 @@
 
   /* ---------- screen: oracle ---------- */
 
+  /* Six lines, top to bottom, drawn from a bottom-to-top bit string. */
+  function hexGlyph(bits, changedBits) {
+    var rows = '';
+    for (var i = 5; i >= 0; i--) {
+      var yang = bits.charAt(i) === '1';
+      var ch = changedBits && changedBits.charAt(i) !== bits.charAt(i);
+      rows += '<i class="' + (yang ? 'yang' : 'yin') + (ch ? ' ch' : '') + '"></i>';
+    }
+    return '<span class="hex" aria-hidden="true">' + rows + '</span>';
+  }
+
   function renderOracle(o) {
     var out = $('oracleOut');
     if (!out) return;
-    if (!o) { out.hidden = true; return; }
+    if (!o) { out.hidden = true; out.innerHTML = ''; return; }
     out.hidden = false;
     out.innerHTML =
       '<div class="oracle-out">' +
         '<div class="oracle-type">' + esc(o.type) + '</div>' +
-        '<div class="oracle-card">' + esc(o.name) + '</div>' +
+        (o.glyph ? '<div class="draw-visual">' + o.glyph + '</div>' : '') +
+        '<div class="oracle-card">' + esc(o.title) + '</div>' +
+        (o.sub ? '<div class="sub" style="margin:-4px 0 10px">' + esc(o.sub) + '</div>' : '') +
         '<div class="oracle-body">' + esc(o.body) + '</div>' +
-        '<div class="sub" style="margin-top:14px">' + esc(o.footnote || '') + '</div>' +
+        (o.second ? '<div class="oracle-second"><span class="lbl">' + esc(o.second.label) +
+          '</span><p>' + esc(o.second.text) + '</p></div>' : '') +
+        (o.footnote ? '<div class="sub" style="margin-top:14px">' + esc(o.footnote) + '</div>' : '') +
       '</div>';
+  }
+
+  /* ---------- screen: library ---------- */
+
+  function renderLibrary(kind, query) {
+    var host = $('libList');
+    if (!host) return;
+    var q = String(query || '').trim().toLowerCase();
+    var rows = [];
+
+    if (kind === 'iching') {
+      rows = D.HEXAGRAMS.filter(function (h) {
+        return !q || (h.name + ' ' + h.cn + ' ' + h.reading + ' ' + h.n).toLowerCase().indexOf(q) > -1;
+      }).map(function (h) {
+        return '<div class="lib-row">' + hexGlyph(h.bits) +
+          '<div><div class="lib-name"><span class="lib-n">' + h.n + '</span>' + esc(h.name) +
+          '</div>' +
+          '<div class="lib-body">' + esc(h.reading) + '</div></div></div>';
+      });
+    } else if (kind === 'runes') {
+      rows = D.RUNES.filter(function (r) {
+        return !q || (r.name + ' ' + r.gloss + ' ' + r.upright + ' ' + r.reversed).toLowerCase().indexOf(q) > -1;
+      }).map(function (r) {
+        return '<div class="lib-row"><span class="rune-glyph" aria-hidden="true">' + r.glyph + '</span>' +
+          '<div><div class="lib-name">' + esc(r.name) + ' <span class="lib-cn">' + esc(r.gloss) + '</span></div>' +
+          '<div class="lib-body">' + esc(r.upright) + '</div>' +
+          '<div class="lib-body" style="color:var(--ink-4)">Reversed — ' + esc(r.reversed) + '</div></div></div>';
+      });
+    } else {
+      rows = C.fullDeck().filter(function (c) {
+        return !q || (c.name + ' ' + c.suit + ' ' + c.reading).toLowerCase().indexOf(q) > -1;
+      }).map(function (c) {
+        return '<div class="lib-row"><span class="suit-dot" data-suit="' + esc(c.suit) + '"></span>' +
+          '<div><div class="lib-name">' + esc(c.name) + '</div>' +
+          '<div class="lib-body">' + esc(c.reading) + '</div></div></div>';
+      });
+    }
+
+    setText('libCount', rows.length + ' entries');
+    host.innerHTML = rows.length ? rows.join('') : '<div class="empty">Nothing matches that.</div>';
   }
 
   /* ---------- screen: report ---------- */
@@ -424,6 +479,7 @@
     moonDiscSVG: moonDiscSVG, setGauge: setGauge, drawChart: drawChart,
     renderToday: renderToday, renderNumbers: renderNumbers, renderSky: renderSky,
     renderCouple: renderCouple, renderOracle: renderOracle, renderReport: renderReport,
+    renderLibrary: renderLibrary, hexGlyph: hexGlyph,
     reportText: reportText, fmtDate: fmtDate
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

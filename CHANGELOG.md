@@ -1,3 +1,30 @@
+# Holistic 2.1.0
+
+The version where the decks got real.
+
+## Added
+
+- **All 64 I Ching hexagrams**, with three-coin casting. Each cast draws six lines, marks the changing ones, and reads the movement toward the transformed hexagram. Casts are seeded from the question, so the same question gives the same hexagram.
+- **All 78 tarot cards** — the 22 majors plus 56 minors across Wands, Cups, Swords and Coins, each with its own one-line reading.
+- **All 24 Elder Futhark runes**, upright and reversed, with a 40% chance of drawing reversed.
+- **Library screen** — 166 entries, searchable, offline. Cards by suit, hexagrams by number and line pattern, runes by name.
+- **Daily draw** — one card, hexagram or rune per day, fixed by the calendar date so it cannot be re-rolled.
+- **Question coaching** on the oracle screen: open questions read better than yes/no ones.
+
+## Changed
+
+- The Oracle screen is now a four-way segmented control (Tarot / I Ching / Runes / Straight) instead of three separate buttons.
+- The I Ching trigram stub is superseded by the full hexagram set. The eight trigrams remain in the data as a reference table.
+- Single-file build grows from 92 KB to 127 KB — 35 KB of that is reference text and its JavaScript syntax.
+- Rail gains an eighth item, Library.
+
+## Testing
+
+- 54 logic tests (up from 38): the 64 hexagrams are checked for unique line patterns, the deck for 78 unique cards, casting for valid lines and correct transformation, and the daily draw for day-to-day stability.
+- 102 browser assertions (up from 87): all four oracle modes, hexagram line rendering, library row counts per collection, and search filtering.
+
+---
+
 # Holistic 2.0.0
 
 The version where the app stopped prescribing things.

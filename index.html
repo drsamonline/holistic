@@ -32,6 +32,7 @@
       <button class="nav-item" data-go="sky"><span class="ico" aria-hidden="true">☾</span>Sky</button>
       <button class="nav-item" data-go="couple"><span class="ico" aria-hidden="true">∞</span>Couple</button>
       <button class="nav-item" data-go="oracle"><span class="ico" aria-hidden="true">✧</span>Oracle</button>
+      <button class="nav-item" data-go="library"><span class="ico" aria-hidden="true">▦</span>Library</button>
       <button class="nav-item" data-go="report"><span class="ico" aria-hidden="true">▤</span>Report</button>
       <button class="nav-item" data-go="profile"><span class="ico" aria-hidden="true">⚙</span>Profile</button>
     </nav>
@@ -342,22 +343,52 @@
       <div class="page-head">
         <div class="eyebrow">Draw</div>
         <h1 id="h-oracle">Oracle</h1>
-        <p class="lede">Write one question, then draw. Same question and same deck gives the same card — so rephrasing is part of the exercise.</p>
+        <p class="lede">Write one question, then draw. The same question on the same day gives the same answer, so rephrasing is part of the exercise.</p>
       </div>
 
       <div class="card" style="margin-bottom:14px">
-        <div class="field">
+        <div class="seg seg--wide" role="group" aria-label="Deck" id="oracleModes">
+          <button data-mode="tarot" aria-pressed="true">Tarot</button>
+          <button data-mode="iching" aria-pressed="false">I Ching</button>
+          <button data-mode="runes" aria-pressed="false">Runes</button>
+          <button data-mode="straight" aria-pressed="false">Straight</button>
+        </div>
+        <div class="field" style="margin-top:14px">
           <label for="oracleQ">Your question</label>
           <textarea id="oracleQ" placeholder="What am I not seeing about…" maxlength="240"></textarea>
+          <p class="sub" id="oracleHint">Open questions read better than yes/no ones. Try “give me insight into …”.</p>
         </div>
         <div class="btn-row" style="margin-top:14px">
-          <button class="btn btn--primary" data-action="draw-tarot">Draw a card</button>
-          <button class="btn btn--ghost" data-action="draw-iching">Cast a trigram</button>
-          <button class="btn btn--ghost" data-action="draw-8ball">Ask straight</button>
+          <button class="btn btn--primary" data-action="draw">Draw</button>
+          <button class="btn btn--ghost" data-action="draw-daily">Today's draw</button>
+          <button class="btn btn--ghost" data-go="library">Browse</button>
         </div>
       </div>
 
       <div id="oracleOut" hidden></div>
+    </section>
+
+    <!-- ───── LIBRARY ───── -->
+    <section class="screen" id="screen-library" aria-labelledby="h-library">
+      <div class="page-head">
+        <div class="eyebrow">Reference</div>
+        <h1 id="h-library">Library</h1>
+        <p class="lede">Every card, hexagram and rune, offline. Search by name, or by the situation you are actually in.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="seg" role="group" aria-label="Collection" id="libTabs">
+          <button data-lib="tarot" aria-pressed="true">Tarot · 78</button>
+          <button data-lib="iching" aria-pressed="false">I Ching · 64</button>
+          <button data-lib="runes" aria-pressed="false">Runes · 24</button>
+        </div>
+        <div class="row wrap" style="margin-top:14px;gap:12px">
+          <input type="text" id="libSearch" placeholder="Search the library…" style="flex:1;min-width:190px" aria-label="Search the library">
+          <span class="sub" id="libCount"></span>
+        </div>
+      </div>
+
+      <div id="libList" class="lib-list-wrap"></div>
     </section>
 
     <!-- ───── REPORT ───── -->
