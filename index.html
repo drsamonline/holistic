@@ -376,6 +376,7 @@
         <div class="btn-row" style="margin-top:14px">
           <button class="btn btn--primary" data-action="draw">Draw</button>
           <button class="btn btn--ghost" data-action="clarify" id="clarifyBtn" hidden>Clarify</button>
+          <button class="btn btn--ghost" data-action="share-draw" id="shareBtn" hidden>Share image</button>
           <button class="btn btn--ghost" data-action="draw-daily">Today's draw</button>
           <button class="btn btn--ghost" data-go="library">Browse</button>
         </div>
@@ -418,6 +419,7 @@
       <div class="btn-row no-print" style="margin-bottom:16px">
         <button class="btn btn--primary" data-action="print">Print / save as PDF</button>
         <button class="btn btn--ghost" data-action="copy-report">Copy as text</button>
+        <button class="btn btn--ghost" data-action="share-report">Share image</button>
       </div>
 
       <div id="reportBody"></div>
@@ -434,6 +436,15 @@
       <div class="notice notice--info" style="margin-bottom:16px">
         <span class="ico" aria-hidden="true">🔒</span>
         <div><strong>Nothing leaves this device.</strong> Your profile is stored in this browser's local storage only. No account, no server, no analytics. Clearing it is one button.</div>
+      </div>
+
+      <div class="card" id="profileSwitcher" style="margin-bottom:14px">
+        <div class="row row--between wrap" style="margin-bottom:12px">
+          <h2 style="margin:0">Profiles</h2>
+          <button class="btn btn--ghost btn--sm" data-action="profile-new">+ New profile</button>
+        </div>
+        <div class="row wrap" style="gap:8px" id="profileChips"></div>
+        <p class="sub" style="margin-top:10px">Each profile is stored on this device only. Switch to keep more than one person's dates.</p>
       </div>
 
       <div class="card" style="margin-bottom:14px">
@@ -507,6 +518,7 @@
         <button class="btn btn--primary" data-action="save">Save profile</button>
         <button class="btn btn--ghost" data-action="export">Export backup</button>
         <button class="btn btn--ghost" data-action="import">Import backup</button>
+        <button class="btn btn--danger" data-action="profile-delete">Delete this profile</button>
         <button class="btn btn--danger" data-action="reset">Erase everything</button>
       </div>
       <input type="file" id="importFile" accept="application/json,.json" hidden>
@@ -556,6 +568,7 @@
 <script src="assets/js/data.js"></script>
 <script src="assets/js/core.js"></script>
 <script src="assets/js/ui.js"></script>
+<script src="assets/js/share.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>

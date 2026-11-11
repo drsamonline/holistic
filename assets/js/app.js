@@ -9,14 +9,15 @@
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.2.0';
+  var VERSION = '2.3.0';
   var KEY = 'holistic.profile.v2';
+  var KEY_ALL = 'holistic.profiles.v1';
   var FIELDS = ['fullName', 'birthDate', 'birthTime', 'birthLocation', 'gender',
                 'tzOffset', 'occupation', 'userQuestion'];
   var SCREENS = ['today', 'numbers', 'sky', 'couple', 'oracle', 'library', 'report', 'profile'];
 
-  var state = { profile: null, route: 'today', span: 30, couple: null,
-                mode: 'tarot', lib: 'tarot', draw: null, spread: 1 };
+  var state = { profile: null, profiles: [], active: 0, route: 'today', span: 30,
+                couple: null, mode: 'tarot', lib: 'tarot', draw: null, spread: 1 };
 
   /* ---------- storage ---------- */
 
@@ -47,6 +48,79 @@
       localStorage.removeItem(k);
       return true;
     } catch (e) { return false; }
+  }
+
+  /* ---------- profile collection ---------- */
+
+  function readAll() {
+    try {
+      var raw = localStorage.getItem(KEY_ALL);
+      if (raw) {
+        var o = JSON.parse(raw);
+        if (o && Array.isArray(o.items) && o.items.length) {
+          var active = Math.min(Math.max(o.active || 0, 0), o.items.length - 1);
+          return { items: o.items, active: active };
+        }
+      }
+    } catch (e) { /* fall through to migration */ }
+
+    var single = readStore();
+    return single ? { items: [single], active: 0 } : { items: [], active: 0 };
+  }
+
+  function writeAll() {
+    try {
+      localStorage.setItem(KEY_ALL, JSON.stringify({ items: state.profiles, active: state.active }));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function useProfile(index) {
+    state.active = Math.min(Math.max(index, 0), Math.max(state.profiles.length - 1, 0));
+    state.profile = state.profiles[state.active] || null;
+    fillForm(state.profile);
+    renderAll();
+    renderChips();
+  }
+
+  function renderChips() {
+    var host = U.$('profileChips');
+    if (!host) return;
+    if (!state.profiles.length) {
+      host.innerHTML = '<span class="sub">No profiles yet. Fill the form below and save.</span>';
+      return;
+    }
+    host.innerHTML = state.profiles.map(function (p, i) {
+      var label = (p.fullName || 'Unnamed').split(' ')[0];
+      return '<button class="chip' + (i === state.active ? ' chip--violet' : '') +
+        '" data-profile="' + i + '">' + U.esc(label) + '</button>';
+    }).join('');
+  }
+
+  function newProfile() {
+    state.profiles.push({ fullName: '', birthDate: '', birthTime: '', birthLocation: '',
+                          gender: '', tzOffset: '330', occupation: '', userQuestion: '' });
+    state.active = state.profiles.length - 1;
+    state.profile = state.profiles[state.active];
+    FIELDS.forEach(function (f) { var el = U.$(f); if (el) el.value = state.profiles[state.active][f] || ''; });
+    renderChips();
+    var name = U.$('fullName');
+    if (name) name.focus();
+    toast('New profile — fill it in and save.', 'ok');
+  }
+
+  function deleteProfile() {
+    if (!state.profiles.length) { toast('No profile to delete.', 'error'); return; }
+    if (!window.confirm('Delete this profile from this device?')) return;
+    state.profiles.splice(state.active, 1);
+    state.active = Math.min(state.active, Math.max(state.profiles.length - 1, 0));
+    state.profile = state.profiles[state.active] || null;
+    writeAll();
+    useProfile(state.active);
+    if (!state.profiles.length) {
+      FIELDS.forEach(function (f) { var el = U.$(f); if (el) el.value = ''; });
+    }
+    toast('Profile deleted.', 'ok');
   }
 
   /* ---------- toast ---------- */
@@ -139,16 +213,26 @@
     if (!p.birthDate) { toast('Add your birth date.', 'error'); return; }
     if (C.powerNumber(p.birthDate) === null) { toast('That birth date is not valid.', 'error'); return; }
 
+    if (!state.profiles.length) {
+      state.profiles.push(p);
+      state.active = 0;
+    } else {
+      state.profiles[state.active] = p;
+    }
     state.profile = p;
-    var ok = writeStore(p);
+    var ok = writeAll();
+    writeStore(p);
     renderAll();
-    render('profile');
+    renderChips();
     toast(ok ? 'Profile saved.' : 'Saved for this session only — storage is blocked.', ok ? 'ok' : 'error');
   }
 
   function resetAll() {
     if (!window.confirm('Erase your profile and every reading on this device?')) return;
     clearStore();
+    try { localStorage.removeItem(KEY_ALL); } catch (e) { /* ignore */ }
+    state.profiles = [];
+    state.active = 0;
     state.profile = null;
     state.couple = null;
     FIELDS.forEach(function (f) { var el = U.$(f); if (el) el.value = ''; });
@@ -156,6 +240,7 @@
     U.$('coupleB').value = '';
     U.renderOracle(null);
     renderAll();
+    renderChips();
     setRoute('profile');
     toast('Everything erased.', 'ok');
   }
@@ -268,6 +353,7 @@
         type: 'I Ching · three coins',
         title: hex.name,
         sub: 'Hexagram ' + hex.n + ' of 64',
+        hexBits: cast.bits,
         glyph: '<div class="stack">' + U.hexGlyph(cast.bits, cast.changedBits) +
           '<div class="cap">' + (cast.changing ? cast.changing + ' changing' : 'static') + '</div></div>',
         body: hex.reading,
@@ -311,7 +397,7 @@
     if (!q) return;
     state.draw = drawFor(currentMode(), q);
     U.renderOracle(state.draw);
-    updateClarifyBtn();
+    updateDrawButtons();
   }
 
   function drawDaily() {
@@ -323,7 +409,7 @@
     d.footnote = 'Today\u2019s draw — fixed for ' + today.day + ', and it cannot be re-rolled.';
     state.draw = d;
     U.renderOracle(d);
-    updateClarifyBtn();
+    updateDrawButtons();
     toast('Today\u2019s draw.', 'ok');
   }
 
@@ -353,14 +439,15 @@
     if (row) row.hidden = mode !== 'tarot';
     U.renderOracle(null);
     state.draw = null;
-    updateClarifyBtn();
+    updateDrawButtons();
   }
 
-  function updateClarifyBtn() {
-    var btn = U.$('clarifyBtn');
-    if (!btn) return;
+  function updateDrawButtons() {
     var d = state.draw;
-    btn.hidden = !(d && d.cards && d.cards.length === 1 && currentMode() === 'tarot');
+    var clarify = U.$('clarifyBtn');
+    if (clarify) clarify.hidden = !(d && d.cards && d.cards.length === 1 && currentMode() === 'tarot');
+    var share = U.$('shareBtn');
+    if (share) share.hidden = !d;
   }
 
   function setLib(kind) {
@@ -369,6 +456,77 @@
       b.setAttribute('aria-pressed', String(b.dataset.lib === kind));
     });
     U.renderLibrary(kind, U.$('libSearch') ? U.$('libSearch').value : '');
+  }
+
+  /* ---------- share ---------- */
+
+  function drawSpec(d) {
+    var today = new Date();
+    var stamp = today.getDate() + ' ' + D.MONTHS[today.getMonth()].slice(0, 3) + ' ' + today.getFullYear();
+    var spec = {
+      eyebrow: d.type,
+      title: d.title || 'Holistic',
+      body: d.body || '',
+      footer: stamp,
+      hexBits: d.hexBits || null
+    };
+
+    if (d.cards && d.cards.length) {
+      var first = d.cards[0];
+      spec.title = first.name;
+      spec.body = first.reading;
+      if (d.cards.length > 1) {
+        spec.body += '\n\nAlso drawn: ' +
+          d.cards.slice(1).map(function (c) { return c.name; }).join(' · ') + '.';
+      }
+      spec.eyebrow = 'TAROT · ' + (d.cards.length === 1 ? 'SINGLE CARD' : d.cards.length + '-CARD SPREAD');
+    }
+    if (d.second) spec.body += '\n\nMoving toward: ' + d.second.label.replace('Moving toward · ', '');
+    return spec;
+  }
+
+  function shareDraw() {
+    if (!state.draw) { toast('Draw something first.', 'error'); return; }
+    var canvas = root.HL_SHARE.renderCard(drawSpec(state.draw));
+    root.HL_SHARE.save(canvas, 'holistic-reading.png').then(function (how) {
+      toast(how === 'shared' ? 'Shared.' : 'Image saved.', 'ok');
+    }).catch(function () {
+      toast('Could not create the image.', 'error');
+    });
+  }
+
+  function shareReport() {
+    var p = state.profile;
+    if (!p || C.powerNumber(p.birthDate) === null) {
+      toast('Complete your profile first.', 'error');
+      return;
+    }
+    var now = new Date();
+    var power = C.powerNumber(p.birthDate);
+    var info = D.NUMEROLOGY[power];
+    var zodiac = C.zodiac(p.birthDate);
+    var ms = C.moonSign(p.birthDate, p.birthTime, parseInt(p.tzOffset, 10));
+    var mp = C.moonPhase(now);
+
+    var bits = [
+      'Power number #' + power + ' · ' + info.name,
+      zodiac + ' sun' + (ms ? ' · ' + ms.sign + ' moon' : ''),
+      D.MOON_PHASES[mp.index].name + ' · ' + Math.round(mp.illumination * 100) + '% lit'
+    ];
+
+    var canvas = root.HL_SHARE.renderCard({
+      eyebrow: 'READING',
+      title: String(p.fullName || 'Unnamed').split(' ')[0],
+      body: bits.join('\n') ,
+      footer: now.getDate() + ' ' + D.MONTHS[now.getMonth()].slice(0, 3) + ' ' + now.getFullYear(),
+      accent: info.colour
+    });
+
+    root.HL_SHARE.save(canvas, 'holistic-profile.png').then(function (how) {
+      toast(how === 'shared' ? 'Shared.' : 'Image saved.', 'ok');
+    }).catch(function () {
+      toast('Could not create the image.', 'error');
+    });
   }
 
   /* ---------- report ---------- */
@@ -396,12 +554,16 @@
   var ACTIONS = {
     save: saveProfile,
     reset: resetAll,
+    'profile-new': newProfile,
+    'profile-delete': deleteProfile,
     export: exportBackup,
     import: importBackup,
     couple: compareCouple,
     'couple-clear': clearCouple,
     draw: drawNow,
     clarify: clarify,
+    'share-draw': shareDraw,
+    'share-report': shareReport,
     'draw-daily': drawDaily,
     print: printReport,
     'copy-report': copyReport
@@ -426,6 +588,13 @@
     if (mode) {
       e.preventDefault();
       setMode(mode.dataset.mode);
+      return;
+    }
+
+    var prof = e.target.closest('[data-profile]');
+    if (prof) {
+      e.preventDefault();
+      useProfile(parseInt(prof.dataset.profile, 10) || 0);
       return;
     }
 
@@ -482,13 +651,17 @@
   /* ---------- boot ---------- */
 
   function init() {
-    state.profile = readStore();
+    var all = readAll();
+    state.profiles = all.items;
+    state.active = all.active;
+    state.profile = state.profiles[state.active] || null;
     if (state.profile) fillForm(state.profile);
 
     var initial = (window.location.hash || '').replace('#', '');
     setRoute(SCREENS.indexOf(initial) > -1 ? initial : 'today');
     renderAll();
     fillForm(state.profile);
+    renderChips();
 
     if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
       navigator.serviceWorker.register('sw.js').catch(function () { /* offline still works: no network needed */ });
@@ -513,7 +686,8 @@
     resetAll: resetAll,
     compareCouple: compareCouple,
     drawNow: drawNow, drawDaily: drawDaily, setMode: setMode, setLib: setLib,
-    clarify: clarify, setSpread: setSpread,
+    clarify: clarify, setSpread: setSpread, shareDraw: shareDraw, shareReport: shareReport,
+    newProfile: newProfile, deleteProfile: deleteProfile, useProfile: useProfile,
     copyReport: copyReport,
     exportBackup: exportBackup,
     handleImport: handleImport

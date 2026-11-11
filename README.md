@@ -10,7 +10,7 @@
 [![Release](https://img.shields.io/github/v/release/drsamonline/holistic?style=flat-square&color=14b8a6)](https://github.com/drsamonline/holistic/releases)
 [![Licence](https://img.shields.io/badge/licence-PolyForm_Noncommercial_1.0.0-f59e0b?style=flat-square)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-63_passing-4d6b1f?style=flat-square)](#testing)
-[![Size](https://img.shields.io/badge/single_file-137_KB-0ea5e9?style=flat-square)](dist/holistic.html)
+[![Size](https://img.shields.io/badge/single_file-152_KB-0ea5e9?style=flat-square)](dist/holistic.html)
 [![Network](https://img.shields.io/badge/network_requests-0-e11d48?style=flat-square)](#privacy)
 
 <img src="screenshots/desktop-today.png" alt="The Today screen" width="880">
@@ -23,7 +23,7 @@
 
 A personal reflection app that runs entirely in your browser. You enter a name and a birth date once; it derives your numerology profile, your sun sign, today's lunar phase, and your biorhythm cycles, then keeps them on one screen you can open every morning.
 
-It is **not** a dashboard of tables. Every number is computed from your input rather than looked up from a hard-coded list, and the whole thing — stylesheet, scripts, icons, logic — fits in a single 137 KB file that works with the Wi-Fi off.
+It is **not** a dashboard of tables. Every number is computed from your input rather than looked up from a hard-coded list, and the whole thing — stylesheet, scripts, icons, logic — fits in a single 152 KB file that works with the Wi-Fi off.
 
 ## What it is not
 
@@ -66,6 +66,8 @@ There is no homeopathy content in this project. An earlier prototype carried a r
 - **Biorhythm sync** in the Couple screen: how far apart two people's cycles are today.
 - **Oracle.** Tarot, I Ching, runes or a straight answer — seeded from your question, so the same question gives the same draw and rephrasing is part of the exercise.
 - **Daily draw.** One card, hexagram or rune per day, fixed by the date so it cannot be re-rolled.
+- **Share as image** — any draw or your profile rendered to a 1080×1350 card, drawn on canvas, no library. Uses the native share sheet where the browser has one.
+- **Multiple profiles** — keep more than one person's dates on the same device.
 - **Printable report** plus a plain-text copy button.
 - **Backup and restore** as a JSON file you own.
 - **Installable PWA** with a service worker, and a single-file build for everything else.
@@ -133,7 +135,7 @@ sw.js · manifest.webmanifest
 
 ```bash
 npm test              # 63 logic tests, Node's built-in runner
-npm run test:browser  # 115 DOM assertions in headless chromium
+npm run test:browser  # 132 DOM assertions in headless chromium
 npm run build         # single-file bundle
 ```
 

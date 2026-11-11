@@ -1,3 +1,22 @@
+# Holistic 2.3.0
+
+The version you can show someone.
+
+## Added
+
+- **Share as image.** Any draw — tarot card, spread, hexagram or rune — and your profile summary render to a 1080×1350 PNG. Everything is drawn with the 2D canvas context: no library, no network, no fonts to fetch. Uses `navigator.share` with a file where the browser supports it, and falls back to a download.
+- **Multiple profiles.** Add, switch and delete people on the same device. Storage moves to a `{items, active}` object and migrates the old single-profile key automatically.
+
+## Not added
+
+- **A journal.** Considered and rejected: it turns a reading tool into a diary with a retention obligation, and the data is more sensitive than anything else the app stores.
+
+## Testing
+
+- 132 browser assertions (up from 115): canvas dimensions, non-blank output, PNG generation, the hexagram card path, the share button appearing after a draw, and the full profile lifecycle — add, save, switch, delete.
+
+---
+
 # Holistic 2.2.0
 
 The version where the readings got a shape.

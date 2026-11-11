@@ -1,26 +1,27 @@
-# Holistic 2.2.0
+# Holistic 2.3.0
 
-Spreads, a clarifying card, your moon sign, and biorhythm sync.
+Share a reading as an image, and keep more than one profile.
 
 ### Downloads
 
 | Asset | Size | Notes |
 | --- | --- | --- |
-| `holistic.html` | 137 KB | One self-contained file. Double-click it. Works offline. |
+| `holistic.html` | 152 KB | One self-contained file. Double-click it. Works offline. |
 | `holistic-android.apk` | ~4.3 MB | Capacitor debug build. Unsigned. |
 | `holistic-windows-setup.exe` | ~78 MB | NSIS installer. Unsigned. |
 
 ### What's new
 
-- **Tarot spreads** — single, three-card past/present/future, five-card relationship. Drawn without replacement.
-- **Clarifying card** — one more card against a single draw.
-- **Moon sign** from your birth time, computed from the lunar longitude and validated against the new and full moons of January 2000.
-- **Biorhythm sync** — how far apart two people's cycles sit today.
-- **UTC offset** field, so a birth time actually means something.
+- **Share as image** — any draw or your profile rendered to a 1080×1350 card, drawn on canvas with no library. Native share sheet where available, download otherwise.
+- **Multiple profiles** — add, switch and delete people on one device. Existing single profiles migrate automatically.
+
+### Not added
+
+- A journal. Rejected on purpose.
 
 ### Still true
 
-No network requests at runtime. One `localStorage` key on your device. No account, no sync, no analytics.
+No network requests at runtime. Everything stays on your device. No account, no sync, no analytics.
 
 ### Licence
 

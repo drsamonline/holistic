@@ -241,6 +241,52 @@
     A.setRoute('today');
     ok('invalid date falls back to empty state', origGet('todayEmpty').hidden === false);
 
+    /* share cards */
+    var S = window.HL_SHARE;
+    ok('share: module present', !!S);
+    var cv = S.renderCard({ eyebrow: 'TEST', title: 'The Tower', body: 'Sudden change. What falls was load-bearing.', footer: '11 Nov 2026' });
+    ok('share: card is 1080x1350', cv.width === 1080 && cv.height === 1350, cv.width + 'x' + cv.height);
+    var cctx = cv.getContext('2d');
+    var px = cctx.getImageData(0, 0, 1080, 1350).data;
+    var bright = 0;
+    for (var bi = 0; bi < px.length; bi += 4000) {
+      if (px[bi] > 60 || px[bi + 1] > 60 || px[bi + 2] > 60) bright++;
+    }
+    ok('share: card has drawn content', bright > 100, 'bright samples=' + bright);
+    ok('share: png is produced', cv.toDataURL('image/png').length > 5000);
+    var cvh = S.renderCard({ eyebrow: 'I CHING', title: 'Return', body: 'A small turn is enough.', hexBits: '100010' });
+    ok('share: hexagram card renders', cvh.width === 1080 && cvh.toDataURL('image/png').length > 5000);
+
+    /* share actions are wired */
+    A.setMode('iching');
+    A.setRoute('oracle');
+    origGet('oracleQ').value = 'What am I not seeing?';
+    A.drawNow();
+    ok('share: button appears after a draw', origGet('shareBtn').hidden === false);
+
+    /* multiple profiles */
+    window.confirm = function () { return true; };
+    A.state.profiles = [];
+    A.state.active = 0;
+    A.newProfile();
+    eq('profiles: first added', A.state.profiles.length, 1);
+    origGet('fullName').value = 'First Person';
+    origGet('birthDate').value = '1990-01-15';
+    A.saveProfile();
+    A.newProfile();
+    origGet('fullName').value = 'Second Person';
+    origGet('birthDate').value = '1985-06-10';
+    A.saveProfile();
+    eq('profiles: two stored', A.state.profiles.length, 2);
+    eq('profiles: two chips', origGet('profileChips').querySelectorAll('[data-profile]').length, 2);
+    A.useProfile(0);
+    eq('profiles: switching loads the right one', A.state.profile.fullName, 'First Person');
+    eq('profiles: form follows the switch', origGet('fullName').value, 'First Person');
+    A.useProfile(1);
+    eq('profiles: second profile loads', A.state.profile.birthDate, '1985-06-10');
+    A.deleteProfile();
+    eq('profiles: delete removes one', A.state.profiles.length, 1);
+
     /* no homeopathy anywhere in the rendered document */
     var docText = document.body.textContent.toLowerCase();
     ['homeopath', 'remedy', 'potency', 'lycopodium', 'aurum'].forEach(function (t) {
