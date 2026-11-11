@@ -172,6 +172,7 @@ Free, offline, accountless — and staying that way. Nothing here is gated: no a
 | | |
 |---|---|
 | UPI (India) | `drsohilboi@ybl` — payee Dr. Sohil Momin, open amount, or scan the QR above |
+| GitHub Sponsors | [github.com/sponsors/drsamonline](https://github.com/sponsors/drsamonline) |
 | Ko-fi | [ko-fi.com/matneo](https://ko-fi.com/matneo) |
 | PayPal | [paypal.me/drsohilmomin](https://paypal.me/drsohilmomin?locale.x=en_GB&country.x=IN) |
 | My books | [Amazon author store](https://www.amazon.com/stores/author/B08ZT331LY/allbooks) |

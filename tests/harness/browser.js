@@ -389,6 +389,9 @@
     ok('support: config present', !!window.HL_SUPPORT);
     var SU = window.HL_SUPPORT.SUPPORT;
     ok('support: upi id configured', /@/.test(SU.upi), SU.upi);
+    ok('support: github sponsors link', SU.github.indexOf('github.com/sponsors') > -1, SU.github);
+    ok('support: sponsors row rendered',
+      origGet('supportCard').innerHTML.indexOf('github.com/sponsors/drsamonline') > -1);
     ok('support: kofi link', SU.kofi.indexOf('ko-fi.com') > -1);
     ok('support: books link', SU.books.indexOf('amazon.') > -1);
     ok('support: qr image present', origGet('supportCard').querySelector('img') !== null);

@@ -9,7 +9,7 @@
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.7.0';
+  var VERSION = '2.7.1';
   var KEY = 'holistic.profile.v2';
   var KEY_ALL = 'holistic.profiles.v1';
   var KEY_ROUTE = 'holistic.route.v1';

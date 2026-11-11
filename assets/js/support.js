@@ -8,6 +8,8 @@
   var SUPPORT = {
     upi: 'drsohilboi@ybl',
     upiName: 'Dr. Sohil Momin',
+    github: 'https://github.com/sponsors/drsamonline',
+    githubLabel: 'github.com/sponsors/drsamonline',
     kofi: 'https://ko-fi.com/matneo',
     kofiLabel: 'ko-fi.com/matneo',
     paypal: 'https://paypal.me/drsohilmomin?locale.x=en_GB&country.x=IN',

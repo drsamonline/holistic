@@ -1,3 +1,11 @@
+# Holistic 2.7.1
+
+## Added
+
+- **GitHub Sponsors** in the support block, in the app, on the landing page and in the README, alongside UPI, Ko-fi, PayPal and the book store. `FUNDING.yml` already pointed at the same account, so this makes the in-app block match what GitHub shows on the repository.
+
+---
+
 # Holistic 2.7.0
 
 Feature work stops here. The app is complete; this release adds the support block and links to the rest of the shelf.
