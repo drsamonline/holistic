@@ -1,27 +1,24 @@
-# Holistic 2.3.0
+# Holistic 2.4.0
 
-Share a reading as an image, and keep more than one profile.
+Markdown and RTF exports. Still no network.
 
 ### Downloads
 
 | Asset | Size | Notes |
 | --- | --- | --- |
-| `holistic.html` | 152 KB | One self-contained file. Double-click it. Works offline. |
+| `holistic.html` | 163 KB | One self-contained file. Double-click it. Works offline. |
 | `holistic-android.apk` | ~4.3 MB | Capacitor debug build. Unsigned. |
 | `holistic-windows-setup.exe` | ~78 MB | NSIS installer. Unsigned. |
 
 ### What's new
 
-- **Share as image** — any draw or your profile rendered to a 1080×1350 card, drawn on canvas with no library. Native share sheet where available, download otherwise.
-- **Multiple profiles** — add, switch and delete people on one device. Existing single profiles migrate automatically.
+- **Export as Markdown** — the whole reading as a `.md` file.
+- **Export as RTF** — the same, as Rich Text for Word, Pages, LibreOffice or Google Docs.
 
-### Not added
+### Deliberately not added
 
-- A journal. Rejected on purpose.
-
-### Still true
-
-No network requests at runtime. Everything stays on your device. No account, no sync, no analytics.
+- **PDF.** Use your browser's Print → Save as PDF. No library needed.
+- **Cloud sync or backup.** None. Zero network requests, by design.
 
 ### Licence
 

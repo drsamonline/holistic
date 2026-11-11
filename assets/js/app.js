@@ -9,7 +9,7 @@
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.3.0';
+  var VERSION = '2.4.0';
   var KEY = 'holistic.profile.v2';
   var KEY_ALL = 'holistic.profiles.v1';
   var FIELDS = ['fullName', 'birthDate', 'birthTime', 'birthLocation', 'gender',
@@ -529,6 +529,26 @@
     });
   }
 
+  /* ---------- text export ---------- */
+
+  function slug(name) {
+    return String(name || 'reading').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'reading';
+  }
+
+  function exportMd() {
+    var text = root.HL_EXPORT.markdown(state.profile, state.draw, new Date());
+    if (!text) { toast('Complete your profile first.', 'error'); return; }
+    root.HL_EXPORT.download(text, 'holistic-' + slug(state.profile.fullName) + '.md', 'text/markdown;charset=utf-8');
+    toast('Markdown saved.', 'ok');
+  }
+
+  function exportRtf() {
+    var text = root.HL_EXPORT.rtf(state.profile, state.draw, new Date());
+    if (!text) { toast('Complete your profile first.', 'error'); return; }
+    root.HL_EXPORT.download(text, 'holistic-' + slug(state.profile.fullName) + '.rtf', 'application/rtf');
+    toast('RTF saved.', 'ok');
+  }
+
   /* ---------- report ---------- */
 
   function printReport() {
@@ -564,6 +584,8 @@
     clarify: clarify,
     'share-draw': shareDraw,
     'share-report': shareReport,
+    'export-md': exportMd,
+    'export-rtf': exportRtf,
     'draw-daily': drawDaily,
     print: printReport,
     'copy-report': copyReport
@@ -688,6 +710,7 @@
     drawNow: drawNow, drawDaily: drawDaily, setMode: setMode, setLib: setLib,
     clarify: clarify, setSpread: setSpread, shareDraw: shareDraw, shareReport: shareReport,
     newProfile: newProfile, deleteProfile: deleteProfile, useProfile: useProfile,
+    exportMd: exportMd, exportRtf: exportRtf,
     copyReport: copyReport,
     exportBackup: exportBackup,
     handleImport: handleImport

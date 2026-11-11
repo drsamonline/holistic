@@ -29,7 +29,7 @@ html = html
   .replace(/<link rel="apple-touch-icon"[^>]*>\n?/, '');
 
 /* inline every script, in order */
-const scripts = ['data', 'core', 'ui', 'share', 'app'];
+const scripts = ['data', 'core', 'ui', 'share', 'export', 'app'];
 scripts.forEach((name) => {
   const js = read(`assets/js/${name}.js`);
   html = html.replace(

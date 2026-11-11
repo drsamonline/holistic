@@ -1,3 +1,23 @@
+# Holistic 2.4.0
+
+Plain-text exports, and no PDF.
+
+## Added
+
+- **Markdown export.** The full reading — numbers, sky, cycles, focus, and the current draw — as a `.md` file.
+- **RTF export.** The same content as Rich Text, which opens in Word, Pages, LibreOffice and Google Docs. RTF is 7-bit: the writer escapes control characters and maps typographic punctuation to ASCII, so it never arrives mangled.
+
+## Not added
+
+- **PDF export.** Asked for, considered, and dropped by request. A PDF would need a layout library or a headless print pipeline, and the browser's own Print → Save as PDF already does it without adding a byte.
+- **Cloud anything.** No sync, no backup service, no accounts. The app makes zero network requests and will stay that way.
+
+## Testing
+
+- 145 browser assertions (up from 132): Markdown structure, all sections present, the draw included, the disclaimer present, RTF header and brace balance, ASCII-only output, and brace escaping.
+
+---
+
 # Holistic 2.3.0
 
 The version you can show someone.

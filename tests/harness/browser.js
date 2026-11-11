@@ -264,6 +264,35 @@
     A.drawNow();
     ok('share: button appears after a draw', origGet('shareBtn').hidden === false);
 
+    /* text exports */
+    A.state.profile = {
+      fullName: 'Sohil Momin', birthDate: '1990-01-15', birthTime: '06:45',
+      tzOffset: '330', birthLocation: 'Pune', userQuestion: 'Career and health'
+    };
+    A.state.draw = { type: 'I Ching · three coins', title: 'Return', body: 'A small turn is enough.' };
+    var X = window.HL_EXPORT;
+    ok('export: module present', !!X);
+    var mdOut = X.markdown(A.state.profile, A.state.draw, new Date());
+    ok('export: markdown has a title', mdOut.indexOf('# Holistic reading') === 0, mdOut.slice(0, 40));
+    ok('export: markdown names the person', mdOut.indexOf('Sohil Momin') > -1);
+    ok('export: markdown has all sections',
+      ['## Numbers', '## Sky', '## Cycles today'].every(function (h) { return mdOut.indexOf(h) > -1; }));
+    ok('export: markdown includes the draw', mdOut.indexOf('## Draw') > -1);
+    ok('export: markdown ends with the disclaimer', /not a prediction/i.test(mdOut));
+
+    var rtfOut = X.rtf(A.state.profile, A.state.draw, new Date());
+    ok('export: rtf header', rtfOut.indexOf('{\\rtf1') === 0, rtfOut.slice(0, 12));
+    var bal = 0;
+    for (var ci = 0; ci < rtfOut.length; ci++) {
+      if (rtfOut[ci] === '{') bal++;
+      if (rtfOut[ci] === '}') bal--;
+    }
+    eq('export: rtf braces balance', bal, 0);
+    ok('export: rtf is plain ascii', /^[\x00-\x7F]*$/.test(rtfOut), 'non-ascii present');
+    eq('export: rtf escapes braces', X.rtfEscape('a{b}c'), 'a\\{b\\}c');
+
+    ok('export: empty profile yields nothing', X.markdown({}, null, new Date()) === '');
+
     /* multiple profiles */
     window.confirm = function () { return true; };
     A.state.profiles = [];
