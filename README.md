@@ -73,9 +73,9 @@ There is no homeopathy content in this project. An earlier prototype carried a r
 
 ### 1 · Web / PWA
 
-Open **[drsamonline.github.io/holistic](https://drsamonline.github.io/holistic/app/)** and use your browser's **Install** or **Add to Home Screen**. It caches itself and works offline afterwards.
+Open **[drsamonline.github.io/holistic/app](https://drsamonline.github.io/holistic/app/)** and use your browser's **Install** or **Add to Home Screen**. It caches itself and works offline afterwards.
 
-> **First deploy:** Pages has to be switched on once — *Settings → Pages → Build and deployment → Source: **GitHub Actions***. The Deploy workflow then publishes the landing page at `/` and the app at `/app/`. Until the toggle is flipped the workflow runs green and skips the deploy with a notice.
+The landing page is at **[drsamonline.github.io/holistic](https://drsamonline.github.io/holistic/)**. Both are published by the **Deploy site** workflow on every push to `main`.
 
 ### 2 · Single HTML file
 
