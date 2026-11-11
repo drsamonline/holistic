@@ -4,6 +4,8 @@
 
 # Holistic
 
+
+![Screenshot](docs/shot.png)
 **Eight traditions, one quiet app — numerology, astrology, a full I Ching, 78 tarot cards, runes, lunar phase and biorhythm. Offline and private.**
 
 [![Live app](https://img.shields.io/badge/live_app-open-8b5cf6?style=flat-square)](https://drsamonline.github.io/holistic/)
