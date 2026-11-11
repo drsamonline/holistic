@@ -9,8 +9,8 @@
 [![Live app](https://img.shields.io/badge/live_app-open-8b5cf6?style=flat-square)](https://drsamonline.github.io/holistic/)
 [![Release](https://img.shields.io/github/v/release/drsamonline/holistic?style=flat-square&color=14b8a6)](https://github.com/drsamonline/holistic/releases)
 [![Licence](https://img.shields.io/badge/licence-PolyForm_Noncommercial_1.0.0-f59e0b?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-67_passing-4d6b1f?style=flat-square)](#testing)
-[![Size](https://img.shields.io/badge/single_file-169_KB-0ea5e9?style=flat-square)](dist/holistic.html)
+[![Tests](https://img.shields.io/badge/tests-79_passing-4d6b1f?style=flat-square)](#testing)
+[![Size](https://img.shields.io/badge/single_file-184_KB-0ea5e9?style=flat-square)](dist/holistic.html)
 [![Network](https://img.shields.io/badge/network_requests-0-e11d48?style=flat-square)](#privacy)
 
 <img src="screenshots/desktop-today.png" alt="The Today screen" width="880">
@@ -23,7 +23,7 @@
 
 A personal reflection app that runs entirely in your browser. You enter a name and a birth date once; it derives your numerology profile, your sun sign, today's lunar phase, and your biorhythm cycles, then keeps them on one screen you can open every morning.
 
-It is **not** a dashboard of tables. Every number is computed from your input rather than looked up from a hard-coded list, and the whole thing — stylesheet, scripts, icons, logic — fits in a single 169 KB file that works with the Wi-Fi off.
+It is **not** a dashboard of tables. Every number is computed from your input rather than looked up from a hard-coded list, and the whole thing — stylesheet, scripts, icons, logic — fits in a single 184 KB file that works with the Wi-Fi off.
 
 ## What it is not
 
@@ -62,7 +62,9 @@ There is no homeopathy content in this project. An earlier prototype carried a r
 - **Full tarot.** All 78 cards — 22 majors and 56 minors — plus runes, the 24 Elder Futhark with reversed readings.
 - **Spreads.** Single card, three-card past/present/future, five-card relationship — drawn without replacement, with a clarifying card on a single draw.
 - **Library.** Every card, hexagram and rune, searchable, offline. 166 entries.
-- **Moon sign** from your birth time, using a low-precision lunar longitude (±0.3°, which is ample for a 30° sign).
+- **Moon sign and rising sign** from your birth time — the Moon from its ecliptic longitude (±0.3°), the ascendant from local sidereal time and a table of 120 city coordinates.
+- **Personal months** — the year as twelve cells, so you can see which month the year is actually about.
+- **Library filters** — narrow the deck by suit, and export the year's personal days as CSV.
 - **Biorhythm sync** in the Couple screen: how far apart two people's cycles are today.
 - **Oracle.** Tarot, I Ching, runes or a straight answer — seeded from your question, so the same question gives the same draw and rephrasing is part of the exercise.
 - **Daily draw.** One card, hexagram or rune per day, fixed by the date so it cannot be re-rolled.
@@ -129,7 +131,7 @@ assets/js/ui.js             rendering — no event handling
 assets/js/app.js            state, routing, events, storage
 landing/                    marketing page
 scripts/                    build, screenshot and test harnesses
-tests/core.test.mjs         67 logic tests
+tests/core.test.mjs         79 logic tests
 tests/harness/browser.js    87 in-browser assertions
 sw.js · manifest.webmanifest
 ```
@@ -137,8 +139,8 @@ sw.js · manifest.webmanifest
 ### Testing
 
 ```bash
-npm test              # 67 logic tests, Node's built-in runner
-npm run test:browser  # 156 DOM assertions in headless chromium
+npm test              # 79 logic tests, Node's built-in runner
+npm run test:browser  # 169 DOM assertions in headless chromium
 npm run build         # single-file bundle
 ```
 
@@ -148,10 +150,10 @@ The browser harness checks every screen, every action button, every navigation t
 
 Deliberately short — the point is to stay small.
 
-- [ ] Moon-sign and ascendant once birth time and city are used (they are collected but currently unused)
-- [ ] Year-aware forecast, or the tab renamed to match what it does
+- [x] Moon sign and ascendant — both computed now
+- [ ] Hindi and Marathi interface strings
 - [ ] Optional light theme for printing
-- [ ] Import/export of the whole history, not just the profile
+- [ ] More cities in the coordinate table (120 today)
 
 ## Attribution
 

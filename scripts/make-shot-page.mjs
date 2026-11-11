@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var r = (location.hash || '#today').replace('#', '');
   HL_APP.state.profile = {
     fullName: 'Sohil Momin', birthDate: '1990-01-15', birthTime: '06:45',
-    birthLocation: 'Pune', gender: 'male', occupation: 'Doctor',
+    birthLocation: 'Pune', tzOffset: '330', gender: 'male', occupation: 'Doctor',
     userQuestion: 'Career and health'
   };
   HL_APP.renderAll();

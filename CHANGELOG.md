@@ -1,3 +1,29 @@
+# Holistic 2.6.0
+
+The rising sign, and a bug that was quietly inventing one.
+
+## Added
+
+- **Rising sign.** The ascendant from local sidereal time, your birth time, UTC offset and one of 120 cities. Birth city becomes a select rather than free text, because an ascendant needs coordinates.
+- **Personal months.** Twelve cells on the Numbers screen — personal year plus the calendar month, reduced. The current month is highlighted.
+- **Library filters.** Narrow the tarot deck by suit; counts update live.
+- **CSV export.** Every personal day in the year, as a file you can import into a calendar.
+
+## Fixed
+
+- **A missing UTC offset produced a fabricated ascendant.** `parseInt(undefined)` returns `NaN`, and `typeof NaN === 'number'`, so the sanitiser passed it straight through. The result was not an error — it was a plausible-looking sign and degree computed from `NaN`. Every offset now goes through `saneOffset()`, which rejects anything non-finite or out of range and falls back to +05:30. Three tests pin the behaviour, including one that checks a broken offset cannot change the Moon either.
+
+## Corrected
+
+- The README roadmap claimed a forecast tab needed fixing. **There is no forecast tab** — it was dropped in the v2.0.0 rebuild. The line was stale and is gone.
+
+## Testing
+
+- 79 logic tests (up from 67): the ascendant at the equator against three textbook values, sidereal time advancing ~15°/hour, four minutes of birth time moving the ascendant ~1°, city lookup, personal months, and the offset regressions.
+- 169 browser assertions (up from 156): rising sign rendering, honest degradation for an unknown city, twelve personal-month cells, suit filtering with exact counts, and the CSV action.
+
+---
+
 # Holistic 2.5.0
 
 The polish pass: eight small things, no new concepts.

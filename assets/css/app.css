@@ -422,6 +422,20 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   .spread--4, .spread--5, .spread--6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+/* ---------------- personal months ---------------- */
+
+.months { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 860px) { .months { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (max-width: 400px) { .months { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.month-cell {
+  border-radius: 9px; padding: 9px 4px 7px; text-align: center;
+  border: 1px solid var(--line); background: var(--surface-2);
+}
+.month-cell .m { font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-4); }
+.month-cell .v { font-size: 16px; font-weight: 700; letter-spacing: -.03em; margin-top: 3px; }
+.month-cell.now { border-color: rgba(139, 92, 246, .5); background: rgba(139, 92, 246, .16); }
+.month-cell.now .m { color: var(--violet-2); }
+
 /* ---------------- library ---------------- */
 
 .lib-row {

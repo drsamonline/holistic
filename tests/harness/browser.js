@@ -346,6 +346,45 @@
 
     ok('offline badge element exists', origGet('netBadge') !== null);
 
+    /* medium wave: rising sign, personal months, filters, csv */
+    A.state.profile = {
+      fullName: 'Sohil Momin', birthDate: '1990-01-15', birthTime: '06:45',
+      tzOffset: '330', birthLocation: 'Pune', userQuestion: 'Career and health'
+    };
+    A.renderAll();
+    A.setRoute('sky');
+    ok('sky: rising sign resolved', /^[A-Z][a-z]+$/.test(origGet('risingSignName').textContent),
+      origGet('risingSignName').textContent);
+    ok('sky: rising note names the city', origGet('risingSignNote').textContent.indexOf('Pune') > -1,
+      origGet('risingSignNote').textContent);
+
+    A.state.profile.birthLocation = 'Atlantis';
+    A.renderAll();
+    ok('sky: unknown city degrades honestly', /not in the list/.test(origGet('risingSignNote').textContent),
+      origGet('risingSignNote').textContent);
+    A.state.profile.birthLocation = 'Pune';
+    A.renderAll();
+
+    A.setRoute('numbers');
+    eq('numbers: twelve personal months', origGet('personalMonths').querySelectorAll('.month-cell').length, 12);
+    ok('numbers: current month highlighted', origGet('personalMonths').querySelectorAll('.month-cell.now').length === 1);
+    ok('numbers: months show numbers', /\d/.test(origGet('personalMonths').textContent));
+
+    A.setRoute('library');
+    A.setLib('tarot');
+    eq('library: suit filters for tarot', origGet('libFilters').querySelectorAll('[data-suit]').length, 6);
+    origGet('libFilters').querySelector('[data-suit="Cups"]').click();
+    eq('library: cups filter narrows to 14', origGet('libList').querySelectorAll('.lib-row').length, 14);
+    origGet('libFilters').querySelector('[data-suit="Major"]').click();
+    eq('library: major filter narrows to 22', origGet('libList').querySelectorAll('.lib-row').length, 22);
+    origGet('libFilters').querySelector('[data-suit="all"]').click();
+    eq('library: filter reset restores 78', origGet('libList').querySelectorAll('.lib-row').length, 78);
+    A.setLib('runes');
+    eq('library: no suit filters for runes', origGet('libFilters').querySelectorAll('[data-suit]').length, 0);
+
+    /* csv export is wired */
+    ok('csv: action registered', A.actions.indexOf('export-days') > -1);
+
     /* no homeopathy anywhere in the rendered document */
     var docText = document.body.textContent.toLowerCase();
     ['homeopath', 'remedy', 'potency', 'lycopodium', 'aurum'].forEach(function (t) {

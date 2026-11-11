@@ -247,6 +247,16 @@
     setText('soulNumber', sn === null ? '—' : sn);
     setText('soulNumberNote', sn === null ? 'Add your full name' : 'The vowel sum — what you actually want');
 
+    /* personal months for the year */
+    setText('pmYear', d.getFullYear());
+    var cells = D.MONTHS.map(function (name, i) {
+      var pm = C.personalMonth(profile.birthDate, d.getFullYear(), i);
+      return '<div class="month-cell' + (i === d.getMonth() ? ' now' : '') + '">' +
+        '<div class="m">' + esc(name.slice(0, 3)) + '</div>' +
+        '<div class="v">' + (pm === null ? '—' : pm) + '</div></div>';
+    }).join('');
+    setHTML('personalMonths', cells);
+
     var dates = C.luckyDates(profile.birthDate, d.getFullYear(), d.getMonth());
     setText('luckyMonth', D.MONTHS[d.getMonth()] + ' ' + d.getFullYear());
     setHTML('luckyDates', dates.length
@@ -275,16 +285,40 @@
     setText('zodiacElementNote', 'Leans on ' + (D.ELEMENT_NOTE[zi.element] || zi.element) + '.');
 
     /* moon sign — needs a birth time to be meaningful */
-    var ms = C.moonSign(profile.birthDate, profile.birthTime, parseInt(profile.tzOffset, 10));
+    var tzGiven = isFinite(parseInt(profile.tzOffset, 10));
+    var tz = C.saneOffset(profile.tzOffset);
+    var ms = C.moonSign(profile.birthDate, profile.birthTime, tz);
     if (ms) {
       setText('moonSignName', ms.sign);
       setText('moonSignGlyph', D.ZODIAC[ms.sign].symbol);
       setText('moonSignNote', ms.assumedNoon
         ? 'No birth time given, so this assumes noon — the Moon moves about 13° a day, so the sign may be off by one.'
-        : 'The Moon at ' + Math.floor(ms.degree) + '° ' + ms.sign + ', from your birth time. Low-precision model, ±0.3°.');
+        : 'The Moon at ' + Math.floor(ms.degree) + '° ' + ms.sign + ', from your birth time.' +
+          (tzGiven ? '' : ' Assuming +05:30 — set your UTC offset in Profile.') +
+          ' Low-precision model, ±0.3°.');
     } else {
       setText('moonSignName', '—');
       setText('moonSignNote', 'Add a birth date to place the Moon.');
+    }
+
+    /* rising sign — needs time, city and offset */
+    var city = C.findCity(profile.birthLocation);
+    var rise = city
+      ? C.risingSign(profile.birthDate, profile.birthTime, tz, city.lat, city.lon)
+      : null;
+    if (rise) {
+      setText('risingSignName', rise.sign);
+      setText('risingSignGlyph', D.ZODIAC[rise.sign].symbol);
+      setText('risingSignNote', Math.floor(rise.degree) + '° ' + rise.sign +
+        ', for ' + city.name + '.' +
+        (tzGiven ? '' : ' Assuming +05:30 — set your UTC offset in Profile.') +
+        ' Four minutes of birth time moves it about a degree.');
+    } else {
+      setText('risingSignName', '—');
+      setText('risingSignGlyph', '·');
+      setText('risingSignNote', profile.birthLocation
+        ? 'That city is not in the list, so the ascendant cannot be placed.'
+        : 'Needs a birth time, a city and a UTC offset.');
     }
 
     var d = now || new Date();
@@ -407,9 +441,24 @@
 
   /* ---------- screen: library ---------- */
 
+  var SUIT_FILTER = 'all';
+
+  function renderLibraryFilters(kind) {
+    var host = $('libFilters');
+    if (!host) return;
+    if (kind !== 'tarot') { host.innerHTML = ''; return; }
+    var suits = [['all', 'All'], ['Major', 'Major'], ['Wands', 'Wands'], ['Cups', 'Cups'],
+                 ['Swords', 'Swords'], ['Coins', 'Coins']];
+    host.innerHTML = suits.map(function (pair) {
+      return '<button class="chip' + (SUIT_FILTER === pair[0] ? ' chip--violet' : '') +
+        '" data-suit="' + pair[0] + '">' + pair[1] + '</button>';
+    }).join('');
+  }
+
   function renderLibrary(kind, query) {
     var host = $('libList');
     if (!host) return;
+    renderLibraryFilters(kind);
     var q = String(query || '').trim().toLowerCase();
     var rows = [];
 
@@ -433,6 +482,7 @@
       });
     } else {
       rows = C.fullDeck().filter(function (c) {
+        if (SUIT_FILTER !== 'all' && c.suit !== SUIT_FILTER) return false;
         return !q || (c.name + ' ' + c.suit + ' ' + c.reading).toLowerCase().indexOf(q) > -1;
       }).map(function (c) {
         return '<div class="lib-row"><span class="suit-dot" data-suit="' + esc(c.suit) + '"></span>' +
@@ -552,7 +602,8 @@
     moonDiscSVG: moonDiscSVG, setGauge: setGauge, drawChart: drawChart,
     renderToday: renderToday, renderNumbers: renderNumbers, renderSky: renderSky,
     renderCouple: renderCouple, renderOracle: renderOracle, renderReport: renderReport,
-    renderLibrary: renderLibrary, hexGlyph: hexGlyph,
+    renderLibrary: renderLibrary, hexGlyph: hexGlyph, renderLibraryFilters: renderLibraryFilters,
+    setSuitFilter: function (s) { SUIT_FILTER = s; },
     reportText: reportText, fmtDate: fmtDate
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

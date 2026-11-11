@@ -205,12 +205,24 @@
           </div>
         </div>
 
+        <div class="card" style="margin-bottom:14px">
+          <div class="row row--between wrap" style="margin-bottom:14px">
+            <h2 style="margin:0">Personal months</h2>
+            <span class="sub" id="pmYear">—</span>
+          </div>
+          <div class="months" id="personalMonths"></div>
+          <p class="sub" style="margin-top:12px">Personal year plus the calendar month, reduced. The month your year is actually about.</p>
+        </div>
+
         <div class="card">
           <div class="row row--between wrap" style="margin-bottom:12px">
             <h2 style="margin:0">Personal days this month</h2>
             <span class="sub" id="luckyMonth">—</span>
           </div>
           <div class="row wrap" style="gap:8px" id="luckyDates"></div>
+          <div class="btn-row" style="margin-top:14px">
+            <button class="btn btn--ghost btn--sm" data-action="export-days">Export the year as CSV</button>
+          </div>
           <p class="sub" style="margin-top:14px">Dates whose digit sum lands on your power digit. Use them for the things you keep postponing, not for decisions you have not thought through.</p>
         </div>
       </div>
@@ -254,6 +266,15 @@
               <span class="chip" id="moonSignGlyph" style="font-size:15px">—</span>
             </div>
             <p class="sub" id="moonSignNote" style="font-size:12.5px">Add a birth time to place the Moon.</p>
+
+            <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line-2)">
+              <div class="tile-label">Rising sign</div>
+              <div class="row wrap" style="gap:8px;margin:8px 0 6px">
+                <span class="tile-value" id="risingSignName" style="font-size:22px">—</span>
+                <span class="chip" id="risingSignGlyph" style="font-size:15px">—</span>
+              </div>
+              <p class="sub" id="risingSignNote" style="font-size:12.5px">Needs a birth time, a city and a UTC offset.</p>
+            </div>
           </div>
         </div>
 
@@ -405,6 +426,7 @@
           <input type="text" id="libSearch" placeholder="Search the library…" style="flex:1;min-width:190px" aria-label="Search the library">
           <span class="sub" id="libCount"></span>
         </div>
+        <div class="row wrap" style="gap:6px;margin-top:12px" id="libFilters"></div>
       </div>
 
       <div id="libList" class="lib-list-wrap"></div>
@@ -475,7 +497,9 @@
           </div>
           <div class="field">
             <label for="birthLocation">Birth city</label>
-            <input type="text" id="birthLocation" placeholder="City" maxlength="60">
+            <select id="birthLocation">
+              <option value="">Not specified</option>
+            </select>
           </div>
         </div>
         <div class="grid g-2" style="margin-top:14px">

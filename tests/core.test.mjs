@@ -584,3 +584,106 @@ test('the breakdown result always equals powerNumber', () => {
 test('the breakdown rejects an invalid date', () => {
   assert.equal(C.powerBreakdown('nope'), null);
 });
+
+/* ---------------- ascendant ---------------- */
+
+test('the ascendant is correct at the equator', () => {
+  /* at latitude 0 with LST 0h the MC is 0 Aries and the Ascendant is 90 Cancer;
+     three hours later it is 180 Libra; six hours later 270 Capricorn */
+  assert.ok(Math.abs(C.ascendantLongitude(0, 0) - 90) < 0.01);
+  assert.ok(Math.abs(C.ascendantLongitude(90, 0) - 180) < 0.01);
+  assert.ok(Math.abs(C.ascendantLongitude(180, 0) - 270) < 0.01);
+});
+
+test('the ascendant always lands in 0..360', () => {
+  for (let lst = 0; lst < 360; lst += 7) {
+    for (const lat of [-60, -23, 0, 19, 51]) {
+      const a = C.ascendantLongitude(lst, lat);
+      assert.ok(a >= 0 && a < 360, `lst ${lst} lat ${lat} -> ${a}`);
+    }
+  }
+});
+
+test('sidereal time advances by about 15 degrees an hour', () => {
+  const jd = C.julianDay(2026, 10, 11, 0);
+  const a = C.gmst(jd);
+  const b = C.gmst(jd + 1 / 24);
+  const delta = ((b - a) + 360) % 360;
+  assert.ok(delta > 14.9 && delta < 15.1, `advanced ${delta.toFixed(3)} deg`);
+});
+
+test('risingSign needs a time, a date and coordinates', () => {
+  assert.equal(C.risingSign('1990-01-15', '', 330, 18.5, 73.8), null, 'no time');
+  assert.equal(C.risingSign('nope', '06:45', 330, 18.5, 73.8), null, 'bad date');
+  assert.equal(C.risingSign('1990-01-15', '06:45', 330, null, null), null, 'no coords');
+  const r = C.risingSign('1990-01-15', '06:45', 330, 18.52, 73.86);
+  assert.ok(C.SIGNS.includes(r.sign));
+  assert.ok(r.degree >= 0 && r.degree < 30);
+});
+
+test('four minutes of birth time moves the ascendant about a degree', () => {
+  const a = C.risingSign('1990-01-15', '06:45', 330, 18.52, 73.86);
+  const b = C.risingSign('1990-01-15', '06:49', 330, 18.52, 73.86);
+  let delta = Math.abs(b.longitude - a.longitude);
+  if (delta > 180) delta = 360 - delta;
+  assert.ok(delta > 0.5 && delta < 1.6, `moved ${delta.toFixed(2)} deg`);
+});
+
+test('city lookup finds exact and prefix matches', () => {
+  assert.equal(C.findCity('Pune').lat, 18.520);
+  assert.equal(C.findCity('pune').name, 'Pune');
+  assert.equal(C.findCity('Mum').name, 'Mumbai');
+  assert.equal(C.findCity('zzzz'), null);
+  assert.equal(C.findCity(''), null);
+});
+
+test('every city has usable coordinates', () => {
+  D.CITIES.forEach((c) => {
+    assert.ok(c.name && c.name.length > 1, 'unnamed city');
+    assert.ok(c.lat >= -90 && c.lat <= 90, `${c.name} bad lat`);
+    assert.ok(c.lon >= -180 && c.lon <= 180, `${c.name} bad lon`);
+  });
+});
+
+/* ---------------- personal month ---------------- */
+
+test('personal month follows personal year', () => {
+  const py = C.personalYear('1990-01-15', 2026);
+  const jan = C.personalMonth('1990-01-15', 2026, 0);
+  assert.equal(jan, C.reducePower(py + 1));
+  assert.ok(jan >= 1 && jan <= 22);
+});
+
+test('personal months run a full year without gaps', () => {
+  const months = [];
+  for (let m = 0; m < 12; m++) months.push(C.personalMonth('1990-01-15', 2026, m));
+  assert.equal(months.length, 12);
+  months.forEach((v) => assert.ok(v >= 1 && v <= 22));
+  assert.equal(C.personalMonth('nope', 2026, 0), null);
+});
+
+/* ---------------- offset handling ---------------- */
+
+test('a missing or broken UTC offset falls back to IST, never to NaN', () => {
+  const base = C.risingSign('1990-01-15', '06:45', 330, 18.52, 73.86);
+  [NaN, undefined, null, '', 'abc', Infinity, 99999].forEach((bad) => {
+    const r = C.risingSign('1990-01-15', '06:45', bad, 18.52, 73.86);
+    assert.ok(r, 'should still return a reading');
+    assert.equal(r.longitude.toFixed(6), base.longitude.toFixed(6), 'offset ' + String(bad));
+  });
+});
+
+test('saneOffset accepts valid values and rejects the rest', () => {
+  assert.equal(C.saneOffset(330), 330);
+  assert.equal(C.saneOffset(-480), -480);
+  assert.equal(C.saneOffset('330'), 330);
+  assert.equal(C.saneOffset(NaN), 330);
+  assert.equal(C.saneOffset(undefined), 330);
+  assert.equal(C.saneOffset(99999), 330);
+});
+
+test('a broken offset cannot change the moon sign either', () => {
+  const base = C.moonSign('1990-01-15', '06:45', 330);
+  const bad = C.moonSign('1990-01-15', '06:45', NaN);
+  assert.equal(bad.longitude.toFixed(6), base.longitude.toFixed(6));
+});

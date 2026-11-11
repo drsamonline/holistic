@@ -9,7 +9,7 @@
   var D = root.HL_DATA;
   var U = root.HL_UI;
 
-  var VERSION = '2.5.0';
+  var VERSION = '2.6.0';
   var KEY = 'holistic.profile.v2';
   var KEY_ALL = 'holistic.profiles.v1';
   var KEY_ROUTE = 'holistic.route.v1';
@@ -189,6 +189,17 @@
 
   /* ---------- profile form ---------- */
 
+  function populateCities() {
+    var sel = U.$('birthLocation');
+    if (!sel) return;
+    var current = sel.value;
+    var opts = D.CITIES.map(function (c) {
+      return '<option value="' + U.esc(c.name) + '">' + U.esc(c.name) + '</option>';
+    }).join('');
+    sel.innerHTML = '<option value="">Not specified</option>' + opts;
+    if (current) sel.value = current;
+  }
+
   function fillForm(p) {
     FIELDS.forEach(function (f) {
       var el = U.$(f);
@@ -198,6 +209,16 @@
     U.setText('footVersion', 'v' + VERSION);
     U.setText('storageState', storageAvailable() ? 'Local, this browser' : 'Blocked — session only');
     U.setText('offlineState', ('serviceWorker' in navigator) ? 'Enabled' : 'Single-file mode');
+
+    /* keep an unknown city visible rather than silently dropping it */
+    var sel = U.$('birthLocation');
+    if (sel && p && p.birthLocation && !D.CITIES.some(function (c) { return c.name === p.birthLocation; })) {
+      var opt = document.createElement('option');
+      opt.value = p.birthLocation;
+      opt.textContent = p.birthLocation + ' (not in list)';
+      sel.appendChild(opt);
+      sel.value = p.birthLocation;
+    }
   }
 
   function collectForm() {
@@ -567,6 +588,31 @@
     toast('RTF saved.', 'ok');
   }
 
+  function exportDays() {
+    var p = state.profile;
+    if (!p || C.powerNumber(p.birthDate) === null) {
+      toast('Complete your profile first.', 'error');
+      return;
+    }
+    var year = new Date().getFullYear();
+    var rows = [['date', 'weekday', 'month', 'day', 'personal_day']];
+    for (var m = 0; m < 12; m++) {
+      C.luckyDates(p.birthDate, year, m).forEach(function (day) {
+        var d = new Date(Date.UTC(year, m, day));
+        rows.push([
+          C.toISO( Date.UTC(year, m, day) ),
+          D.WEEKDAYS[d.getUTCDay()],
+          D.MONTHS[m],
+          String(day),
+          String(C.reduceSingle(C.powerNumber(p.birthDate)))
+        ]);
+      });
+    }
+    var csv = rows.map(function (r) { return r.join(','); }).join('\n');
+    root.HL_EXPORT.download(csv, 'holistic-personal-days-' + year + '.csv', 'text/csv;charset=utf-8');
+    toast('CSV saved.', 'ok');
+  }
+
   /* ---------- report ---------- */
 
   function printReport() {
@@ -607,6 +653,7 @@
     'export-draw-md': exportDrawMd,
     'export-draw-rtf': exportDrawRtf,
     'print-a5': printA5,
+    'export-days': exportDays,
     'draw-daily': drawDaily,
     print: printReport,
     'copy-report': copyReport
@@ -645,6 +692,14 @@
     if (sp) {
       e.preventDefault();
       setSpread(parseInt(sp.dataset.spread, 10) || 1);
+      return;
+    }
+
+    var suit = e.target.closest('[data-suit]');
+    if (suit) {
+      e.preventDefault();
+      U.setSuitFilter(suit.dataset.suit);
+      U.renderLibrary(state.lib, U.$('libSearch') ? U.$('libSearch').value : '');
       return;
     }
 
@@ -728,6 +783,7 @@
     state.profiles = all.items;
     state.active = all.active;
     state.profile = state.profiles[state.active] || null;
+    populateCities();
     if (state.profile) fillForm(state.profile);
 
     var initial = (window.location.hash || '').replace('#', '');
@@ -768,7 +824,7 @@
     clarify: clarify, setSpread: setSpread, shareDraw: shareDraw, shareReport: shareReport,
     newProfile: newProfile, deleteProfile: deleteProfile, useProfile: useProfile,
     exportMd: exportMd, exportRtf: exportRtf,
-    exportDrawMd: exportDrawMd, exportDrawRtf: exportDrawRtf, printA5: printA5,
+    exportDrawMd: exportDrawMd, exportDrawRtf: exportDrawRtf, printA5: printA5, exportDays: exportDays,
     copyReport: copyReport,
     exportBackup: exportBackup,
     handleImport: handleImport

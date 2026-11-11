@@ -259,7 +259,7 @@
     var hh = time ? +time[1] : 12;
     var mm = time ? +time[2] : 0;
     if (hh > 23 || mm > 59) { hh = 12; mm = 0; }
-    var offset = typeof tzOffsetMinutes === 'number' ? tzOffsetMinutes : 330;
+    var offset = saneOffset(tzOffsetMinutes);
     var utcHours = hh + mm / 60 - offset / 60;
     var jd = julianDay(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate(), utcHours);
     var lon = moonLongitude(jd);
@@ -271,6 +271,85 @@
       usedTime: time !== null,
       assumedNoon: !time
     };
+  }
+
+
+  /* NaN is typeof 'number'. Anything unusable falls back to IST. */
+  function saneOffset(v) {
+    var n = typeof v === 'number' ? v : parseFloat(v);
+    if (!isFinite(n) || Math.abs(n) > 840) return 330;
+    return n;
+  }
+
+  /* ---------- ascendant ---------- */
+
+  /* Greenwich mean sidereal time, degrees. */
+  function gmst(jd) {
+    var T = (jd - 2451545.0) / 36525;
+    var g = 280.46061837 + 360.98564736629 * (jd - 2451545.0) +
+            0.000387933 * T * T - (T * T * T) / 38710000;
+    return norm360(g);
+  }
+
+  /* Mean obliquity of the ecliptic, degrees. */
+  function obliquity(jd) {
+    var T = (jd - 2451545.0) / 36525;
+    return 23.4392911 - 0.0130042 * T - 0.00000016 * T * T;
+  }
+
+  /* Ascendant longitude from local sidereal time and geographic latitude. */
+  function ascendantLongitude(lst, lat) {
+    var rad = Math.PI / 180;
+    var eps = 23.4392911 * rad;
+    var ramc = norm360(lst) * rad;
+    var phi = lat * rad;
+    var y = Math.cos(ramc);
+    var x = -(Math.sin(ramc) * Math.cos(eps) + Math.tan(phi) * Math.sin(eps));
+    return norm360(Math.atan2(y, x) / rad);
+  }
+
+  /* Rising sign. Needs date, local time, UTC offset and coordinates. */
+  function risingSign(dob, birthTime, tzOffsetMinutes, lat, lon) {
+    if (typeof lat !== 'number' || typeof lon !== 'number') return null;
+    var ms = parseDate(dob);
+    if (ms === null) return null;
+    var d = new Date(ms);
+    var time = /^(\d{1,2}):(\d{2})/.exec(String(birthTime || '').trim());
+    if (!time) return null;
+    var hh = +time[1], mm = +time[2];
+    if (hh > 23 || mm > 59) return null;
+    var offset = saneOffset(tzOffsetMinutes);
+    var utcHours = hh + mm / 60 - offset / 60;
+    var jd = julianDay(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate(), utcHours);
+    var lst = gmst(jd) + lon;
+    var asc = ascendantLongitude(lst, lat);
+    return {
+      sign: signFromLongitude(asc),
+      longitude: asc,
+      degree: asc % 30,
+      lst: norm360(lst)
+    };
+  }
+
+  function findCity(name) {
+    var list = root.HL_DATA.CITIES;
+    var q = String(name || '').trim().toLowerCase();
+    if (!q) return null;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].name.toLowerCase() === q) return list[i];
+    }
+    for (var j = 0; j < list.length; j++) {
+      if (list[j].name.toLowerCase().indexOf(q) === 0) return list[j];
+    }
+    return null;
+  }
+
+  /* ---------- personal month ---------- */
+
+  function personalMonth(dob, year, monthIndex) {
+    var py = personalYear(dob, year);
+    if (py === null) return null;
+    return reducePower(py + (monthIndex + 1));
   }
 
   /* ---------- biorhythm ---------- */
@@ -486,6 +565,8 @@
     zodiac: zodiac,
     julianDay: julianDay, sunLongitude: sunLongitude, moonLongitude: moonLongitude,
     signFromLongitude: signFromLongitude, moonSign: moonSign, SIGNS: SIGNS,
+    gmst: gmst, obliquity: obliquity, ascendantLongitude: ascendantLongitude, saneOffset: saneOffset,
+    risingSign: risingSign, findCity: findCity, personalMonth: personalMonth,
     phasePosition: phasePosition, moonPhase: moonPhase, daysToPhase: daysToPhase, nextPhaseDate: nextPhaseDate,
     biorhythm: biorhythm, biorhythmSeries: biorhythmSeries, biorhythmLabel: biorhythmLabel,
     coupleScore: coupleScore, coupleVerdict: coupleVerdict, biorhythmSync: biorhythmSync,
