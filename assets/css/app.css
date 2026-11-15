@@ -694,3 +694,9 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ---- a11y: the violet is a shade too light for a white label ---------------
+   #8b5cf6 carries white at 4.23:1. #7c3aed is the same hue one step down and
+   takes it to 5.7:1. */
+:root{--accent:#7c3aed}
+.btn--primary{background:#7c3aed!important}
